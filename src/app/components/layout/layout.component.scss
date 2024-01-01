@@ -1,0 +1,59 @@
+.grid-container {
+    display: grid;
+
+    grid-template-areas:
+        'header header header'
+        'toolbar toolbar toolbar'
+        'tools tabs layers'
+        'tools main layers'
+        'tools footer layers';
+    grid-template-rows: 32px 48px 32px auto 32px;
+    grid-template-columns: 48px auto 240px;
+    //padding: 10px;
+    //gap: 5px;
+    background-color: #2196F3;
+    width: 100vw;
+    height: 100vh;
+    justify-content: stretch;
+}
+
+.grid-container>div {
+    text-align: center;
+    //background-color: rgba(255, 255, 255, 0.8);
+}
+
+.header {
+    grid-area: header;
+    background-color: var(--background-header);
+}
+
+.toolbar {
+    grid-area: toolbar;
+    background-color: var(--background-tools);
+}
+
+.tools {
+    grid-area: tools;
+    background-color: var(--background-tools);
+}
+
+.tabs {
+    grid-area: tabs;
+    background-color: var(--background-header);
+}
+
+.layers {
+    grid-area: layers;
+    background-color: var(--background-tools);
+
+}
+
+.main {
+    grid-area: main;
+    background-color: var(--background);
+}
+
+.footer {
+    grid-area: footer;
+    background-color: var(--background-header);
+}
