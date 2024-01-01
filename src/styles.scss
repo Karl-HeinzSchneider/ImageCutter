@@ -1,1 +1,33 @@
 /* You can add global styles to this file, and also import other style files */
+
+:root {
+    --bg: #171719;
+    --bg2: #292c31;
+    --bg3: #24262b;
+    --text: rgba(255, 255, 255, 0.9);
+
+    --color-one: #3A2528;
+    --btn-primary: #758F4A;
+    --btn-warning: #E16036;
+}
+
+// html,
+// body {
+//     height: 100%;
+
+// }
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    margin: 0;
+    //overflow-x: hidden;
+    //overflow-y: hidden;
+}
+
+.app-container {
+    width: 100%;
+    height: 100%;
+
+    margin: 0;
+}
