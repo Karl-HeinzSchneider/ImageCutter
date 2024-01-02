@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { createStore, select, setProp, withProps } from '@ngneat/elf';
 import { addEntities, selectActiveEntity, selectManyByPredicate, withActiveId, withEntities } from '@ngneat/elf-entities';
 import { v4 as uuid } from 'uuid';
+import { readFileList } from './cutter.store.helper';
 
 
 export interface AppProps {
@@ -79,4 +80,13 @@ export class AppRepository {
             setProp('showDropzone', val)
         )
     }
+    // -----------------
+    // File stuff
+    public async openFileList(list: FileList) {
+        //console.log(list)
+
+        const files = await readFileList(list)
+        console.log(files)
+    }
+
 }
