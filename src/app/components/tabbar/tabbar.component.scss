@@ -1,0 +1,68 @@
+.container {
+    width: 100%;
+    display: flex;
+    flex-wrap: nowrap;
+    border: 1px solid rgba(0, 0, 0, .5);
+}
+
+.tabs {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.tabs-drop {
+    width: 64px;
+    text-align: center;
+    line-height: 32px;
+}
+
+app-tabs {
+    min-width: 64px;
+    max-width: 250px;
+
+    flex: 1;
+
+    border-right: 1px solid rgba(0, 0, 0, .5);
+}
+
+.adder {
+    width: 64px;
+    border-right: 1px solid rgba(0, 0, 0, .5);
+    text-align: center;
+    cursor: pointer;
+}
+
+.adder>svg {
+    height: 24px;
+    width: auto;
+    margin-top: 4px;
+}
+
+.adder>svg>g>path {
+    fill: rgba(255, 255, 255, 0.5);
+}
+
+.adder:hover {
+    svg>g>path {
+        fill: rgba(255, 255, 255, 0.9);
+    }
+}
+
+.selected {
+    svg>g>path {
+        fill: rgba(255, 255, 255, 0.9);
+    }
+
+    cursor: default;
+    background-color: var(--background-tools);
+}
+
+
+/* 
+@media screen and (max-width: 920px) {
+    app-tabs {
+        //width: 50px;
+    }
+} */

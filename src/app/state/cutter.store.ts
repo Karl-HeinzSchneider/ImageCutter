@@ -80,6 +80,11 @@ export class AppRepository {
             setProp('showDropzone', val)
         )
     }
+
+    public setActiveImage(id: string) {
+        this.store.update(setActiveId(id))
+    }
+
     // -----------------
     // File stuff
     public async openFileList(list: FileList) {

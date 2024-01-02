@@ -6,11 +6,12 @@ import { AppRepository, ImageProps } from '../../state/cutter.store';
 import { Observable } from 'rxjs';
 import { MainComponent } from '../main/main.component';
 import { DropImageComponent } from '../drop-image/drop-image.component';
+import { TabbarComponent } from '../tabbar/tabbar.component';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, LayersComponent, MainComponent, DropImageComponent],
+  imports: [CommonModule, HeaderComponent, LayersComponent, MainComponent, DropImageComponent, TabbarComponent],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss'
 })

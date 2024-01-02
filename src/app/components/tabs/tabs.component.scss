@@ -1,0 +1,20 @@
+.tab {
+    line-height: 32px;
+    padding: 0 28px 0 10px;
+
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tab:hover {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.selected {
+    color: rgba(255, 255, 255, 0.9);
+    cursor: default;
+    background-color: var(--background-tools);
+}
