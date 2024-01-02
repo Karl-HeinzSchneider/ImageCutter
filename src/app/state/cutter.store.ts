@@ -111,7 +111,7 @@ export class AppRepository {
 
         //const active = this.store.query(getActiveEntity());
 
-        this.store.update(setActiveId(updates[0]))
+        this.store.update(setActiveId(updates[0].id))
     }
 
 }
