@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { createStore, select, setProp, withProps } from '@ngneat/elf';
-import { addEntities, selectActiveEntity, selectManyByPredicate, withActiveId, withEntities } from '@ngneat/elf-entities';
+import { addEntities, getActiveEntity, selectActiveEntity, selectManyByPredicate, setActiveId, withActiveId, withEntities } from '@ngneat/elf-entities';
 import { v4 as uuid } from 'uuid';
 import { readFileList } from './cutter.store.helper';
 
@@ -72,7 +72,7 @@ export class AppRepository {
     constructor() {
         console.log('AppRepo constructor')
 
-        this.store.update(addEntities([testImage, testImageTwo]))
+        //this.store.update(addEntities([testImage, testImageTwo]))
     }
 
     public updateShowDropzone(val: boolean) {
@@ -86,7 +86,32 @@ export class AppRepository {
         //console.log(list)
 
         const files = await readFileList(list)
+
+        if (files.length < 1) {
+            return;
+        }
+
         console.log(files)
+
+        const updates: ImageProps[] = files.map(f => {
+            let newProp: ImageProps = {
+                id: uuid(),
+                meta: {
+                    name: f.name,
+                    date: new Date(),
+                    active: true
+                },
+                file: f
+            }
+
+            return newProp
+        })
+
+        this.store.update(addEntities(updates))
+
+        //const active = this.store.query(getActiveEntity());
+
+        this.store.update(setActiveId(updates[0]))
     }
 
 }
