@@ -1,0 +1,9 @@
+<div class="container">
+    <ng-container *ngIf="(active$ | async ) as active; else newImage">
+        active!
+    </ng-container>
+</div>
+
+<ng-template #newImage>
+    <app-new-image></app-new-image>
+</ng-template>

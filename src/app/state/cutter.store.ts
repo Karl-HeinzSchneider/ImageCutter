@@ -1,22 +1,33 @@
 import { Injectable } from '@angular/core';
-import { createStore, withProps } from '@ngneat/elf';
+import { createStore, select, setProp, withProps } from '@ngneat/elf';
 import { addEntities, selectActiveEntity, selectManyByPredicate, withActiveId, withEntities } from '@ngneat/elf-entities';
 import { v4 as uuid } from 'uuid';
 
 
 export interface AppProps {
-    bestNumber: number
+    bestNumber: number,
+    showDropzone: boolean
 }
 
 export interface ImageProps {
     id: string,
     meta: ImageMeta
+    file?: ImageFile
 }
 
 export interface ImageMeta {
     name: string,
     active: boolean,
     date: Date
+}
+
+export interface ImageFile {
+    lastModified: number,
+    lastModifiedDate: Date,
+    name: string,
+    size: number,
+    type: string,
+    dataURL: string
 }
 
 const testImage: ImageProps = {
@@ -44,10 +55,12 @@ export class AppRepository {
         { name: 'AppStore' },
         withEntities<ImageProps>(),
         withActiveId(),
-        withProps<AppProps>({ bestNumber: 42 }),
+        withProps<AppProps>({ bestNumber: 42, showDropzone: false }),
     );
 
     app$ = this.store.pipe((state) => state)
+
+    showDropzone$ = this.store.pipe(select((state) => state.showDropzone))
 
     active$ = this.store.pipe(selectActiveEntity())
 
@@ -59,5 +72,11 @@ export class AppRepository {
         console.log('AppRepo constructor')
 
         this.store.update(addEntities([testImage, testImageTwo]))
+    }
+
+    public updateShowDropzone(val: boolean) {
+        this.store.update(
+            setProp('showDropzone', val)
+        )
     }
 }
