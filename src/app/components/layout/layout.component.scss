@@ -51,6 +51,7 @@
 .main {
     grid-area: main;
     background-color: var(--background);
+    overflow: auto;
 }
 
 .footer {
