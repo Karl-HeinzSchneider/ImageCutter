@@ -20,11 +20,11 @@ export class CanvasNavigationComponent {
 
 
   onSliderChange(e: Event, id: string) {
-    console.log(e)
+    //console.log(e)
     const tar = e.target as HTMLInputElement
 
     const value = Number(tar.value)
-    console.log(tar.value)
+    //console.log(tar.value)
     this.store.updateZoom(id, value)
   }
 

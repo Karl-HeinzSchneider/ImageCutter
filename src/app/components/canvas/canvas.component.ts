@@ -28,7 +28,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    console.log('ngOnChanges')
+    console.log('ngOnChanges ss')
 
     if (this.imageBitmap) {
       await this.createBitmap()
@@ -58,8 +58,21 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
 
     const canvas: HTMLCanvasElement = this.canvasRef.nativeElement;
 
-    canvas.width = width
-    canvas.height = height
+    let scale = this.image.meta.zoom
+    //scale = 1
+
+    // https://github.com/jhildenbiddle/canvas-size#test-results
+    // canvas might crash when too big
+    const MAX_CANVAS_SIZE = 11000;
+
+    const maxSide = Math.max(width, height)
+
+    if (maxSide * scale > MAX_CANVAS_SIZE) {
+      scale = MAX_CANVAS_SIZE / maxSide
+    }
+
+    canvas.width = width * scale
+    canvas.height = height * scale
 
     const ctx = canvas.getContext('2d')
 
@@ -67,8 +80,10 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
       console.log('NO CONTEXT')
       return;
     }
-    ctx.reset()
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    //ctx.reset()
 
+    ctx.scale(scale, scale)
     ctx.imageSmoothingEnabled = false
     ctx.drawImage(this.imageBitmap, 0, 0)
 

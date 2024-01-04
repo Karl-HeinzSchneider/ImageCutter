@@ -1,3 +1,8 @@
 .padding {
     padding: 24px
 }
+
+canvas {
+    //zoom: 500%;
+    image-rendering: pixelated;
+}
