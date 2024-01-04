@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { createStore, select, setProp, withProps } from '@ngneat/elf';
-import { addEntities, getActiveEntity, selectActiveEntity, selectManyByPredicate, setActiveId, withActiveId, withEntities } from '@ngneat/elf-entities';
+import { addEntities, getActiveEntity, getEntity, selectActiveEntity, selectManyByPredicate, setActiveId, updateEntities, withActiveId, withEntities } from '@ngneat/elf-entities';
 import { v4 as uuid } from 'uuid';
 import { readFileList } from './cutter.store.helper';
 import { localStorageStrategy, persistState } from '@ngneat/elf-persist-state';
@@ -20,7 +20,8 @@ export interface ImageProps {
 export interface ImageMeta {
     name: string,
     active: boolean,
-    date: Date
+    date: Date,
+    zoom: number
 }
 
 export interface ImageFile {
@@ -37,7 +38,8 @@ const testImage: ImageProps = {
     meta: {
         name: 'testImage',
         active: true,
-        date: new Date()
+        date: new Date(),
+        zoom: 1
     }
 }
 
@@ -46,7 +48,9 @@ const testImageTwo: ImageProps = {
     meta: {
         name: 'testImageTwo',
         active: false,
-        date: new Date()
+        date: new Date(),
+        zoom: 1
+
     }
 }
 
@@ -84,6 +88,17 @@ export class AppRepository {
         )
     }
 
+    public updateZoom(id: string, val: number) {
+        const img = this.store.query(getEntity(id));
+
+        if (img) {
+            let newImg: ImageProps = { ...img }
+            newImg.meta.zoom = val
+
+            this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
+        }
+    }
+
     public setActiveImage(id: string) {
         this.store.update(setActiveId(id))
     }
@@ -107,7 +122,8 @@ export class AppRepository {
                 meta: {
                     name: f.name,
                     date: new Date(),
-                    active: true
+                    active: true,
+                    zoom: 1
                 },
                 file: f
             }

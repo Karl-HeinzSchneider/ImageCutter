@@ -1,0 +1,10 @@
+<ng-container *ngIf="(active$ | async) as active">
+    <div class="container">
+
+        <div class="slidercontainer">
+            <input type="range" min="0.1" max="5" [value]="active.meta.zoom" step="0.1" class="slider"
+                (input)="onSliderChange($event, active.id)">
+            <div>{{active.meta.zoom | percent}}</div>
+        </div>
+    </div>
+</ng-container>
