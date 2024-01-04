@@ -73,7 +73,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
     ctx.drawImage(this.imageBitmap, 0, 0)
 
 
-
+    ctx.fillRect(10, 10, 100, 100)
 
   }
 
