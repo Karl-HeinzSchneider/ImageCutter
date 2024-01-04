@@ -3,6 +3,7 @@ import { createStore, select, setProp, withProps } from '@ngneat/elf';
 import { addEntities, getActiveEntity, selectActiveEntity, selectManyByPredicate, setActiveId, withActiveId, withEntities } from '@ngneat/elf-entities';
 import { v4 as uuid } from 'uuid';
 import { readFileList } from './cutter.store.helper';
+import { localStorageStrategy, persistState } from '@ngneat/elf-persist-state';
 
 
 export interface AppProps {
@@ -58,6 +59,8 @@ export class AppRepository {
         withActiveId(),
         withProps<AppProps>({ bestNumber: 42, showDropzone: false }),
     );
+
+    private persist = persistState(this.store, { key: 'Cutter', storage: localStorageStrategy })
 
     app$ = this.store.pipe((state) => state)
 
