@@ -48,7 +48,6 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
       this.initStage()
       this.resizeStage()
       this.drawStageBG()
-      this.centerStageBG()
     }
 
     else {
