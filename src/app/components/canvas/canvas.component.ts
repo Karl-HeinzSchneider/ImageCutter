@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AppRepository, ImageFile, ImageProps } from '../../state/cutter.store';
+import { AppRepository, ImageFile, ImageMeta, ImageProps } from '../../state/cutter.store';
 import Konva from 'konva';
 import { Stage } from 'konva/lib/Stage';
 import { Layer } from 'konva/lib/Layer';
@@ -55,6 +55,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
     this.drawStageBG()
     this.updateScale()
     this.updateScroll()
+    this.updateBGScroll()
   }
 
   private initStage() {
@@ -117,7 +118,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
         layerBG.add(node)
       })
 
-      this.centerStageBG()
+      //this.centerStageBG()
     }
     else {
       //console.log('drawStageBG - same image')
@@ -209,5 +210,50 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
       ///console.log('same')
     }
 
+  }
+
+  private updateBGScroll() {
+    const scroll: HTMLDivElement = this.scrollRef.nativeElement
+
+    if (!scroll) {
+      return;
+    }
+
+    const left = scroll.scrollLeft
+    const top = scroll.scrollTop
+
+    console.log('bgscroll', left, top)
+
+    const imageFile: ImageFile = this.image.file!;
+    const imageMeta: ImageMeta = this.image.meta!;
+    const center = this.getStageCenter()
+
+    this.layerBG.offsetX(imageFile.width / 2)
+    this.layerBG.offsetY(imageFile.height / 2)
+    this.layerBG.position(center)
+
+
+    // X 
+    let dx = center.x;
+
+    if (scroll.scrollWidth === scroll.clientWidth) {
+      // no scroll => dont change      
+    }
+    else {
+      dx = center.x + (0.5 - imageMeta.scrollX) * (imageFile.width / 2)
+    }
+
+    this.layerBG.x(dx)
+
+    // Y
+    let dy = center.y;
+
+    if (scroll.scrollHeight === scroll.clientHeight) {
+      // no scroll => dont change   
+    }
+    else {
+      dy = center.y + (0.5 - imageMeta.scrollY) * (imageFile.height / 2)
+    }
+    this.layerBG.y(dy)
   }
 }
