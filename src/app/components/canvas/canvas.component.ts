@@ -54,6 +54,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
 
     this.drawStageBG()
     this.updateScale()
+    this.updateScroll()
   }
 
   private initStage() {
@@ -163,9 +164,14 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
     if (this.scrollRef) {
       const scroll: HTMLDivElement = this.scrollRef.nativeElement
       //scrollElement.scrollLeft =  (scrollElement.scrollWidth - scrollElement.clientWidth ) / 2;   
-      console.log((scroll.scrollWidth - scroll.clientWidth) * this.image.meta.scrollX)
-      scroll.scrollLeft = (scroll.scrollWidth - scroll.clientWidth) * this.image.meta.scrollX
-      scroll.scrollTop = (scroll.scrollHeight - scroll.clientHeight) * this.image.meta.scrollY
+
+      const scrollLeft = (scroll.scrollWidth - scroll.clientWidth) * this.image.meta.scrollX
+      scroll.scrollLeft = Math.floor(scrollLeft)
+
+      const scrollTop = (scroll.scrollHeight - scroll.clientHeight) * this.image.meta.scrollY
+      scroll.scrollTop = Math.floor(scrollTop)
+
+      //console.log('shouldScroll', scrollLeft, scrollTop)
     }
   }
 
@@ -173,6 +179,8 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
     //console.log(event)
 
     const scroll: HTMLDivElement = this.scrollRef.nativeElement
+
+    //console.log('onScroll', scroll.scrollLeft, scroll.scrollTop)
 
     let scrollX = 0
     if (scroll.scrollWidth === scroll.clientWidth) {
@@ -195,7 +203,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
     //console.log('newScroll', scrollX, scrollY)
 
     if (this.image.meta.scrollX != scrollX || this.image.meta.scrollY != scrollY) {
-      //this.store.updateScroll(this.image.id, scrollX, scrollY)
+      this.store.updateScroll(this.image.id, scrollX, scrollY)
     }
     else {
       ///console.log('same')
