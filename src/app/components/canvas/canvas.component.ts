@@ -1,6 +1,10 @@
 import { AfterViewInit, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ImageProps } from '../../state/cutter.store';
+import Konva from 'konva';
+import { Stage } from 'konva/lib/Stage';
+import { Layer } from 'konva/lib/Layer';
+
 
 @Component({
   selector: 'app-canvas',
@@ -18,25 +22,25 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
   private id: string = '-42';
   private imageBitmap!: ImageBitmap;
 
+  private stage!: Stage;
+  private layerBG!: Layer;
+  private layerCuts!: Layer;
+
   constructor() {
   }
 
   async ngAfterViewInit(): Promise<void> {
     console.log('ngAfterViewInit')
-    await this.createBitmap()
-    await this.redraw()
+
+    this.setupStage()
+    //this.scaleStage()
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     console.log('ngOnChanges ss')
 
-    if (this.imageBitmap) {
-      await this.createBitmap()
-      await this.redraw()
-    }
-    else {
-      console.log('no image bitmap')
-    }
+    this.setupStage()
+    // this.scaleStage()
   }
 
   private async createBitmap() {
@@ -91,5 +95,46 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
     ctx.fillRect(10, 10, 100, 100)
 
   }
+
+  private setupStage() {
+    if (!this.stage || (this.id != this.image.id)) {
+      console.log('SetupStage')
+      this.id = this.image.id
+
+      this.stage = new Konva.Stage({
+        height: this.image.file?.height,
+        width: this.image.file?.width,
+        container: 'konva'
+      })
+
+      const layerBG = new Konva.Layer({
+        imageSmoothingEnabled: false
+      })
+      this.layerBG = layerBG
+      this.stage.add(this.layerBG)
+
+      this.layerCuts = new Konva.Layer()
+      this.stage.add(this.layerCuts)
+
+      Konva.Image.fromURL(this.image.file?.dataURL!, function (node) {
+        node.setAttrs({
+          x: 0,
+          y: 0,
+          scaleX: 1,
+          scaleY: 1,
+        })
+        layerBG.add(node)
+      })
+    }
+    else {
+      console.log('skip SetupStage')
+    }
+  }
+
+  private scaleStage() {
+    //this.stage.scale({ x: 0.5, y: 1.25 })
+    this.stage.scale({ x: this.image.meta.zoom, y: this.image.meta.zoom })
+  }
+
 
 }
