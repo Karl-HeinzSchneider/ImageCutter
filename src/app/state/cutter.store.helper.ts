@@ -19,11 +19,19 @@ export async function readFileList(files: FileList) {
             name: file.name,
             size: file.size,
             type: file.type,
+            width: 0,
+            height: 0,
             dataURL: ''
         }
 
         const dataURL = await readFileAsDataUrl(file);
         im.dataURL = dataURL
+
+        const blob = await fetch(dataURL).then((response) => response.blob())
+        const imageBitmap = await createImageBitmap(blob)
+
+        im.width = imageBitmap.width
+        im.height = imageBitmap.height
 
         //console.log(file)
         //console.log(im)

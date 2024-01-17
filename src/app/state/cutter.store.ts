@@ -30,6 +30,8 @@ export interface ImageFile {
     name: string,
     size: number,
     type: string,
+    width: number,
+    height: number
     dataURL: string
 }
 

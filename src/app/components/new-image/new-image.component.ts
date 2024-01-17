@@ -22,28 +22,7 @@ export class NewImageComponent {
     if (event.dataTransfer?.files) {
       const files: FileList = event.dataTransfer.files;
 
-      for (let i = 0; i < files.length; i++) {
-        const file: File = files[i]
-
-        if (!file.type.startsWith('image/')) {
-          continue;
-        }
-
-        let im: ImageFile = {
-          lastModified: file.lastModified,
-          lastModifiedDate: new Date(file.lastModified),
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          dataURL: ''
-        }
-
-        const dataURL = await this.readFileAsDataUr(file);
-        im.dataURL = dataURL
-
-        //console.log(file)
-        console.log(im)
-      }
+      this.store.openFileList(files)
     }
   }
 
