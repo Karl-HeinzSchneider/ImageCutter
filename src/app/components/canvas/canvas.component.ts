@@ -18,7 +18,8 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
 
   @Input() image!: ImageProps;
 
-  @ViewChild('maincanvas', { static: false }) canvasRef!: ElementRef;
+  @ViewChild('scroll-container', { static: false }) scrollRef!: ElementRef;
+  @ViewChild('large-container', { static: false }) largeRef!: ElementRef;
 
   private id: string = '-42';
   private imageBitmap!: ImageBitmap;
@@ -38,75 +39,22 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
   }
 
   async ngAfterViewInit(): Promise<void> {
-    console.log('ngAfterViewInit')
+    //console.log('ngAfterViewInit')
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    console.log('ngOnChanges')
+    //console.log('ngOnChanges')
 
     if (!this.stage) {
       this.initStage()
       this.resizeStage()
-      this.drawStageBG()
     }
-
     else {
-      this.drawStageBG()
-      //this.centerStageBG()
-    }
-  }
 
-  private async createBitmap() {
-    if (!this.imageBitmap || (this.id != this.image.id)) {
-      console.log('createBitmap')
-      this.id = this.image.id
-
-      const blob = await fetch(this.image.file?.dataURL!).then((response) => response.blob())
-      const imageBitmap = await createImageBitmap(blob)
-
-      this.imageBitmap = imageBitmap;
-    }
-  }
-
-  private async redraw() {
-    const width = this.imageBitmap.width;
-    const height = this.imageBitmap.height
-    //console.log(width, height)
-
-    const canvas: HTMLCanvasElement = this.canvasRef.nativeElement;
-
-    let scale = this.image.meta.zoom
-    //scale = 1
-
-    // https://github.com/jhildenbiddle/canvas-size#test-results
-    // canvas might crash when too big
-    const MAX_CANVAS_SIZE = 11000;
-
-    const maxSide = Math.max(width, height)
-
-    if (maxSide * scale > MAX_CANVAS_SIZE) {
-      scale = MAX_CANVAS_SIZE / maxSide
     }
 
-    canvas.width = width * scale
-    canvas.height = height * scale
-
-    const ctx = canvas.getContext('2d')
-
-    if (!ctx) {
-      console.log('NO CONTEXT')
-      return;
-    }
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    //ctx.reset()
-
-    ctx.scale(scale, scale)
-    ctx.imageSmoothingEnabled = false
-    ctx.drawImage(this.imageBitmap, 0, 0)
-
-
-    ctx.fillRect(10, 10, 100, 100)
-
+    this.drawStageBG()
+    this.updateScale()
   }
 
   private initStage() {
@@ -146,7 +94,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
 
   private drawStageBG() {
     if (this.id != this.image.id) {
-      console.log('drawStageBG - new image')
+      //console.log('drawStageBG - new image')
       this.id = this.image.id
 
       const layerBG = this.layerBG
@@ -172,7 +120,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
       this.centerStageBG()
     }
     else {
-      console.log('drawStageBG - same image')
+      //console.log('drawStageBG - same image')
     }
   }
 
@@ -192,51 +140,11 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
     return { x: x, y: y } as Vector2d
   }
 
+  private updateScale() {
+    const scale = this.image.meta.zoom
 
-
-  private setupStage() {
-    if (!this.stage || (this.id != this.image.id)) {
-      console.log('SetupStage')
-      this.id = this.image.id
-
-      this.stage = new Konva.Stage({
-        height: this.image.file?.height,
-        width: this.image.file?.width,
-        container: 'konva'
-      })
-
-      this.stage.width(this.stage.width() / 2)
-
-      const layerBG = new Konva.Layer({
-        imageSmoothingEnabled: false
-      })
-      this.layerBG = layerBG
-      this.stage.add(this.layerBG)
-
-      this.layerCuts = new Konva.Layer()
-      this.stage.add(this.layerCuts)
-
-      Konva.Image.fromURL(this.image.file?.dataURL!, function (node) {
-        node.setAttrs({
-          x: 0,
-          y: 0,
-          scaleX: 1,
-          scaleY: 1,
-        })
-        layerBG.add(node)
-      })
-    }
-    else {
-      //console.log('skip SetupStage')
-    }
+    this.layerBG.scaleX(scale)
+    this.layerBG.scaleY(scale)
   }
-
-  private scaleStage() {
-    //this.stage.scale({ x: 0.5, y: 1.25 })
-    //this.stage.scale({ x: this.image.meta.zoom, y: this.image.meta.zoom })
-    const dx = this.image.meta.zoom / 10
-    this.stage.width(this.image.file?.width! * dx)
-  }
-
 
 }
