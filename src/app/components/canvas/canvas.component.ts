@@ -157,14 +157,16 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
       large.style.width = `${width}px`
       large.style.height = `${height}px`
     }
+  }
 
+  private updateScroll() {
     if (this.scrollRef) {
       const scroll: HTMLDivElement = this.scrollRef.nativeElement
       //scrollElement.scrollLeft =  (scrollElement.scrollWidth - scrollElement.clientWidth ) / 2;   
+      console.log((scroll.scrollWidth - scroll.clientWidth) * this.image.meta.scrollX)
       scroll.scrollLeft = (scroll.scrollWidth - scroll.clientWidth) * this.image.meta.scrollX
       scroll.scrollTop = (scroll.scrollHeight - scroll.clientHeight) * this.image.meta.scrollY
     }
-
   }
 
   public onScroll(event: Event) {
@@ -193,7 +195,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
     //console.log('newScroll', scrollX, scrollY)
 
     if (this.image.meta.scrollX != scrollX || this.image.meta.scrollY != scrollY) {
-      this.store.updateScroll(this.image.id, scrollX, scrollY)
+      //this.store.updateScroll(this.image.id, scrollX, scrollY)
     }
     else {
       ///console.log('same')
