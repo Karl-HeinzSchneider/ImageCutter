@@ -1,11 +1,10 @@
-<div class="container grid">
-    <ng-container *ngIf="(active$ | async ) as active; else newImage">
-        <app-canvas class="place" [image]="active"></app-canvas>
-    </ng-container>
-</div>
+<ng-container *ngIf="(active$ | async ) as active; else newImage">
+    <app-canvas [image]="active"></app-canvas>
+</ng-container>
+
 
 <ng-template #newImage>
-    <div class="grid">
+    <div class="container grid">
         <app-new-image class="place"></app-new-image>
     </div>
 </ng-template>
