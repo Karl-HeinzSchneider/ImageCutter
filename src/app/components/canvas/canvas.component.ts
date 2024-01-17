@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ImageProps } from '../../state/cutter.store';
 import Konva from 'konva';
@@ -26,21 +26,27 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
   private layerBG!: Layer;
   private layerCuts!: Layer;
 
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event) {
+    //console.log('OnResize')
+    this.resizeStage()
+  }
+
   constructor() {
   }
 
   async ngAfterViewInit(): Promise<void> {
-    console.log('ngAfterViewInit')
+    //console.log('ngAfterViewInit')
 
-    this.setupStage()
-    //this.scaleStage()
+    this.initStage()
+    this.resizeStage()
+
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    console.log('ngOnChanges ss')
+    //console.log('ngOnChanges ss')
 
-    this.setupStage()
-    // this.scaleStage()
+
   }
 
   private async createBitmap() {
@@ -96,6 +102,43 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
 
   }
 
+  private initStage() {
+    console.log('initStage')
+
+    this.stage = new Konva.Stage({
+      height: 300,
+      width: 300,
+      container: 'konva'
+    })
+
+    const layerBG = new Konva.Layer({
+      imageSmoothingEnabled: false
+    })
+    this.layerBG = layerBG
+    this.stage.add(this.layerBG)
+
+    this.layerCuts = new Konva.Layer()
+    this.stage.add(this.layerCuts)
+  }
+
+  private resizeStage() {
+    const wHeight = window.innerHeight
+    const wWidth = window.innerWidth
+    //console.log(wWidth, wHeight)
+
+
+    const padding = 24
+
+    const rHeight = wHeight - 32 - 48 - 32 - 32 - 2 * padding
+    const rWidth = wWidth - 48 - 240 - 2 * padding
+    //console.log(rWidth, rHeight)
+
+    this.stage.height(rHeight)
+    this.stage.width(rWidth)
+  }
+
+
+
   private setupStage() {
     if (!this.stage || (this.id != this.image.id)) {
       console.log('SetupStage')
@@ -106,6 +149,8 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
         width: this.image.file?.width,
         container: 'konva'
       })
+
+      this.stage.width(this.stage.width() / 2)
 
       const layerBG = new Konva.Layer({
         imageSmoothingEnabled: false
@@ -127,13 +172,15 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
       })
     }
     else {
-      console.log('skip SetupStage')
+      //console.log('skip SetupStage')
     }
   }
 
   private scaleStage() {
     //this.stage.scale({ x: 0.5, y: 1.25 })
-    this.stage.scale({ x: this.image.meta.zoom, y: this.image.meta.zoom })
+    //this.stage.scale({ x: this.image.meta.zoom, y: this.image.meta.zoom })
+    const dx = this.image.meta.zoom / 10
+    this.stage.width(this.image.file?.width! * dx)
   }
 
 

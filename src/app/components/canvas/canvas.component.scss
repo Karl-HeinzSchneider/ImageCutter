@@ -8,5 +8,8 @@ canvas {
 }
 
 .konva {
-    padding: 24px
+    //padding: 24px
+    position: absolute;
+    top: calc(32px + 48px + 32px + 24px);
+    left: calc(48px + 24px);
 }
