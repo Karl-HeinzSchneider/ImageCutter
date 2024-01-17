@@ -21,7 +21,9 @@ export interface ImageMeta {
     name: string,
     active: boolean,
     date: Date,
-    zoom: number
+    zoom: number,
+    scrollX: number,
+    scrollY: number
 }
 
 export interface ImageFile {
@@ -41,7 +43,9 @@ const testImage: ImageProps = {
         name: 'testImage',
         active: true,
         date: new Date(),
-        zoom: 1
+        zoom: 1,
+        scrollX: 0.5,
+        scrollY: 0.5
     }
 }
 
@@ -51,8 +55,9 @@ const testImageTwo: ImageProps = {
         name: 'testImageTwo',
         active: false,
         date: new Date(),
-        zoom: 1
-
+        zoom: 1,
+        scrollX: 0.5,
+        scrollY: 0.5
     }
 }
 
@@ -101,6 +106,18 @@ export class AppRepository {
         }
     }
 
+    public updateScroll(id: string, scrollX: number, scrollY: number) {
+        const img = this.store.query(getEntity(id));
+
+        if (img) {
+            let newImg: ImageProps = { ...img }
+            newImg.meta.scrollX = scrollX
+            newImg.meta.scrollY = scrollY
+
+            this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
+        }
+    }
+
     public setActiveImage(id: string) {
         this.store.update(setActiveId(id))
     }
@@ -125,7 +142,9 @@ export class AppRepository {
                     name: f.name,
                     date: new Date(),
                     active: true,
-                    zoom: 1
+                    zoom: 1,
+                    scrollX: 0.5,
+                    scrollY: 0.5
                 },
                 file: f
             }

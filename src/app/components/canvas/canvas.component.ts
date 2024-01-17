@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ImageFile, ImageProps } from '../../state/cutter.store';
+import { AppRepository, ImageFile, ImageProps } from '../../state/cutter.store';
 import Konva from 'konva';
 import { Stage } from 'konva/lib/Stage';
 import { Layer } from 'konva/lib/Layer';
@@ -18,11 +18,10 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
 
   @Input() image!: ImageProps;
 
-  @ViewChild('scroll-container', { static: false }) scrollRef!: ElementRef;
-  @ViewChild('large-container', { static: false }) largeRef!: ElementRef;
+  @ViewChild('scroll', { static: false }) scrollRef!: ElementRef;
+  @ViewChild('large', { static: false }) largeRef!: ElementRef;
 
   private id: string = '-42';
-  private imageBitmap!: ImageBitmap;
 
   private stage!: Stage;
   private layerBG!: Layer;
@@ -35,7 +34,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
     this.centerStageBG()
   }
 
-  constructor() {
+  constructor(private store: AppRepository) {
   }
 
   async ngAfterViewInit(): Promise<void> {
@@ -43,7 +42,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    //console.log('ngOnChanges')
+    // console.log('ngOnChanges', changes)
 
     if (!this.stage) {
       this.initStage()
@@ -145,6 +144,60 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
 
     this.layerBG.scaleX(scale)
     this.layerBG.scaleY(scale)
+
+    const padding = 24
+
+    const image: ImageFile = this.image.file!;
+
+    const width = image.width * scale + 2 * padding
+    const height = image.height * scale + 2 * padding
+
+    if (this.largeRef) {
+      const large: HTMLDivElement = this.largeRef.nativeElement;
+      large.style.width = `${width}px`
+      large.style.height = `${height}px`
+    }
+
+    if (this.scrollRef) {
+      const scroll: HTMLDivElement = this.scrollRef.nativeElement
+      //scrollElement.scrollLeft =  (scrollElement.scrollWidth - scrollElement.clientWidth ) / 2;   
+      scroll.scrollLeft = (scroll.scrollWidth - scroll.clientWidth) * this.image.meta.scrollX
+      scroll.scrollTop = (scroll.scrollHeight - scroll.clientHeight) * this.image.meta.scrollY
+    }
+
   }
 
+  public onScroll(event: Event) {
+    //console.log(event)
+
+    const scroll: HTMLDivElement = this.scrollRef.nativeElement
+
+    let scrollX = 0
+    if (scroll.scrollWidth === scroll.clientWidth) {
+      // no scroll => dont change
+      scrollX = this.image.meta.scrollX
+    }
+    else {
+      scrollX = scroll.scrollLeft / (scroll.scrollWidth - scroll.clientWidth)
+    }
+
+    let scrollY = 0
+    if (scroll.scrollHeight === scroll.clientHeight) {
+      // no scroll => dont change
+      scrollY = this.image.meta.scrollY
+    }
+    else {
+      scrollY = scroll.scrollTop / (scroll.scrollHeight - scroll.clientHeight)
+    }
+
+    //console.log('newScroll', scrollX, scrollY)
+
+    if (this.image.meta.scrollX != scrollX || this.image.meta.scrollY != scrollY) {
+      this.store.updateScroll(this.image.id, scrollX, scrollY)
+    }
+    else {
+      ///console.log('same')
+    }
+
+  }
 }
