@@ -1,9 +1,10 @@
 import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ImageProps } from '../../state/cutter.store';
+import { ImageFile, ImageProps } from '../../state/cutter.store';
 import Konva from 'konva';
 import { Stage } from 'konva/lib/Stage';
 import { Layer } from 'konva/lib/Layer';
+import { Vector2d } from 'konva/lib/types';
 
 
 @Component({
@@ -30,23 +31,30 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
   onResize(event: Event) {
     //console.log('OnResize')
     this.resizeStage()
+    this.centerStageBG()
   }
 
   constructor() {
   }
 
   async ngAfterViewInit(): Promise<void> {
-    //console.log('ngAfterViewInit')
-
-    this.initStage()
-    this.resizeStage()
-
+    console.log('ngAfterViewInit')
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    //console.log('ngOnChanges ss')
+    console.log('ngOnChanges')
 
+    if (!this.stage) {
+      this.initStage()
+      this.resizeStage()
+      this.drawStageBG()
+      this.centerStageBG()
+    }
 
+    else {
+      this.drawStageBG()
+      //this.centerStageBG()
+    }
   }
 
   private async createBitmap() {
@@ -135,6 +143,54 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
 
     this.stage.height(rHeight)
     this.stage.width(rWidth)
+  }
+
+  private drawStageBG() {
+    if (this.id != this.image.id) {
+      console.log('drawStageBG - new image')
+      this.id = this.image.id
+
+      const layerBG = this.layerBG
+      const bg = this.layerBG.findOne('#bg')
+      if (bg) {
+        layerBG.destroyChildren()
+      }
+
+      const image: ImageFile = this.image.file!;
+
+      Konva.Image.fromURL(image.dataURL, function (node) {
+        node.setAttrs({
+          x: 0,
+          y: 0,
+          scaleX: 1,
+          scaleY: 1,
+          id: 'bg'
+        })
+
+        layerBG.add(node)
+      })
+
+      this.centerStageBG()
+    }
+    else {
+      console.log('drawStageBG - same image')
+    }
+  }
+
+  private centerStageBG() {
+    const image: ImageFile = this.image.file!;
+    const center = this.getStageCenter()
+
+    this.layerBG.offsetX(image.width / 2)
+    this.layerBG.offsetY(image.height / 2)
+    this.layerBG.position(center)
+  }
+
+  private getStageCenter() {
+    const x = this.stage.width() / 2
+    const y = this.stage.height() / 2
+
+    return { x: x, y: y } as Vector2d
   }
 
 
