@@ -5,6 +5,7 @@ import Konva from 'konva';
 import { Stage } from 'konva/lib/Stage';
 import { Layer } from 'konva/lib/Layer';
 import { Vector2d } from 'konva/lib/types';
+import { Box } from 'konva/lib/shapes/Transformer';
 
 
 @Component({
@@ -70,6 +71,8 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
     this.updateScale()
     this.updateScroll()
     this.updateBGPosition()
+
+    this.updateCutsLayer()
   }
 
   private initStage() {
@@ -139,12 +142,9 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
         //node.on('pointermove', componentRef.pointerFunctionTest)
 
         node.on('pointerdown', function () {
-          //console.log(this)
           const pointerPos = stageRef.getPointerPosition()
-          const offset = stageRef.offset()
           console.log('point', pointerPos?.x, pointerPos?.y)
-          console.log('real', pointerPos?.x! + offset.x + dx, pointerPos?.y! + offset.y + dy)
-
+          console.log('real', componentRef.canvasToRealCoords(pointerPos!))
         })
 
         layerBG.add(node)
@@ -160,6 +160,26 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
     const y = this.stage.height() / 2
 
     return { x: x, y: y } as Vector2d
+  }
+
+  public canvasToRealCoords(canvasVector: Vector2d): Vector2d {
+    const stageX = this.stage.x()
+    const stageY = this.stage.y()
+
+    const center = this.getStageCenter()
+
+    const imageFile: ImageFile = this.image.file!;
+    const imageMeta: ImageMeta = this.image.meta!;
+
+    const scale = this.stage.scale()
+
+    let realX = 0
+    let realY = 0
+
+    realX = canvasVector.x - center.x
+    realY = canvasVector.y - center.y
+
+    return { x: realX, y: realY }
   }
 
   private updateScale() {
@@ -272,5 +292,95 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
       dy = center.y + (0.5 - imageMeta.scrollY) * (scroll.scrollHeight - scroll.clientHeight)
     }
     this.stage.y(dy)
+  }
+
+
+  private updateCutsLayer() {
+
+    const layerCuts = this.layerCuts
+    const cut1 = this.layerCuts.findOne('#cut1')
+    if (cut1) {
+      layerCuts.destroyChildren()
+    }
+
+    const rect = new Konva.Rect({ x: -10, y: -10, width: 10, height: 10, stroke: 'blue', strokeWidth: 5, strokeScaleEnabled: false, id: 'cut1' })
+    layerCuts.add(rect)
+
+
+    const updateText = function () {
+      const lines = [
+        'x: ' + rect.x(),
+        'y: ' + rect.y(),
+        'rotation: ' + rect.rotation(),
+        'width: ' + rect.width(),
+        'height: ' + rect.height(),
+        'scaleX: ' + rect.scaleX(),
+        'scaleY: ' + rect.scaleY(),
+      ];
+      text.text(lines.join('\n'));
+    }
+
+    const text = new Konva.Text({ x: -70, y: -50 })
+    layerCuts.add(text)
+    updateText()
+
+    const imageFile: ImageFile = this.image.file!;
+
+
+    const tr = new Konva.Transformer({
+      ignoreStroke: true,
+      rotateEnabled: false,
+      flipEnabled: false
+    })
+    layerCuts.add(tr)
+    tr.nodes([rect])
+
+    rect.on('dragmove', function () {
+      updateText()
+    })
+
+    rect.on('transform', function () {
+      console.log('transform', tr.getActiveAnchor())
+
+      //return;
+
+      const snapX = imageFile.width % 2 == 0 ? 0 : 0.5
+      const snapY = imageFile.height % 2 == 0 ? 0 : 0.5
+
+
+      const closestX = Math.round(this.x())
+      const closestY = Math.round(this.y())
+
+      this.x(closestX)
+      this.y(closestY)
+
+      // this.width(Math.max(2, Math.round(this.width() * this.scaleX())))
+      // this.height(Math.max(2, Math.round(this.height() * this.scaleY())))
+
+      //this.scaleX(1)
+      // this.scaleY(1)
+
+
+      updateText()
+    })
+
+    rect.on('transformstart', function () {
+      console.log('transformstart', rect.attrs)
+      updateText()
+    })
+
+    rect.on('transformend', function () {
+      console.log('transformend', rect.attrs)
+      updateText()
+    })
+
+
+    const boundBoxFunc = tr.boundBoxFunc()
+    tr.boundBoxFunc(function (oldBox: Box, newBox: Box) {
+      //console.log(newBox)
+      return newBox
+    })
+
+
   }
 }
