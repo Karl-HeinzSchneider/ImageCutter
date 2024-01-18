@@ -31,7 +31,9 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
   onResize(event: Event) {
     //console.log('OnResize')
     this.resizeStage()
-    this.centerStageBG()
+    this.updateScale()
+    this.updateScroll()
+    this.updateBGPosition()
   }
 
   constructor(private store: AppRepository) {
@@ -55,7 +57,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
     this.drawStageBG()
     this.updateScale()
     this.updateScroll()
-    this.updateBGScroll()
+    this.updateBGPosition()
   }
 
   private initStage() {
@@ -105,20 +107,36 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
       }
 
       const image: ImageFile = this.image.file!;
+      const componentRef = this;
+      const stageRef = this.stage;
 
       Konva.Image.fromURL(image.dataURL, function (node) {
+        const dx = image.width / 2;
+        const dy = image.height / 2
         node.setAttrs({
           x: 0,
           y: 0,
           scaleX: 1,
           scaleY: 1,
+          offsetX: dx,
+          offsetY: dy,
           id: 'bg'
+        })
+
+        //node.on('pointerdown', componentRef.pointerFunctionTest)
+        // node.on('pointermove', componentRef.pointerFunctionTest)
+
+        node.on('pointerdown', function () {
+          //console.log(this)
+          const pointerPos = stageRef.getPointerPosition()
+          const offset = stageRef.offset()
+          console.log('point', pointerPos?.x, pointerPos?.y)
+          console.log('real', pointerPos?.x! + offset.x + dx, pointerPos?.y! + offset.y + dy)
+
         })
 
         layerBG.add(node)
       })
-
-      //this.centerStageBG()
     }
     else {
       //console.log('drawStageBG - same image')
@@ -142,11 +160,11 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
   }
 
   private updateScale() {
+    if (!this.largeRef) {
+      return;
+    }
+
     const scale = this.image.meta.zoom
-
-    this.layerBG.scaleX(scale)
-    this.layerBG.scaleY(scale)
-
     const padding = 24
 
     const image: ImageFile = this.image.file!;
@@ -154,11 +172,16 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
     const width = image.width * scale + 2 * padding
     const height = image.height * scale + 2 * padding
 
-    if (this.largeRef) {
-      const large: HTMLDivElement = this.largeRef.nativeElement;
-      large.style.width = `${width}px`
-      large.style.height = `${height}px`
-    }
+
+    const large: HTMLDivElement = this.largeRef.nativeElement;
+    large.style.width = `${width}px`
+    large.style.height = `${height}px`
+  }
+
+  private updateBGScale() {
+    const scale = this.image.meta.zoom
+    // this.layerBG.scaleX(scale)
+    //this.layerBG.scaleY(scale)
   }
 
   private updateScroll() {
@@ -219,6 +242,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
       return;
     }
 
+
     const left = scroll.scrollLeft
     const top = scroll.scrollTop
 
@@ -234,26 +258,79 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
 
 
     // X 
-    let dx = center.x;
+    let dx = 0;
 
     if (scroll.scrollWidth === scroll.clientWidth) {
       // no scroll => dont change      
     }
     else {
-      dx = center.x + (0.5 - imageMeta.scrollX) * (imageFile.width / 2)
+      dx = (0.5 - imageMeta.scrollX) * (imageFile.width / 2) * imageMeta.zoom
     }
 
-    this.layerBG.x(dx)
+    //this.stage.x(dx)
 
     // Y
-    let dy = center.y;
+    let dy = 0;
 
     if (scroll.scrollHeight === scroll.clientHeight) {
       // no scroll => dont change   
     }
     else {
-      dy = center.y + (0.5 - imageMeta.scrollY) * (imageFile.height / 2)
+      dy = (0.5 - imageMeta.scrollY) * (imageFile.height / 2) * imageMeta.zoom
     }
-    this.layerBG.y(dy)
+    //this.stage.y(dy)
+  }
+
+  private updateBGPosition() {
+    if (!this.scrollRef) {
+      return;
+    }
+
+    const scroll: HTMLDivElement = this.scrollRef.nativeElement
+
+
+    const left = scroll.scrollLeft
+    const top = scroll.scrollTop
+
+    const center = this.getStageCenter()
+
+
+    // scale
+    const scale = this.image.meta.zoom
+    this.stage.scale({ x: scale, y: scale })
+
+
+    const imageFile: ImageFile = this.image.file!;
+    const imageMeta: ImageMeta = this.image.meta!;
+
+    // X 
+    let dx = center.x;
+
+    if (scroll.scrollWidth === scroll.clientWidth) {
+      // no scroll => dont change   
+
+    }
+    else {
+      //dx = center.x + (0.5 - imageMeta.scrollX) * (imageFile.width / 2)
+      dx = center.x + (0.5 - imageMeta.scrollX) * (scroll.scrollWidth - scroll.clientWidth)
+    }
+    this.stage.x(dx)
+
+
+    // Y
+    let dy = center.y;
+
+    if (scroll.scrollHeight === scroll.clientHeight) {
+      // no scroll => dont change         
+    }
+    else {
+      dy = center.y + (0.5 - imageMeta.scrollY) * (scroll.scrollHeight - scroll.clientHeight)
+    }
+    this.stage.y(dy)
+
+
+    //this.stage.scale({ x: 2, y: 2 })
+    //this.stage.offsetX(-250)
+    //this.stage.offsetY(-50)
   }
 }
