@@ -41,6 +41,18 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
 
   async ngAfterViewInit(): Promise<void> {
     //console.log('ngAfterViewInit')
+    if (!this.stage) {
+      this.initStage()
+      this.resizeStage()
+    }
+    else {
+
+    }
+
+    this.drawStageBG()
+    this.updateScale()
+    this.updateScroll()
+    this.updateBGPosition()
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
@@ -124,7 +136,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
         })
 
         //node.on('pointerdown', componentRef.pointerFunctionTest)
-        // node.on('pointermove', componentRef.pointerFunctionTest)
+        //node.on('pointermove', componentRef.pointerFunctionTest)
 
         node.on('pointerdown', function () {
           //console.log(this)
@@ -141,15 +153,6 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
     else {
       //console.log('drawStageBG - same image')
     }
-  }
-
-  private centerStageBG() {
-    const image: ImageFile = this.image.file!;
-    const center = this.getStageCenter()
-
-    this.layerBG.offsetX(image.width / 2)
-    this.layerBG.offsetY(image.height / 2)
-    this.layerBG.position(center)
   }
 
   private getStageCenter() {
@@ -176,12 +179,6 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
     const large: HTMLDivElement = this.largeRef.nativeElement;
     large.style.width = `${width}px`
     large.style.height = `${height}px`
-  }
-
-  private updateBGScale() {
-    const scale = this.image.meta.zoom
-    // this.layerBG.scaleX(scale)
-    //this.layerBG.scaleY(scale)
   }
 
   private updateScroll() {
@@ -235,52 +232,6 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
 
   }
 
-  private updateBGScroll() {
-    const scroll: HTMLDivElement = this.scrollRef.nativeElement
-
-    if (!scroll) {
-      return;
-    }
-
-
-    const left = scroll.scrollLeft
-    const top = scroll.scrollTop
-
-    console.log('bgscroll', left, top)
-
-    const imageFile: ImageFile = this.image.file!;
-    const imageMeta: ImageMeta = this.image.meta!;
-    const center = this.getStageCenter()
-
-    this.layerBG.offsetX(imageFile.width / 2)
-    this.layerBG.offsetY(imageFile.height / 2)
-    this.layerBG.position(center)
-
-
-    // X 
-    let dx = 0;
-
-    if (scroll.scrollWidth === scroll.clientWidth) {
-      // no scroll => dont change      
-    }
-    else {
-      dx = (0.5 - imageMeta.scrollX) * (imageFile.width / 2) * imageMeta.zoom
-    }
-
-    //this.stage.x(dx)
-
-    // Y
-    let dy = 0;
-
-    if (scroll.scrollHeight === scroll.clientHeight) {
-      // no scroll => dont change   
-    }
-    else {
-      dy = (0.5 - imageMeta.scrollY) * (imageFile.height / 2) * imageMeta.zoom
-    }
-    //this.stage.y(dy)
-  }
-
   private updateBGPosition() {
     if (!this.scrollRef) {
       return;
@@ -288,12 +239,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
 
     const scroll: HTMLDivElement = this.scrollRef.nativeElement
 
-
-    const left = scroll.scrollLeft
-    const top = scroll.scrollTop
-
     const center = this.getStageCenter()
-
 
     // scale
     const scale = this.image.meta.zoom
@@ -311,7 +257,6 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
 
     }
     else {
-      //dx = center.x + (0.5 - imageMeta.scrollX) * (imageFile.width / 2)
       dx = center.x + (0.5 - imageMeta.scrollX) * (scroll.scrollWidth - scroll.clientWidth)
     }
     this.stage.x(dx)
@@ -327,10 +272,5 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
       dy = center.y + (0.5 - imageMeta.scrollY) * (scroll.scrollHeight - scroll.clientHeight)
     }
     this.stage.y(dy)
-
-
-    //this.stage.scale({ x: 2, y: 2 })
-    //this.stage.offsetX(-250)
-    //this.stage.offsetY(-50)
   }
 }
