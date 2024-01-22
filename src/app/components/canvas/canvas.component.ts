@@ -60,7 +60,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    // console.log('ngOnChanges', changes)
+    console.log('ngOnChanges', changes)
 
     if (!this.stage) {
       this.initStage()
