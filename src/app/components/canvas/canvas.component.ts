@@ -6,6 +6,7 @@ import { Stage } from 'konva/lib/Stage';
 import { Layer } from 'konva/lib/Layer';
 import { Vector2d } from 'konva/lib/types';
 import { Box } from 'konva/lib/shapes/Transformer';
+import { NodeConfig } from 'konva/lib/Node';
 
 
 @Component({
@@ -298,7 +299,9 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
       layerCuts.destroyChildren()
     }
 
-    const rect = new Konva.Rect({ x: 0, y: 0, width: 10, height: 10, stroke: 'blue', strokeWidth: 5, strokeScaleEnabled: false, id: 'cut1', draggable: true })
+
+
+    const rect = new Konva.Rect({ x: 0, y: 50, width: 10, height: 10, stroke: 'blue', strokeWidth: 5, strokeScaleEnabled: false, id: 'cut1', draggable: true })
     layerCuts.add(rect)
 
 
@@ -315,7 +318,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
       text.text(lines.join('\n'));
     }
 
-    const text = new Konva.Text({ x: -70, y: -50 })
+    const text = new Konva.Text({ x: -70, y: -50, draggable: false })
     layerCuts.add(text)
     updateText()
 
@@ -325,12 +328,19 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
     const tr = new Konva.Transformer({
       ignoreStroke: true,
       rotateEnabled: false,
-      flipEnabled: false
+      flipEnabled: false,
+      nodes: [rect],
     })
     layerCuts.add(tr)
-    tr.nodes([rect])
+
 
     rect.on('dragmove', function () {
+      const closestX = Math.round(this.x())
+      const closestY = Math.round(this.y())
+
+      this.x(closestX)
+      this.y(closestY)
+
       updateText()
     })
 
@@ -339,21 +349,17 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
 
       //return;
 
-      const snapX = imageFile.width % 2 == 0 ? 0 : 0.5
-      const snapY = imageFile.height % 2 == 0 ? 0 : 0.5
-
-
       const closestX = Math.round(this.x())
       const closestY = Math.round(this.y())
 
-      //this.x(closestX)
-      //this.y(closestY)
+      this.x(closestX)
+      this.y(closestY)
 
-      // this.width(Math.max(2, Math.round(this.width() * this.scaleX())))
-      // this.height(Math.max(2, Math.round(this.height() * this.scaleY())))
+      this.width(Math.max(2, Math.round(this.width() * this.scaleX())))
+      this.height(Math.max(2, Math.round(this.height() * this.scaleY())))
 
-      //this.scaleX(1)
-      // this.scaleY(1)
+      this.scaleX(1)
+      this.scaleY(1)
 
 
       updateText()
@@ -368,14 +374,5 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
       console.log('transformend', rect.attrs)
       updateText()
     })
-
-
-    const boundBoxFunc = tr.boundBoxFunc()
-    tr.boundBoxFunc(function (oldBox: Box, newBox: Box) {
-      //console.log(newBox)
-      return newBox
-    })
-
-
   }
 }
