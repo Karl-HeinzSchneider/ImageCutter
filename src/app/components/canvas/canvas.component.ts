@@ -170,7 +170,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
 
   public getRelativePointerCoords(): Vector2d | null {
     if (!this.bgImageRef) {
-      return { x: -1, y: -1 }
+      return null
     }
     else {
       const relPos = this.bgImageRef.getRelativePointerPosition()
@@ -301,7 +301,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
 
 
 
-    const rect = new Konva.Rect({ x: 0, y: 50, width: 10, height: 10, stroke: 'blue', strokeWidth: 5, strokeScaleEnabled: false, id: 'cut1', draggable: true })
+    const rect = new Konva.Rect({ x: 0, y: 50, width: 10, height: 10, stroke: 'blue', strokeWidth: 5, strokeScaleEnabled: false, id: 'cut1', draggable: false })
     layerCuts.add(rect)
 
 
@@ -324,6 +324,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
 
     const imageFile: ImageFile = this.image.file!;
 
+    console.log('Tester', Math.ceil(-1.5))
 
     const tr = new Konva.Transformer({
       ignoreStroke: true,
@@ -333,13 +334,29 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
     })
     layerCuts.add(tr)
 
+    const stageRef = this.stage;
 
-    rect.on('dragmove', function () {
-      const closestX = Math.round(this.x())
-      const closestY = Math.round(this.y())
+    tr.on('dragmove', function () {
+      console.log('dragmove')
 
-      this.x(closestX)
-      this.y(closestY)
+      const closestX = Math.ceil(this.x())
+      const closestY = Math.ceil(this.y())
+
+      const newBoundBox: Box = {
+        x: 0,
+        y: 0,
+        width: this.width(),
+        height: this.width(),
+        rotation: 0
+      }
+
+      this.position(newBoundBox)
+
+      stageRef.draw()
+
+      //this.x(closestX)
+      //this.y(closestY)
+
 
       updateText()
     })
@@ -347,16 +364,16 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
     rect.on('transform', function () {
       console.log('transform', tr.getActiveAnchor())
 
-      //return;
+      return;
 
-      const closestX = Math.round(this.x())
-      const closestY = Math.round(this.y())
+      const closestX = Math.ceil(this.x())
+      const closestY = Math.ceil(this.y())
 
       this.x(closestX)
       this.y(closestY)
 
-      this.width(Math.max(2, Math.round(this.width() * this.scaleX())))
-      this.height(Math.max(2, Math.round(this.height() * this.scaleY())))
+      this.width(Math.max(2, Math.ceil(this.width() * this.scaleX())))
+      this.height(Math.max(2, Math.ceil(this.height() * this.scaleY())))
 
       this.scaleX(1)
       this.scaleY(1)
