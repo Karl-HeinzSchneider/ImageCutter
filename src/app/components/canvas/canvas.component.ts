@@ -129,8 +129,8 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
         const dx = image.width / 2;
         const dy = image.height / 2
         node.setAttrs({
-          x: 0,
-          y: 0,
+          x: dx,
+          y: dy,
           scaleX: 1,
           scaleY: 1,
           offsetX: dx,
@@ -138,6 +138,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
           id: 'bg'
         })
 
+        stageRef.offset({ x: dx, y: dy })
         //node.on('pointerdown', componentRef.pointerFunctionTest)
         //node.on('pointermove', componentRef.pointerFunctionTest)
 
@@ -303,7 +304,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
       layerCuts.destroyChildren()
     }
 
-    const rect = new Konva.Rect({ x: -10, y: -10, width: 10, height: 10, stroke: 'blue', strokeWidth: 5, strokeScaleEnabled: false, id: 'cut1' })
+    const rect = new Konva.Rect({ x: 0, y: 0, width: 10, height: 10, stroke: 'blue', strokeWidth: 5, strokeScaleEnabled: false, id: 'cut1', draggable: true })
     layerCuts.add(rect)
 
 
@@ -351,8 +352,8 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
       const closestX = Math.round(this.x())
       const closestY = Math.round(this.y())
 
-      this.x(closestX)
-      this.y(closestY)
+      //this.x(closestX)
+      //this.y(closestY)
 
       // this.width(Math.max(2, Math.round(this.width() * this.scaleX())))
       // this.height(Math.max(2, Math.round(this.height() * this.scaleY())))
