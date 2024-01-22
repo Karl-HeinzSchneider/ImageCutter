@@ -28,6 +28,8 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
   private layerBG!: Layer;
   private layerCuts!: Layer;
 
+  private bgImageRef!: Konva.Image;
+
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
     //console.log('OnResize')
@@ -138,6 +140,8 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
           id: 'bg'
         })
 
+        componentRef.bgImageRef = node;
+
         stageRef.offset({ x: dx, y: dy })
         //node.on('pointerdown', componentRef.pointerFunctionTest)
         //node.on('pointermove', componentRef.pointerFunctionTest)
@@ -145,7 +149,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
         node.on('pointerdown', function () {
           const pointerPos = stageRef.getPointerPosition()
           console.log('point', pointerPos?.x, pointerPos?.y)
-          console.log('real', componentRef.canvasToRealCoords(pointerPos!))
+          console.log('relative', componentRef.getRelativePointerCoords())
         })
 
         layerBG.add(node)
@@ -163,24 +167,14 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
     return { x: x, y: y } as Vector2d
   }
 
-  public canvasToRealCoords(canvasVector: Vector2d): Vector2d {
-    const stageX = this.stage.x()
-    const stageY = this.stage.y()
-
-    const center = this.getStageCenter()
-
-    const imageFile: ImageFile = this.image.file!;
-    const imageMeta: ImageMeta = this.image.meta!;
-
-    const scale = this.stage.scale()
-
-    let realX = 0
-    let realY = 0
-
-    realX = canvasVector.x - center.x
-    realY = canvasVector.y - center.y
-
-    return { x: realX, y: realY }
+  public getRelativePointerCoords(): Vector2d | null {
+    if (!this.bgImageRef) {
+      return { x: -1, y: -1 }
+    }
+    else {
+      const relPos = this.bgImageRef.getRelativePointerPosition()
+      return relPos;
+    }
   }
 
   private updateScale() {
