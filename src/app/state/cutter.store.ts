@@ -291,7 +291,19 @@ export class AppRepository {
 
         let newImg: ImageProps = { ...img }
 
-        newImg.cuts![index] = cut
+        let newCut: ImageCut = { ...cut }
+
+        if (newCut.absolute) {
+            //console.log('abs')
+            const abs = newCut.absolute
+            newCut.absolute.x = Number(abs.x)
+            newCut.absolute.y = Number(abs.y)
+
+            newCut.absolute.height = Number(abs.height)
+            newCut.absolute.width = Number(abs.width)
+        }
+
+        newImg.cuts![index] = newCut
 
         if (oldCut.selected && !cut.selected) {
             const nextIndex = Math.max(0, index - 1)

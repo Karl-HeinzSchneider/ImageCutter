@@ -9,6 +9,7 @@ import { Box } from 'konva/lib/shapes/Transformer';
 import { NodeConfig } from 'konva/lib/Node';
 import { Subject, takeUntil } from 'rxjs';
 import { Rect } from 'konva/lib/shapes/Rect';
+import { getActiveEntity } from '@ngneat/elf-entities';
 
 
 @Component({
@@ -62,6 +63,12 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     this.store.activeFile$.pipe(takeUntil(this.destroy$)).subscribe(f => {
       console.log('file changed', f)
       this.imageFile = f;
+
+      // #hack, need id for store update...
+      const q = this.store.store.query(getActiveEntity())
+      if (q) {
+        this.id = q.id
+      }
 
       this.drawStageBG()
       this.updateScale()
@@ -343,6 +350,8 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       ignoreStroke: true,
       rotateEnabled: false,
       flipEnabled: false,
+      //enabledAnchors: ['top-center', 'middle-right', 'middle-left', 'bottom-center']
+      enabledAnchors: ['middle-right', 'bottom-center']
     })
     this.transformer = tr;
 
@@ -391,11 +400,17 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     updateText()
     updatePos()
 
-    tr.on('dragmove', function () {
+    const componentRef = this;
+
+    const updateStore = function () {
+      componentRef.updateSelectedCutStore()
+    }
+
+    rect.on('dragmove', function () {
       //console.log('dragmove')
 
-      const closestX = Math.ceil(rect.x())
-      const closestY = Math.ceil(rect.y())
+      const closestX = Math.round(rect.x())
+      const closestY = Math.round(rect.y())
 
       //console.log(closestX, closestY)
 
@@ -406,10 +421,68 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       updatePos()
     })
 
-    tr.on('dragend', function () {
-      console.log('dragend', rect.x(), rect.y())
+    rect.on('dragend', function () {
+      //console.log('dragend', rect.x(), rect.y())
+      updateStore()
     })
 
+    let startX = 0;
+    let startY = 0;
+
+    const roundRectSize = function () {
+      const closestX = Math.round(rect.x())
+      const closestY = Math.round(rect.y())
+      //const closestX = Math.max(startX, Math.round(rect.x()))
+      //const closestY = Math.max(startY, Math.round(rect.y()))
+
+      const realWidth = Math.max(2, Math.round(rect.width() * rect.scaleX()));
+      const realHeight = Math.max(2, Math.round(rect.height() * rect.scaleY()));
+
+      rect.scaleX(1)
+      rect.scaleY(1)
+
+      rect.width(realWidth)
+      rect.height(realHeight)
+
+      rect.x(closestX)
+      rect.y(closestY)
+
+      // if (closestX < startX) {
+      //   rect.x(startX)
+      //   rect.width(2)
+      // }
+      // if (closestY < startY) {
+      //   rect.y(startY)
+      //   rect.height(2)
+      // }
+
+      //console.log('roundRectSize', rect.x(), rect.y(), realWidth, realHeight)
+    }
+
+    rect.on('transformstart', function () {
+      //console.log('transformstart')
+      startX = rect.x()
+      startY = rect.y()
+    })
+
+    rect.on('transform', function () {
+      //console.log('transform', tr.getActiveAnchor())
+
+      const anchor = tr.getActiveAnchor()
+      if (!anchor) {
+        return;
+      }
+
+      roundRectSize()
+
+      updateText()
+      updatePos()
+    })
+
+    rect.on('transformend', function () {
+      //console.log('transformend', rect.x(), rect.y(), rect.width(), rect.height())
+      updateStore()
+    })
   }
 
   private updateSelectedCut() {
@@ -439,6 +512,30 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     layer.add(rect)
     layer.add(tr)
 
+  }
+
+  private updateSelectedCutStore() {
+    //console.log('updateSelectedCutStore')
+
+    const cut = this.selectedCut
+    const rect = this.rect;
+
+    if (!cut) {
+      return;
+    }
+
+    let newCut: ImageCut = { ...cut }
+
+    if (cut.type === 'absolute') {
+      newCut.absolute!.x = rect.x()
+      newCut.absolute!.y = rect.y()
+
+      newCut.absolute!.height = rect.height()
+      newCut.absolute!.width = rect.width()
+
+      //console.log('newCut', newCut)
+      this.store.updateCut(this.id, newCut)
+    }
   }
 
 
