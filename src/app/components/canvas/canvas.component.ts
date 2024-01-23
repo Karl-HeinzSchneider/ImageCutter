@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AppRepository, ImageFile, ImageMeta, ImageProps } from '../../state/cutter.store';
+import { AppRepository, ImageCut, ImageFile, ImageMeta, ImageProps } from '../../state/cutter.store';
 import Konva from 'konva';
 import { Stage } from 'konva/lib/Stage';
 import { Layer } from 'konva/lib/Layer';
@@ -8,6 +8,7 @@ import { Vector2d } from 'konva/lib/types';
 import { Box } from 'konva/lib/shapes/Transformer';
 import { NodeConfig } from 'konva/lib/Node';
 import { Subject, takeUntil } from 'rxjs';
+import { Rect } from 'konva/lib/shapes/Rect';
 
 
 @Component({
@@ -30,13 +31,17 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
   private stage!: Stage;
   private layerBG!: Layer;
   private layerCuts!: Layer;
+  private layerSelected!: Layer;
+
+  private transformer!: Konva.Transformer;
+  private rect!: Rect;
 
   private bgImageRef!: Konva.Image;
 
   private imageFile: ImageFile | undefined;
   private zoom: number = 1;
   private scroll: Vector2d = { x: 0.5, y: 0.5 };
-
+  private selectedCut: ImageCut | undefined;
 
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
@@ -89,7 +94,9 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     // Cut selected
     this.store.selectedCut$.pipe(takeUntil(this.destroy$)).subscribe(cut => {
       console.log('selected cut changed', cut)
+      this.selectedCut = cut
 
+      this.updateSelectedCut()
     })
   }
 
@@ -99,6 +106,8 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     if (!this.stage) {
       this.initStage()
       this.resizeStage()
+
+      this.initTransformer()
     }
 
     this.initSubs()
@@ -130,6 +139,9 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
     this.layerCuts = new Konva.Layer()
     this.stage.add(this.layerCuts)
+
+    this.layerSelected = new Konva.Layer()
+    this.stage.add(this.layerSelected)
   }
 
   private resizeStage() {
@@ -324,6 +336,75 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
   }
 
 
+  private initTransformer() {
+
+    // transformer
+    const tr = new Konva.Transformer({
+      ignoreStroke: true,
+      rotateEnabled: false,
+      flipEnabled: false,
+    })
+    this.layerSelected.add(tr)
+
+    this.transformer = tr;
+
+    // debug text
+    const text = new Konva.Text({ x: -70, y: -50, draggable: false })
+    this.layerSelected.add(text)
+
+    const updateText = function () {
+      const lines = [
+        'x: ' + tr.x(),
+        'y: ' + tr.y(),
+        'rotation: ' + tr.rotation(),
+        'width: ' + tr.width(),
+        'height: ' + tr.height(),
+        'scaleX: ' + tr.scaleX(),
+        'scaleY: ' + tr.scaleY(),
+      ];
+      text.text(lines.join('\n'));
+    }
+    updateText()
+
+    // rect
+    const rect = new Konva.Rect({
+      x: 0,
+      y: 50,
+      width: 10,
+      height: 10,
+      stroke: 'blue',
+      strokeWidth: 5,
+      strokeScaleEnabled: false,
+      id: 'cut1',
+      draggable: true
+    })
+    this.rect = rect
+  }
+
+  private updateSelectedCut() {
+    const layer = this.layerSelected
+
+    const rect = this.rect;
+    const tr = this.transformer
+
+    const cut = this.selectedCut
+
+    if (!cut) {
+      rect.remove()
+      return;
+    }
+    const absoluteCut = cut.absolute;
+
+    if (cut.relative || !absoluteCut) {
+      rect.remove()
+      return;
+    }
+
+    layer.add(rect)
+    tr.nodes([rect])
+  }
+
+
   private updateCutsLayer() {
 
     const layerCuts = this.layerCuts
@@ -332,9 +413,17 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       layerCuts.destroyChildren()
     }
 
-
-
-    const rect = new Konva.Rect({ x: 0, y: 50, width: 10, height: 10, stroke: 'blue', strokeWidth: 5, strokeScaleEnabled: false, id: 'cut1', draggable: false })
+    const rect = new Konva.Rect({
+      x: 0,
+      y: 50,
+      width: 10,
+      height: 10,
+      stroke: 'blue',
+      strokeWidth: 5,
+      strokeScaleEnabled: false,
+      id: 'cut1',
+      draggable: false
+    })
     layerCuts.add(rect)
 
 
