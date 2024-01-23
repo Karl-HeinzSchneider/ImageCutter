@@ -351,7 +351,9 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       rotateEnabled: false,
       flipEnabled: false,
       //enabledAnchors: ['top-center', 'middle-right', 'middle-left', 'bottom-center']
-      enabledAnchors: ['middle-right', 'bottom-center']
+      enabledAnchors: ['middle-right', 'bottom-center', 'bottom-right'],
+      keepRatio: false,
+      shiftBehavior: 'keepRatio'
     })
     this.transformer = tr;
 
