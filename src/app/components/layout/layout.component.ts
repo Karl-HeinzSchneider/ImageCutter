@@ -7,11 +7,12 @@ import { Observable } from 'rxjs';
 import { MainComponent } from '../main/main.component';
 import { DropImageComponent } from '../drop-image/drop-image.component';
 import { TabbarComponent } from '../tabbar/tabbar.component';
+import { ToolbarComponent } from '../toolbar/toolbar.component';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, LayersComponent, MainComponent, DropImageComponent, TabbarComponent],
+  imports: [CommonModule, HeaderComponent, LayersComponent, MainComponent, DropImageComponent, TabbarComponent, ToolbarComponent],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss'
 })

@@ -1,0 +1,54 @@
+.container {
+    height: 48px;
+    display: grid;
+
+    grid-template-columns: repeat(5, max-content);
+    gap: 8px;
+}
+
+.flex {
+    display: flex;
+    align-items: center;
+}
+
+.spacer {
+    width: calc(48px + 32px);
+}
+
+// type buttons
+
+.type {
+    line-height: 32px;
+}
+
+.type>div {
+    margin-right: 4px;
+}
+
+.type>button {
+    height: 32px;
+    background-color: var(--background-header);
+    color: rgba(255, 255, 255, 0.5);
+    border: 0;
+    cursor: pointer;
+}
+
+.type>button:hover {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.type>button:nth-of-type(1) {
+    border-radius: 5px 0 0 5px;
+}
+
+.type>button:nth-of-type(2) {
+    margin-left: 2px;
+    border-radius: 0 5px 5px 0;
+}
+
+.type>button.selected {
+    background-color: var(--accent);
+    color: white;
+}
+
+// absolute
