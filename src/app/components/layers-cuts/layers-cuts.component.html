@@ -1,7 +1,8 @@
 <div class="container">
     <app-layer-box class="cuts" [headerText]="'Cuts'">
-        <app-layers-cut></app-layers-cut>
-        <app-layers-cut></app-layers-cut>
+        <ng-container *ngFor="let cut of active.cuts">
+            <app-layers-cut [cut]="cut" [id]="active.id"></app-layers-cut>
+        </ng-container>
     </app-layer-box>
     <div class="buttons">
         <ng-container *ngTemplateOutlet="add"></ng-container>

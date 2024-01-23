@@ -1,10 +1,12 @@
-<div class="container active">
+<div class="container" [class.selected]="cut.selected" (click)="cutClicked()">
     <div class="main">
-        <div class="title">Cut One</div>
+        <div class="title">{{cut.name}}</div>
         <div class="size">42x69px</div>
     </div>
-    <div class="eye">
-        <ng-container *ngTemplateOutlet="eye"></ng-container>
+    <div class="eye" (click)="eyeClicked()">
+        <ng-container *ngIf="cut.visible; else eyeclosed">
+            <ng-container *ngTemplateOutlet="eye"></ng-container>
+        </ng-container>
     </div>
 </div>
 

@@ -15,6 +15,7 @@ export interface ImageProps {
     id: string,
     meta: ImageMeta
     file?: ImageFile
+    cuts?: ImageCut[]
 }
 
 export interface ImageMeta {
@@ -35,6 +36,31 @@ export interface ImageFile {
     width: number,
     height: number
     dataURL: string
+}
+
+export interface ImageCut {
+    id: string,
+    name: string,
+    visible: boolean,
+    locked: boolean,
+    selected: boolean,
+    type: 'absolute' | 'relative',
+    absolute?: absoluteCut,
+    relative?: relativeCut
+}
+
+export interface absoluteCut {
+    x: number,
+    y: number,
+    width: number,
+    height: number
+}
+
+export interface relativeCut {
+    top: number,
+    bottom: number,
+    left: number,
+    right: number
 }
 
 const testImage: ImageProps = {
@@ -120,6 +146,133 @@ export class AppRepository {
 
     public setActiveImage(id: string) {
         this.store.update(setActiveId(id))
+    }
+
+    public addNewCut(id: string) {
+        const img = this.store.query(getEntity(id));
+
+        if (!img) {
+            return;
+        }
+
+        let newImg: ImageProps = { ...img }
+        if (!img.cuts || img.cuts.length < 1) {
+            newImg.cuts = []
+            const newCut: ImageCut = {
+                id: uuid(),
+                name: 'Cut 1',
+                visible: true,
+                selected: true,
+                locked: false,
+                type: 'absolute',
+                absolute: {
+                    x: 0,
+                    y: 0,
+                    width: 32,
+                    height: 32
+                }
+            }
+            newImg.cuts?.push(newCut)
+        }
+        else {
+            const newCut: ImageCut = {
+                id: uuid(),
+                name: `Cut ${img.cuts.length + 1}`,
+                visible: true,
+                selected: false,
+                locked: false,
+                type: 'absolute',
+                absolute: {
+                    x: 0,
+                    y: 0,
+                    width: 32,
+                    height: 32
+                }
+            }
+            newImg.cuts?.push(newCut)
+        }
+
+        this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
+    }
+
+    public removeCut(id: string, cutID: string) {
+        const img = this.store.query(getEntity(id));
+
+        if (!img || !img.cuts) {
+            return;
+        }
+
+        const index = img.cuts.findIndex(x => x.id === cutID)
+
+        if (index < 0) {
+            return;
+        }
+
+        const oldCut = img.cuts[index]
+
+        let newImg: ImageProps = { ...img }
+        newImg.cuts = img.cuts.filter(x => x.id != cutID)
+
+        if (oldCut.selected) {
+            const nextIndex = Math.max(0, index - 1)
+            newImg.cuts[nextIndex].selected = true
+        }
+
+        this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
+    }
+
+    public updateCut(id: string, cut: ImageCut) {
+        const img = this.store.query(getEntity(id));
+
+        if (!img || !img.cuts) {
+            return;
+        }
+
+        const index = img.cuts.findIndex(x => x.id === cut.id)
+
+        if (index < 0) {
+            return;
+        }
+
+        const oldCut = img.cuts[index]
+
+        let newImg: ImageProps = { ...img }
+
+        newImg.cuts![index] = cut
+
+        if (oldCut.selected && !cut.selected) {
+            const nextIndex = Math.max(0, index - 1)
+            newImg.cuts![nextIndex].selected = true
+        }
+
+        this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
+    }
+
+    public selectCut(id: string, cut: ImageCut) {
+        const img = this.store.query(getEntity(id));
+
+        if (!img || !img.cuts) {
+            return;
+        }
+
+        const index = img.cuts.findIndex(x => x.id === cut.id)
+
+        if (index < 0) {
+            return;
+        }
+
+        const oldCut = img.cuts[index]
+
+        let newImg: ImageProps = { ...img }
+        newImg.cuts = img.cuts.map(x => {
+            let newCut: ImageCut = { ...x }
+            newCut.selected = false
+            return newCut
+        })
+
+        newImg.cuts[index].selected = true
+
+        this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
     }
 
     // -----------------

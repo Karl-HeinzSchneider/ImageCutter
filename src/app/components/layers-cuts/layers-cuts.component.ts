@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LayerBoxComponent } from '../layer-box/layer-box.component';
 import { LayersCutComponent } from '../layers-cut/layers-cut.component';
+import { AppRepository, ImageProps } from '../../state/cutter.store';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-layers-cuts',
@@ -12,13 +14,19 @@ import { LayersCutComponent } from '../layers-cut/layers-cut.component';
 })
 export class LayersCutsComponent {
 
-  constructor() { }
+  @Input() active!: ImageProps;
+
+  constructor(private store: AppRepository) {
+  }
 
   adderClicked() {
-    console.log('Adder')
+    console.log('Adder', this.active)
+    this.store.addNewCut(this.active.id)
   }
 
   removerClicked() {
-    console.log('Remover')
+    console.log('Remover', this.active)
+
+
   }
 }
