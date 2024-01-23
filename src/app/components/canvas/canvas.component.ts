@@ -344,27 +344,29 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       rotateEnabled: false,
       flipEnabled: false,
     })
-    this.layerSelected.add(tr)
-
     this.transformer = tr;
 
     // debug text
-    const text = new Konva.Text({ x: -70, y: -50, draggable: false })
+    const text = new Konva.Text({ x: 0, y: 0, draggable: false })
     this.layerSelected.add(text)
 
     const updateText = function () {
       const lines = [
-        'x: ' + tr.x(),
-        'y: ' + tr.y(),
-        'rotation: ' + tr.rotation(),
-        'width: ' + tr.width(),
-        'height: ' + tr.height(),
-        'scaleX: ' + tr.scaleX(),
-        'scaleY: ' + tr.scaleY(),
+        'x: ' + rect.x(),
+        'y: ' + rect.y(),
+        'rotation: ' + rect.rotation(),
+        'width: ' + rect.width(),
+        'height: ' + rect.height(),
+        'scaleX: ' + rect.scaleX(),
+        'scaleY: ' + rect.scaleY(),
       ];
       text.text(lines.join('\n'));
     }
-    updateText()
+
+    const updatePos = function () {
+      //text.x(tr.x())
+      //text.y(tr.y())
+    }
 
     // rect
     const rect = new Konva.Rect({
@@ -379,29 +381,64 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       draggable: true
     })
     this.rect = rect
+    this.layerSelected.add(rect)
+
+
+    // events
+    tr.nodes([rect])
+    this.layerSelected.add(tr)
+
+    updateText()
+    updatePos()
+
+    tr.on('dragmove', function () {
+      //console.log('dragmove')
+
+      const closestX = Math.ceil(rect.x())
+      const closestY = Math.ceil(rect.y())
+
+      //console.log(closestX, closestY)
+
+      rect.x(closestX)
+      rect.y(closestY)
+
+      updateText()
+      updatePos()
+    })
+
+    tr.on('dragend', function () {
+      console.log('dragend', rect.x(), rect.y())
+    })
+
   }
 
   private updateSelectedCut() {
     const layer = this.layerSelected
 
     const rect = this.rect;
+    rect.remove()
     const tr = this.transformer
+    tr.remove()
 
     const cut = this.selectedCut
 
     if (!cut) {
-      rect.remove()
       return;
     }
     const absoluteCut = cut.absolute;
 
     if (cut.relative || !absoluteCut) {
-      rect.remove()
       return;
     }
 
+    rect.x(absoluteCut.x)
+    rect.y(absoluteCut.y)
+    rect.width(absoluteCut.width)
+    rect.height(absoluteCut.height)
+
     layer.add(rect)
-    tr.nodes([rect])
+    layer.add(tr)
+
   }
 
 
