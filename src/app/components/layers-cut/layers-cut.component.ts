@@ -1,11 +1,22 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Pipe, PipeTransform } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AppRepository, ImageCut } from '../../state/cutter.store';
 
+@Pipe({ name: 'cutSize', standalone: true })
+export class cutSizePipe implements PipeTransform {
+  transform(value: ImageCut, ...args: any[]): string {
+
+    if (value.type === 'absolute' && value.absolute) {
+      return `w: ${value.absolute.width}, h: ${value.absolute.height}`
+    }
+
+    return '';
+  }
+}
 @Component({
   selector: 'app-layers-cut',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, cutSizePipe],
   templateUrl: './layers-cut.component.html',
   styleUrl: './layers-cut.component.scss'
 })
