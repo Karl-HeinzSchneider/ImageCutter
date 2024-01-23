@@ -201,6 +201,11 @@ export class AppRepository {
         this.store.update(setActiveId(id))
     }
 
+    public getActiveEntity() {
+        const img = this.store.query(getActiveEntity());
+        return img;
+    }
+
     public addNewCut(id: string) {
         const img = this.store.query(getEntity(id));
 
