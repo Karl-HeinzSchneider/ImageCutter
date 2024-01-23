@@ -4,6 +4,8 @@ import { addEntities, getActiveEntity, getEntity, selectActiveEntity, selectMany
 import { v4 as uuid } from 'uuid';
 import { readFileList } from './cutter.store.helper';
 import { localStorageStrategy, persistState } from '@ngneat/elf-persist-state';
+import { distinctUntilChanged, filter, map } from 'rxjs';
+import { Vector2d } from 'konva/lib/types';
 
 
 export interface AppProps {
@@ -104,6 +106,57 @@ export class AppRepository {
     showDropzone$ = this.store.pipe(select((state) => state.showDropzone))
 
     active$ = this.store.pipe(selectActiveEntity())
+
+    activeFile$ = this.active$.pipe(
+        map(active => {
+            if (!active) {
+                return undefined
+            }
+
+            return active.file
+        }),
+        distinctUntilChanged()
+    );
+
+    zoom$ = this.active$.pipe(
+        map(active => {
+            return active?.meta.zoom
+        }),
+        distinctUntilChanged()
+    )
+
+    scroll$ = this.active$.pipe(
+        map(active => {
+            let vect: Vector2d = { x: 0.5, y: 0.5 }
+            if (!active) {
+                return vect
+            }
+
+            else {
+                vect.x = active.meta.scrollX
+                vect.y = active.meta.scrollY
+
+                return vect;
+            }
+        }),
+        distinctUntilChanged((previous: Vector2d, current: Vector2d) => {
+            if (previous.x === current.x && previous.y === current.y) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        })
+    )
+
+    selectedCut$ = this.active$.pipe(
+        map(active => {
+            const cut = active?.cuts?.find(x => x.selected)
+            return cut;
+        }),
+        distinctUntilChanged()
+    )
+
 
     imagesOpen$ = this.store.pipe(selectManyByPredicate((entity) => entity.meta.active))
     imagesClosed$ = this.store.pipe(selectManyByPredicate((entity) => !entity.meta.active))

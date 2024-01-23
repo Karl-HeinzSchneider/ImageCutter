@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AppRepository, ImageFile, ImageMeta, ImageProps } from '../../state/cutter.store';
 import Konva from 'konva';
@@ -7,6 +7,7 @@ import { Layer } from 'konva/lib/Layer';
 import { Vector2d } from 'konva/lib/types';
 import { Box } from 'konva/lib/shapes/Transformer';
 import { NodeConfig } from 'konva/lib/Node';
+import { Subject, takeUntil } from 'rxjs';
 
 
 @Component({
@@ -16,7 +17,8 @@ import { NodeConfig } from 'konva/lib/Node';
   templateUrl: './canvas.component.html',
   styleUrl: './canvas.component.scss'
 })
-export class CanvasComponent implements OnChanges, AfterViewInit {
+export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
+  private readonly destroy$ = new Subject<number>()
 
   @Input() image!: ImageProps;
 
@@ -31,6 +33,11 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
 
   private bgImageRef!: Konva.Image;
 
+  private imageFile: ImageFile | undefined;
+  private zoom: number = 1;
+  private scroll: Vector2d = { x: 0.5, y: 0.5 };
+
+
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
     //console.log('OnResize')
@@ -41,41 +48,69 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
   }
 
   constructor(private store: AppRepository) {
+    console.log('constructor')
+    //this.initSubs()
+  }
+
+  private initSubs() {
+    // ImageFile
+    this.store.activeFile$.pipe(takeUntil(this.destroy$)).subscribe(f => {
+      console.log('file changed', f)
+      this.imageFile = f;
+
+      this.drawStageBG()
+      this.updateScale()
+      this.updateScroll()
+      this.updateBGPosition()
+    })
+
+    // Zoom
+    this.store.zoom$.pipe(takeUntil(this.destroy$)).subscribe(zoom => {
+      console.log('zoom changed', zoom)
+
+      this.zoom = zoom || 1;
+
+      this.updateScale()
+      this.updateScroll()
+      this.updateBGPosition()
+    })
+
+    // Scroll
+    this.store.scroll$.pipe(takeUntil(this.destroy$)).subscribe(scroll => {
+      console.log('scroll changed', scroll)
+
+      this.scroll = scroll
+
+      this.updateScale()
+      this.updateScroll()
+      this.updateBGPosition()
+    })
+
+    // Cut selected
+    this.store.selectedCut$.pipe(takeUntil(this.destroy$)).subscribe(cut => {
+      console.log('selected cut changed', cut)
+
+    })
   }
 
   async ngAfterViewInit(): Promise<void> {
-    //console.log('ngAfterViewInit')
+    console.log('ngAfterViewInit')
+
     if (!this.stage) {
       this.initStage()
       this.resizeStage()
     }
-    else {
 
-    }
-
-    this.drawStageBG()
-    this.updateScale()
-    this.updateScroll()
-    this.updateBGPosition()
+    this.initSubs()
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    console.log('ngOnChanges', changes)
+    //console.log('ngOnChanges', changes)  
+  }
 
-    if (!this.stage) {
-      this.initStage()
-      this.resizeStage()
-    }
-    else {
-
-    }
-
-    this.drawStageBG()
-    this.updateScale()
-    this.updateScroll()
-    this.updateBGPosition()
-
-    this.updateCutsLayer()
+  ngOnDestroy(): void {
+    this.destroy$.next(1)
+    this.destroy$.complete()
   }
 
   private initStage() {
@@ -114,51 +149,50 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
   }
 
   private drawStageBG() {
-    if (this.id != this.image.id) {
-      //console.log('drawStageBG - new image')
-      this.id = this.image.id
+    if (!this.imageFile) {
+      return;
+    }
 
-      const layerBG = this.layerBG
-      const bg = this.layerBG.findOne('#bg')
-      if (bg) {
-        layerBG.destroyChildren()
-      }
+    //console.log('drawStageBG - new image')
 
-      const image: ImageFile = this.image.file!;
-      const componentRef = this;
-      const stageRef = this.stage;
+    const layerBG = this.layerBG
+    const bg = this.layerBG.findOne('#bg')
+    if (bg) {
+      layerBG.destroyChildren()
+    }
 
-      Konva.Image.fromURL(image.dataURL, function (node) {
-        const dx = image.width / 2;
-        const dy = image.height / 2
-        node.setAttrs({
-          x: dx,
-          y: dy,
-          scaleX: 1,
-          scaleY: 1,
-          offsetX: dx,
-          offsetY: dy,
-          id: 'bg'
-        })
+    const image: ImageFile = this.imageFile;
+    const componentRef = this;
+    const stageRef = this.stage;
 
-        componentRef.bgImageRef = node;
-
-        stageRef.offset({ x: dx, y: dy })
-        //node.on('pointerdown', componentRef.pointerFunctionTest)
-        //node.on('pointermove', componentRef.pointerFunctionTest)
-
-        node.on('pointerdown', function () {
-          const pointerPos = stageRef.getPointerPosition()
-          console.log('point', pointerPos?.x, pointerPos?.y)
-          console.log('relative', componentRef.getRelativePointerCoords())
-        })
-
-        layerBG.add(node)
+    Konva.Image.fromURL(image.dataURL, function (node) {
+      const dx = image.width / 2;
+      const dy = image.height / 2
+      node.setAttrs({
+        x: dx,
+        y: dy,
+        scaleX: 1,
+        scaleY: 1,
+        offsetX: dx,
+        offsetY: dy,
+        id: 'bg'
       })
-    }
-    else {
-      //console.log('drawStageBG - same image')
-    }
+
+      componentRef.bgImageRef = node;
+
+      stageRef.offset({ x: dx, y: dy })
+      //node.on('pointerdown', componentRef.pointerFunctionTest)
+      //node.on('pointermove', componentRef.pointerFunctionTest)
+
+      node.on('pointerdown', function () {
+        const pointerPos = stageRef.getPointerPosition()
+        console.log('point', pointerPos?.x, pointerPos?.y)
+        console.log('relative', componentRef.getRelativePointerCoords())
+      })
+
+      layerBG.add(node)
+    })
+
   }
 
   private getStageCenter() {
@@ -179,14 +213,14 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
   }
 
   private updateScale() {
-    if (!this.largeRef) {
+    if (!this.largeRef || !this.imageFile) {
       return;
     }
 
-    const scale = this.image.meta.zoom
+    const scale = this.zoom
     const padding = 24
 
-    const image: ImageFile = this.image.file!;
+    const image: ImageFile = this.imageFile;
 
     const width = image.width * scale + 2 * padding
     const height = image.height * scale + 2 * padding
@@ -202,10 +236,10 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
       const scroll: HTMLDivElement = this.scrollRef.nativeElement
       //scrollElement.scrollLeft =  (scrollElement.scrollWidth - scrollElement.clientWidth ) / 2;   
 
-      const scrollLeft = (scroll.scrollWidth - scroll.clientWidth) * this.image.meta.scrollX
+      const scrollLeft = (scroll.scrollWidth - scroll.clientWidth) * this.scroll.x
       scroll.scrollLeft = Math.floor(scrollLeft)
 
-      const scrollTop = (scroll.scrollHeight - scroll.clientHeight) * this.image.meta.scrollY
+      const scrollTop = (scroll.scrollHeight - scroll.clientHeight) * this.scroll.y
       scroll.scrollTop = Math.floor(scrollTop)
 
       //console.log('shouldScroll', scrollLeft, scrollTop)
@@ -258,12 +292,11 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
     const center = this.getStageCenter()
 
     // scale
-    const scale = this.image.meta.zoom
+    const scale = this.zoom
     this.stage.scale({ x: scale, y: scale })
 
-
-    const imageFile: ImageFile = this.image.file!;
-    const imageMeta: ImageMeta = this.image.meta!;
+    const scrollX = this.scroll.x
+    const scrollY = this.scroll.y
 
     // X 
     let dx = center.x;
@@ -273,7 +306,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
 
     }
     else {
-      dx = center.x + (0.5 - imageMeta.scrollX) * (scroll.scrollWidth - scroll.clientWidth)
+      dx = center.x + (0.5 - scrollX) * (scroll.scrollWidth - scroll.clientWidth)
     }
     this.stage.x(dx)
 
@@ -285,7 +318,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit {
       // no scroll => dont change         
     }
     else {
-      dy = center.y + (0.5 - imageMeta.scrollY) * (scroll.scrollHeight - scroll.clientHeight)
+      dy = center.y + (0.5 - scrollY) * (scroll.scrollHeight - scroll.clientHeight)
     }
     this.stage.y(dy)
   }

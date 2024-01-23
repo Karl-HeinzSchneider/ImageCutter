@@ -21,16 +21,16 @@ export class LayersCutComponent {
     //console.log('cut clicked', this.id, this.cut.name)
 
     if (!this.cut.selected) {
-      console.log('Select Cut', this.id, this.cut)
+      //console.log('Select Cut', this.id, this.cut)
       this.store.selectCut(this.id, this.cut)
     }
     else {
-      console.log('already selected', this.id, this.cut)
+      //console.log('already selected', this.id, this.cut)
     }
   }
 
   eyeClicked() {
-    console.log('toggle eye', this.id, this.cut)
+    //console.log('toggle eye', this.id, this.cut)
     let newCut: ImageCut = { ...this.cut }
     newCut.visible = !this.cut.visible
 
