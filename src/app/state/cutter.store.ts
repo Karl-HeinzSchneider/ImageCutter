@@ -271,7 +271,10 @@ export class AppRepository {
         let newImg: ImageProps = { ...img }
         newImg.cuts = img.cuts.filter(x => x.id != cutID)
 
-        if (oldCut.selected) {
+        if (newImg.cuts.length < 1) {
+
+        }
+        else if (oldCut.selected) {
             const nextIndex = Math.max(0, index - 1)
             newImg.cuts[nextIndex].selected = true
         }

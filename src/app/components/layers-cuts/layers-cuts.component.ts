@@ -27,6 +27,10 @@ export class LayersCutsComponent {
   removerClicked() {
     console.log('Remover', this.active)
 
+    const selected = this.active.cuts?.find(x => x.selected)
 
+    if (this.active.cuts && selected) {
+      this.store.removeCut(this.active.id, selected.id)
+    }
   }
 }
