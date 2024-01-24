@@ -9,14 +9,26 @@
         </div>
         <ng-container *ngIf="selected.type === 'absolute'">
             <div class="coords flex">
-                <div>Pos: </div>
-                <input type="number">
-                <input type="number">
+                <span>Pos: </span>
+                <div class="input-box">
+                    <span>X</span>
+                    <input type="number" id="posX" name="posX" min="0" max="9999" [value]="selected.absolute?.x">
+                </div>
+                <div class="input-box">
+                    <span>Y</span>
+                    <input type="number" id="posY" name="posY" min="0" max="9999" [value]="selected.absolute?.y">
+                </div>
             </div>
             <div class="size flex">
-                <div>Size: </div>
-                <input type="number">
-                <input type="number">
+                <span>Size: </span>
+                <div class="input-box">
+                    <span>W</span>
+                    <input type="number" id="sizeX" name="sizeX" min="0" max="9999" [value]="selected.absolute?.width">
+                </div>
+                <div class="input-box">
+                    <span>H</span>
+                    <input type="number" id="sizeY" name="sizeY" min="0" max="9999" [value]="selected.absolute?.height">
+                </div>
             </div>
         </ng-container>
 
