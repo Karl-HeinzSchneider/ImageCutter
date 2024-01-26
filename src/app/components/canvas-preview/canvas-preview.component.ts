@@ -6,6 +6,7 @@ import Konva from 'konva';
 import { Subject, takeUntil } from 'rxjs';
 import { AppRepository, ImageFile } from '../../state/cutter.store';
 import { getActiveEntity } from '@ngneat/elf-entities';
+import { Rect } from 'konva/lib/shapes/Rect';
 
 @Component({
   selector: 'app-canvas-preview',
@@ -19,6 +20,10 @@ export class CanvasPreviewComponent implements AfterViewInit, OnChanges, OnDestr
 
   private stage!: Stage;
   private layerBG!: Layer;
+  private layerRect!: Layer;
+
+  private rect!: Rect;
+
 
   private id: string = '-42';
   private imageFile: ImageFile | undefined;
@@ -35,6 +40,7 @@ export class CanvasPreviewComponent implements AfterViewInit, OnChanges, OnDestr
     if (!this.stage) {
       this.initStage()
       this.initSubs()
+      this.initRect()
     }
   }
 
@@ -55,6 +61,12 @@ export class CanvasPreviewComponent implements AfterViewInit, OnChanges, OnDestr
     })
     this.layerBG = layerBG
     this.stage.add(this.layerBG)
+
+    const layerRect = new Konva.Layer({
+      imageSmoothingEnabled: false
+    })
+    this.layerRect = layerRect
+    this.stage.add(this.layerRect)
   }
 
   private initSubs() {
@@ -119,6 +131,42 @@ export class CanvasPreviewComponent implements AfterViewInit, OnChanges, OnDestr
     stageRef.width(w * scale)
     stageRef.height(h * scale)
     stageRef.scale({ x: scale, y: scale })
+
+  }
+
+  private initRect() {
+    const rect = new Konva.Rect({
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 100,
+      stroke: 'orange',
+      strokeWidth: 2,
+      strokeScaleEnabled: false,
+      id: 'previewRect',
+      draggable: true
+    })
+
+    const componentRef = this;
+
+    rect.on('dragmove', function () {
+      const imageW = componentRef.imageFile?.width || 0
+      const imageH = componentRef.imageFile?.height || 0
+
+      const newX = Math.max(0, Math.min(this.x(), imageW - this.width()))
+      const newY = Math.max(0, Math.min(this.y(), imageH - this.height()))
+
+
+      this.x(newX)
+      this.y(newY)
+    })
+
+    this.rect = rect
+    this.layerRect.add(rect)
+  }
+
+
+  private updateRect() {
 
   }
 }
