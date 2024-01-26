@@ -15,15 +15,22 @@
             <div class="zoomin" (click)="zoomInClicked(active.id)">
                 <ng-container *ngTemplateOutlet="zoomIn"></ng-container>
             </div>
-
-            <div class="percent">{{active.meta.zoom | percent}}</div>
         </div>
         <div class="buttons">
-            <div class="zoomer">
+            <div class="percent prevent-select">{{active.meta.zoom | percent}}</div>
+
+            <div class="spacer"></div>
+
+            <div class="zoomer prevent-select" (click)="zoomerClicked(active,1)">
                 1x
             </div>
-            <div class="zoomer">
+
+            <div class="zoomer prevent-select" (click)="zoomerClicked(active,2)">
                 2x
+            </div>
+
+            <div class="zoomer prevent-select" (click)="zoomerClicked(active,5)">
+                5x
             </div>
 
             <div class="maximize" (click)="maximizeClicked(active)">

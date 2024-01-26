@@ -117,4 +117,8 @@ export class CanvasNavigationComponent implements OnDestroy, OnInit {
 
     // console.log('scale', hScale, wScale, newScale)
   }
+
+  public zoomerClicked(active: ImageProps, zoomLevel: number) {
+    this.updateSubject.next([active.id, zoomLevel])
+  }
 }

@@ -27,7 +27,7 @@
 
     display: flex;
     padding: 6px 16px 6px 16px;
-    padding: 6px 8px 6px 8px;
+    //padding: 6px 8px 6px 8px;
 
     background-color: var(--background-subheader);
 
@@ -42,7 +42,11 @@
 
 .percent {
     width: 50px;
-    margin-left: 8px;
+
+    line-height: 20px;
+    //text-align: center;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 .zoomin {
@@ -68,6 +72,7 @@
     margin-left: 8px;
     margin-right: 8px;
     width: 110px;
+    width: 100%;
     cursor: pointer;
     margin-top: auto;
     margin-bottom: auto;
@@ -137,11 +142,12 @@ input[type="range"]::-moz-range-thumb {
     background-color: var(--background-subheader);
 
     display: grid;
-    grid-template-columns: 50px auto 32px 32px 32px;
-    justify-content: end;
+    grid-template-columns: 50px auto repeat(4, 32px);
+    //justify-content: end;
     gap: 4px;
 
     padding-right: 16px;
+    padding-left: 16px;
 
     border-bottom: 1px solid rgba(0, 0, 0, 0.5);
 
@@ -154,6 +160,10 @@ input[type="range"]::-moz-range-thumb {
     margin-bottom: auto;
     opacity: 0.5;
     cursor: pointer;
+}
+
+.spacer {
+    width: 100%;
 }
 
 svg {
