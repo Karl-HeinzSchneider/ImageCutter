@@ -500,20 +500,27 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     if (!cut) {
       return;
     }
-    const absoluteCut = cut.absolute;
 
-    if (cut.relative || !absoluteCut) {
-      return;
+    if (cut.type === 'absolute') {
+      const absoluteCut = cut.absolute;
+
+      rect.x(absoluteCut.x)
+      rect.y(absoluteCut.y)
+      rect.width(absoluteCut.width)
+      rect.height(absoluteCut.height)
     }
-
-    rect.x(absoluteCut.x)
-    rect.y(absoluteCut.y)
-    rect.width(absoluteCut.width)
-    rect.height(absoluteCut.height)
+    else {
+      const relativeCut = cut.relative;
+      return;
+      // @ TODO
+      // rect.x(relativeCut.x)
+      // rect.y(relativeCut.y)
+      // rect.width(relativeCut.width)
+      //rect.height(relativeCut.height)
+    }
 
     layer.add(rect)
     layer.add(tr)
-
   }
 
   private updateSelectedCutStore() {
