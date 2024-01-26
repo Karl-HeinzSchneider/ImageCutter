@@ -38,7 +38,7 @@ export class ToolbarCutsComponent {
     // enforce min/max values
     const value = Math.min(Number(tar.max), Math.max(Number(tar.min), Number(tar.value)))
 
-    console.log('input', e, varName, cut, value)
+    //console.log('input', e, varName, cut, value)
 
     this.changeStoreValues(tarID, cut, value)
     tar.value = String(value)
