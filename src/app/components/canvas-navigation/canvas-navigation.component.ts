@@ -87,4 +87,34 @@ export class CanvasNavigationComponent implements OnDestroy, OnInit {
 
     // console.log('zoomOut', oldValue, newValue, id, scaledValue)
   }
+
+  public maximizeClicked(active: ImageProps) {
+    //console.log('maximize', active)
+
+    if (!active.file) {
+      return;
+    }
+
+    const wHeight = window.innerHeight
+    const wWidth = window.innerWidth
+    //console.log(wWidth, wHeight)
+
+    // See: canvas.component - resizeStage()
+    const padding = 24
+
+    const rHeight = wHeight - 32 - 48 - 32 - 32 - 2 * padding
+    const rWidth = wWidth - 48 - 240 - 2 * padding
+
+    const hScale = rHeight / active.file.height;
+    const wScale = rWidth / active.file.width
+
+    const newScaleCalc = Math.min(hScale, wScale)
+
+    const slider = this.zoomSliderRef.nativeElement as HTMLInputElement
+
+    const newScale = Math.max(Number(slider.min), Math.min(Number(slider.max), newScaleCalc))
+    this.updateSubject.next([active.id, newScale])
+
+    // console.log('scale', hScale, wScale, newScale)
+  }
 }
