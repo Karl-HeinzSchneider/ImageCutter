@@ -62,7 +62,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
   private initSubs() {
     // ImageFile
     this.store.activeFile$.pipe(takeUntil(this.destroy$)).subscribe(f => {
-      console.log('file changed', f)
+      //console.log('file changed', f)
       this.imageFile = f;
 
       // #hack, need id for store update...
@@ -79,7 +79,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
     // Zoom
     this.store.zoom$.pipe(takeUntil(this.destroy$)).subscribe(zoom => {
-      console.log('zoom changed', zoom)
+      //console.log('zoom changed', zoom)
 
       this.zoom = zoom || 1;
 
@@ -90,7 +90,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
     // Scroll
     this.store.scroll$.pipe(takeUntil(this.destroy$)).subscribe(scroll => {
-      console.log('scroll changed', scroll)
+      //console.log('scroll changed', scroll)
 
       this.scroll = scroll
 
@@ -101,7 +101,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
     // Cut selected
     this.store.selectedCut$.pipe(takeUntil(this.destroy$)).subscribe(cut => {
-      console.log('selected cut changed', cut)
+      //console.log('selected cut changed', cut)
       this.selectedCut = cut
 
       this.updateSelectedCut()
@@ -109,7 +109,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
     // non selected Cuts
     this.store.nonSelectedCuts$.pipe(takeUntil(this.destroy$)).subscribe(cuts => {
-      console.log('non selected cuts changed', cuts)
+      //console.log('non selected cuts changed', cuts)
       this.nonSelectedCuts = cuts
 
       this.updateNonSelectedCuts()
