@@ -80,19 +80,21 @@ export class CanvasPreviewComponent implements AfterViewInit, OnChanges, OnDestr
       return;
     }
     const stageRef = this.stage;
+    const maxH = 117
+    const maxW = 208
 
     const url = file.dataURL
 
     const h = file.height;
     const w = file.width;
 
-    const hScale = stageRef.height() / h;
-    const wScale = stageRef.width() / w
+    const hScale = maxH / h;
+    const wScale = maxW / w
 
     const scale = Math.min(hScale, wScale)
 
-    const dx = (stageRef.width() - w * scale) / 2
-    const dy = (stageRef.height() - h * scale) / 2
+    const dx = (maxW - w * scale) / 2
+    const dy = (maxH - h * scale) / 2
 
     //console.log(hScale, wScale, scale, dx, dy)
 
@@ -104,15 +106,19 @@ export class CanvasPreviewComponent implements AfterViewInit, OnChanges, OnDestr
 
     Konva.Image.fromURL(url, function (node) {
       node.setAttrs({
-        x: dx,
-        y: dy,
-        scaleX: scale,
-        scaleY: scale,
+        x: 0,
+        y: 0,
+        scaleX: 1,
+        scaleY: 1,
         id: 'previewBG'
       })
 
       layerRef.add(node)
     })
+
+    stageRef.width(w * scale)
+    stageRef.height(h * scale)
+    stageRef.scale({ x: scale, y: scale })
 
   }
 }
