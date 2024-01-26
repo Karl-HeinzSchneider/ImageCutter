@@ -7,6 +7,10 @@ import { localStorageStrategy, persistState } from '@ngneat/elf-persist-state';
 import { distinctUntilChanged, filter, map } from 'rxjs';
 import { Vector2d } from 'konva/lib/types';
 
+// https://www.geodev.me/blog/deeppartial-in-typescript/
+export type DeepPartial<T> = {
+    [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
 
 export interface AppProps {
     bestNumber: number,
@@ -17,7 +21,7 @@ export interface ImageProps {
     id: string,
     meta: ImageMeta
     file?: ImageFile
-    cuts?: ImageCut[]
+    cuts: ImageCut[]
 }
 
 export interface ImageMeta {
@@ -47,8 +51,8 @@ export interface ImageCut {
     locked: boolean,
     selected: boolean,
     type: 'absolute' | 'relative',
-    absolute?: absoluteCut,
-    relative?: relativeCut
+    absolute: absoluteCut,
+    relative: relativeCut
 }
 
 export interface absoluteCut {
@@ -74,7 +78,8 @@ const testImage: ImageProps = {
         zoom: 1,
         scrollX: 0.5,
         scrollY: 0.5
-    }
+    },
+    cuts: []
 }
 
 const testImageTwo: ImageProps = {
@@ -86,7 +91,8 @@ const testImageTwo: ImageProps = {
         zoom: 1,
         scrollX: 0.5,
         scrollY: 0.5
-    }
+    },
+    cuts: []
 }
 
 
@@ -228,6 +234,12 @@ export class AppRepository {
                     y: 0,
                     width: 32,
                     height: 32
+                },
+                relative: {
+                    top: 0,
+                    bottom: 1,
+                    left: 0,
+                    right: 0
                 }
             }
             newImg.cuts?.push(newCut)
@@ -245,6 +257,12 @@ export class AppRepository {
                     y: 0,
                     width: 32,
                     height: 32
+                },
+                relative: {
+                    top: 0,
+                    bottom: 1,
+                    left: 0,
+                    right: 0
                 }
             }
             newImg.cuts?.push(newCut)
@@ -321,6 +339,41 @@ export class AppRepository {
         this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
     }
 
+    public updateSelectedCut(id: string, updates: DeepPartial<ImageCut>) {
+
+    }
+    // public updateSelectedCut(id: string, updates: DeepPartial<ImageCut>) {
+    //     const img = this.store.query(getEntity(id));
+
+    //     if (!img || !img.cuts) {
+    //         return;
+    //     }
+
+    //     const index = img.cuts.findIndex(x => x.selected)
+
+    //     if (index < 0) {
+    //         return;
+    //     }
+
+    //     const oldCut = img.cuts[index]
+
+    //     let newImg: ImageProps = { ...img }
+
+    //     let newCut: ImageCut = { ...oldCut, ...updates }
+
+    //     console.log('partialUpdate', oldCut, newCut)
+
+    //     newImg.cuts![index] = newCut
+
+
+    //     if (oldCut.selected && !newCut.selected) {
+    //         const nextIndex = Math.max(0, index - 1)
+    //         newImg.cuts![nextIndex].selected = true
+    //     }
+
+    //     this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
+    // }
+
     public selectCut(id: string, cut: ImageCut) {
         const img = this.store.query(getEntity(id));
 
@@ -372,7 +425,8 @@ export class AppRepository {
                     scrollX: 0.5,
                     scrollY: 0.5
                 },
-                file: f
+                file: f,
+                cuts: []
             }
 
             return newProp

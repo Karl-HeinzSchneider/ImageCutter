@@ -12,22 +12,26 @@
                 <span>Pos: </span>
                 <div class="input-box">
                     <span>X</span>
-                    <input type="number" id="posX" name="posX" min="0" max="9999" [value]="selected.absolute?.x">
+                    <input type="number" id="posX" name="posX" min="0" max="9999" [value]="selected.absolute.x"
+                        (change)="inputChange($event, 'posX', selected)" (input)="input($event,'posX', selected)">
                 </div>
                 <div class="input-box">
                     <span>Y</span>
-                    <input type="number" id="posY" name="posY" min="0" max="9999" [value]="selected.absolute?.y">
+                    <input type="number" id="posY" name="posY" min="0" max="9999" [value]="selected.absolute.y"
+                        (change)="inputChange($event, 'posY', selected)" (input)="input($event,'posY', selected)">
                 </div>
             </div>
             <div class="size flex">
                 <span>Size: </span>
                 <div class="input-box">
                     <span>W</span>
-                    <input type="number" id="sizeX" name="sizeX" min="0" max="9999" [value]="selected.absolute?.width">
+                    <input type="number" id="sizeX" name="sizeX" min="1" max="9999" [value]="selected.absolute.width"
+                        (change)="inputChange($event, 'sizeX', selected)" (input)="input($event,'sizeX', selected)">
                 </div>
                 <div class="input-box">
                     <span>H</span>
-                    <input type="number" id="sizeY" name="sizeY" min="0" max="9999" [value]="selected.absolute?.height">
+                    <input type="number" id="sizeY" name="sizeY" min="1" max="9999" [value]="selected.absolute.height"
+                        (change)="inputChange($event, 'sizeY', selected)" (input)="input($event,'sizeY', selected)">
                 </div>
             </div>
         </ng-container>
