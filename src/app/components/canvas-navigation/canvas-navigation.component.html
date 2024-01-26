@@ -1,8 +1,7 @@
 <ng-container *ngIf="(active$ | async) as active">
     <div class="container">
-        <div class="canvas">
-            canvas
-        </div>
+        <app-canvas-preview class="canvas"></app-canvas-preview>
+
         <div class="slidercontainer">
             <div class="zoomout" (click)="zoomOutClicked(active.id)">
                 <ng-container *ngTemplateOutlet="zoomOut"></ng-container>
