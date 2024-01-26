@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { createStore, select, setProp, withProps } from '@ngneat/elf';
+import { createStore, distinctUntilArrayItemChanged, select, setProp, withProps } from '@ngneat/elf';
 import { addEntities, getActiveEntity, getEntity, selectActiveEntity, selectManyByPredicate, setActiveId, updateEntities, withActiveId, withEntities } from '@ngneat/elf-entities';
 import { v4 as uuid } from 'uuid';
 import { readFileList } from './cutter.store.helper';
@@ -161,6 +161,14 @@ export class AppRepository {
             return cut;
         }),
         distinctUntilChanged()
+    )
+
+    nonSelectedCuts$ = this.active$.pipe(
+        map(active => {
+            const cuts = active?.cuts.filter(x => !x.selected)
+            return cuts || []
+        }),
+        distinctUntilArrayItemChanged()
     )
 
 

@@ -43,6 +43,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
   private zoom: number = 1;
   private scroll: Vector2d = { x: 0.5, y: 0.5 };
   private selectedCut: ImageCut | undefined;
+  private nonSelectedCuts: ImageCut[] | undefined;
 
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
@@ -104,6 +105,14 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       this.selectedCut = cut
 
       this.updateSelectedCut()
+    })
+
+    // non selected Cuts
+    this.store.nonSelectedCuts$.pipe(takeUntil(this.destroy$)).subscribe(cuts => {
+      console.log('non selected cuts changed', cuts)
+      this.nonSelectedCuts = cuts
+
+      this.updateNonSelectedCuts()
     })
   }
 
@@ -545,6 +554,10 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       //console.log('newCut', newCut)
       this.store.updateCut(this.id, newCut)
     }
+  }
+
+  private updateNonSelectedCuts() {
+
   }
 
 
