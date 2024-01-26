@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, Pipe, PipeTransform } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, Pipe, PipeTransform, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AppRepository, ImageProps } from '../../state/cutter.store';
 import { Observable, Subject, debounceTime, takeUntil } from 'rxjs';
@@ -21,6 +21,7 @@ export class inverseExpPipe implements PipeTransform {
   styleUrl: './canvas-navigation.component.scss'
 })
 export class CanvasNavigationComponent implements OnDestroy, OnInit {
+  @ViewChild('zoomSlider', { static: false }) zoomSliderRef!: ElementRef;
 
   active$: Observable<ImageProps | undefined>;
 
@@ -59,4 +60,31 @@ export class CanvasNavigationComponent implements OnDestroy, OnInit {
     return 0.18129 * Math.exp(0.0561968 * val)
   }
 
+  public zoomInClicked(id: string) {
+    const slider = this.zoomSliderRef.nativeElement as HTMLInputElement
+    const oldValue = Number(slider.value)
+    const changedValue = Math.round(oldValue) + 2
+
+    const newValue = Math.min(changedValue, Number(slider.max))
+
+
+    const scaledValue = this.scaleValue(newValue)
+    this.updateSubject.next([id, scaledValue])
+
+    //console.log('zoomIn', oldValue, newValue, id, scaledValue)
+  }
+
+  public zoomOutClicked(id: string) {
+    const slider = this.zoomSliderRef.nativeElement as HTMLInputElement
+    const oldValue = Number(slider.value)
+    const changedValue = Math.round(oldValue) - 2
+
+    const newValue = Math.max(changedValue, Number(slider.min))
+
+
+    const scaledValue = this.scaleValue(newValue)
+    this.updateSubject.next([id, scaledValue])
+
+    // console.log('zoomOut', oldValue, newValue, id, scaledValue)
+  }
 }
