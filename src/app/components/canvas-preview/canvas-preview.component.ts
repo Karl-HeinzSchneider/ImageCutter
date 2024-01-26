@@ -1,12 +1,13 @@
-import { AfterViewInit, Component, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Component, HostListener, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Stage } from 'konva/lib/Stage';
 import { Layer } from 'konva/lib/Layer';
 import Konva from 'konva';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, debounceTime, takeUntil } from 'rxjs';
 import { AppRepository, ImageFile } from '../../state/cutter.store';
 import { getActiveEntity } from '@ngneat/elf-entities';
 import { Rect } from 'konva/lib/shapes/Rect';
+import { Vector2d } from 'konva/lib/types';
 
 @Component({
   selector: 'app-canvas-preview',
@@ -18,15 +19,24 @@ import { Rect } from 'konva/lib/shapes/Rect';
 export class CanvasPreviewComponent implements AfterViewInit, OnChanges, OnDestroy {
   private readonly destroy$ = new Subject<number>()
 
+  private updateSubject = new Subject<Vector2d>;
+
   private stage!: Stage;
   private layerBG!: Layer;
   private layerRect!: Layer;
 
   private rect!: Rect;
-
+  private dragging: boolean = false;
 
   private id: string = '-42';
   private imageFile: ImageFile | undefined;
+  private zoom: number = 1;
+  private scroll: Vector2d = { x: 0.5, y: 0.5 };
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event) {
+    this.updateRect()
+  }
 
 
   constructor(private store: AppRepository) {
@@ -39,8 +49,9 @@ export class CanvasPreviewComponent implements AfterViewInit, OnChanges, OnDestr
   ngAfterViewInit(): void {
     if (!this.stage) {
       this.initStage()
-      this.initSubs()
       this.initRect()
+
+      this.initSubs()
     }
   }
 
@@ -72,7 +83,8 @@ export class CanvasPreviewComponent implements AfterViewInit, OnChanges, OnDestr
   private initSubs() {
     // ImageFile
     this.store.activeFile$.pipe(takeUntil(this.destroy$)).subscribe(f => {
-      console.log('file changed', f)
+      //console.log('file changed', f)
+
       this.imageFile = f;
 
       // #hack, need id for store update...
@@ -82,7 +94,34 @@ export class CanvasPreviewComponent implements AfterViewInit, OnChanges, OnDestr
       }
 
       this.drawBG()
+      this.updateRect();
+    })
 
+    // Zoom
+    this.store.zoom$.pipe(takeUntil(this.destroy$)).subscribe(zoom => {
+      //console.log('zoom changed', zoom)
+
+      this.zoom = zoom || 1;
+      this.updateRect();
+    })
+
+    // Scroll
+    this.store.scroll$.pipe(takeUntil(this.destroy$)).subscribe(scroll => {
+      //console.log('scroll changed', scroll)
+
+      this.scroll = scroll
+      this.updateRect()
+    })
+
+    // update Sub
+
+    this.updateSubject.pipe(
+      debounceTime(5),
+      takeUntil(this.destroy$)
+    ).subscribe(value => {
+      //console.log('updateSubject', value)
+      this.store.updateScroll(this.id, value.x, value.y)
+      //this.store.updateZoom(value[0], value[1])
     })
   }
 
@@ -149,6 +188,14 @@ export class CanvasPreviewComponent implements AfterViewInit, OnChanges, OnDestr
 
     const componentRef = this;
 
+    rect.on('dragstart', function () {
+      componentRef.dragging = true
+    })
+
+    rect.on('dragend', function () {
+      componentRef.dragging = false
+    })
+
     rect.on('dragmove', function () {
       const imageW = componentRef.imageFile?.width || 0
       const imageH = componentRef.imageFile?.height || 0
@@ -159,14 +206,88 @@ export class CanvasPreviewComponent implements AfterViewInit, OnChanges, OnDestr
 
       this.x(newX)
       this.y(newY)
+
+      componentRef.updateStoreFromRect()
     })
 
     this.rect = rect
     this.layerRect.add(rect)
   }
 
+  private updateStoreFromRect() {
+    const rect = this.rect
+    const file = this.imageFile;
+
+    if (!file) {
+      return;
+    }
+
+    const dx = (file.width - rect.width())
+    const dy = (file.height - rect.height())
+
+    const newScrollX = dx != 0 ? rect.x() / dx : 0.5
+    const newScrollY = dy != 0 ? rect.y() / dy : 0.5
+
+    //console.log('newScroll', newScrollX, newScrollY)
+    this.updateSubject.next({ x: newScrollX, y: newScrollY })
+  }
+
 
   private updateRect() {
+    const file = this.imageFile
+    if (!file || this.dragging) {
+      return;
+    }
 
+    // big stage size
+    // see: canvas.component - resizeStage()
+    const wHeight = window.innerHeight
+    const wWidth = window.innerWidth
+
+    const padding = 24
+
+    const rHeight = wHeight - 32 - 48 - 32 - 32 - 2 * padding
+    const rWidth = wWidth - 48 - 240 - 2 * padding
+
+    const scale = this.zoom;
+    const scroll = this.scroll;
+
+    const zoomX = rWidth / (file.width * scale)
+    const zoomY = rHeight / (file.height * scale)
+
+    //console.log('zoomXY', zoomX, zoomY)
+
+    let newX = 0;
+    let newY = 0;
+    let newW = 100;
+    let newH = 100;
+
+    if (zoomX < 1) {
+      newW = zoomX * file.width
+      newX = scroll.x * (file.width - newW)
+    }
+    else {
+      // no scroll X => complete width is visible
+      newX = 0;
+      newW = file.width;
+    }
+
+    if (zoomY < 1) {
+      newH = zoomY * file.height
+      newY = scroll.y * (file.height - newH)
+
+    }
+    else {
+      // no scroll y => complete height is visible
+      newY = 0;
+      newH = file.height;
+    }
+
+    //console.log(newX, newY, newW, newH)
+
+    this.rect.x(newX)
+    this.rect.y(newY)
+    this.rect.width(newW)
+    this.rect.height(newH)
   }
 }
