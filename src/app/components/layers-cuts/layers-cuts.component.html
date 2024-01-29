@@ -1,8 +1,8 @@
 <div class="container">
     <app-layer-box class="cuts" [headerText]="'Cuts'">
-        <ng-container *ngIf="(image$ | async) as image">
+        <ng-container *ngIf="(activeCanvas$ | async) as activeCanvas">
             <ng-container *ngFor="let cut of active.cuts">
-                <app-layers-cut [cut]="cut" [imageRef]="image"></app-layers-cut>
+                <app-layers-cut [cut]="cut" [activeCanvas]="activeCanvas"></app-layers-cut>
             </ng-container>
         </ng-container>
     </app-layer-box>

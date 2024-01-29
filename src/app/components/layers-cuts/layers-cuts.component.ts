@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LayerBoxComponent } from '../layer-box/layer-box.component';
 import { LayersCutComponent } from '../layers-cut/layers-cut.component';
-import { AppRepository, ImageProps } from '../../state/cutter.store';
+import { AppRepository, CanvasProps, ImageProps } from '../../state/cutter.store';
 import { Observable, distinctUntilChanged, from, map, switchMap } from 'rxjs';
 
 @Component({
@@ -18,7 +18,11 @@ export class LayersCutsComponent {
 
   image$: Observable<HTMLImageElement>;
 
+  activeCanvas$: Observable<CanvasProps>;
+
   constructor(private store: AppRepository) {
+    this.activeCanvas$ = store.activeCanvas$
+
     const dataURL$ = store.active$.pipe(
       map(active => {
         return active?.file?.dataURL || ''
@@ -45,6 +49,29 @@ export class LayersCutsComponent {
         return prom
       })
     )
+
+    /* store.activeCanvas$.subscribe(c => {
+      console.log('ActiveCanvasChange', c)
+
+      const ctx = c.canvas.getContext('2d')
+
+      if (!ctx) {
+        console.log('no ctx')
+        return;
+      }
+      const data = ctx?.getImageData(0, 0, 100, 100)
+      console.log(data)
+
+      c.canvas.transferToImageBitmap()
+
+      const newCanv = document.createElement('canvas')
+      newCanv.getContext('2d')?.drawImage(c.canvas, 0, 0)
+
+      const blob = c.canvas.convertToBlob().then(b => {
+        const url = URL.createObjectURL(b)
+        console.log(url)
+      })
+    }) */
   }
 
   adderClicked() {

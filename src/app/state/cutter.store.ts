@@ -113,7 +113,7 @@ export class AppRepository {
     private restoredImageProps: ImageProps[] = []
 
     private preAppStoreInit = (value: AppProps & { activeId: any; } & { entities: Record<string, ImageProps>; ids: string[]; }) => {
-        console.log('preAppStoreInit', value)
+        //console.log('preAppStoreInit', value)
 
         const ents: ImageProps[] = []
 
@@ -506,8 +506,9 @@ export class AppRepository {
                 const blob = await fetch(img.file.dataURL).then((response) => response.blob())
                 const imageBitmap = await createImageBitmap(blob)
 
-                const ctx = canv.getContext('bitmaprenderer')
-                ctx?.transferFromImageBitmap(imageBitmap)
+                const ctx = canv.getContext('2d')
+                //ctx?.transferFromImageBitmap(imageBitmap)
+                ctx?.drawImage(imageBitmap, 0, 0)
 
                 updates.push(prop)
             }
