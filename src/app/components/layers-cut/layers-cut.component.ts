@@ -40,7 +40,8 @@ export class LayersCutComponent implements OnChanges, AfterViewInit {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('ngOnChanges', changes)
+    console.log('ngOnChanges', this.cut.name, changes)
+    return;
 
     if (this.konvaRef && !this.stage) {
       this.initStage()
@@ -51,7 +52,8 @@ export class LayersCutComponent implements OnChanges, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    console.log('ngAfterViewInit')
+    console.log('ngAfterViewInit', this.cut.name,)
+    return;
 
     if (this.konvaRef && !this.stage) {
       this.initStage()

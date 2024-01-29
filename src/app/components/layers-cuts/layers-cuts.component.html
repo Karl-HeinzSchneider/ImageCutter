@@ -2,7 +2,7 @@
     <app-layer-box class="cuts" [headerText]="'Cuts'">
         <ng-container *ngIf="(image$ | async) as image">
             <ng-container *ngFor="let cut of active.cuts">
-                <app-layers-cut [active]="active" [cut]="cut" [imageRef]="image"></app-layers-cut>
+                <app-layers-cut [cut]="cut" [imageRef]="image"></app-layers-cut>
             </ng-container>
         </ng-container>
     </app-layer-box>
