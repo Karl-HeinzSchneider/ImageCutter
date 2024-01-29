@@ -1,6 +1,9 @@
 import { AfterViewInit, Component, ElementRef, Input, OnChanges, Pipe, PipeTransform, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AppRepository, ImageCut, ImageProps } from '../../state/cutter.store';
+import { AppRepository, ImageCut, ImageFile, ImageProps } from '../../state/cutter.store';
+import { Stage } from 'konva/lib/Stage';
+import { Layer } from 'konva/lib/Layer';
+import Konva from 'konva';
 
 @Pipe({ name: 'cutSize', standalone: true })
 export class cutSizePipe implements PipeTransform {
@@ -22,26 +25,91 @@ export class cutSizePipe implements PipeTransform {
 })
 export class LayersCutComponent implements OnChanges, AfterViewInit {
   @ViewChild('canvas', { static: false }) canvasRef!: ElementRef;
+  @ViewChild('konva') konvaRef!: ElementRef<HTMLDivElement>;
 
   @Input() active!: ImageProps;
   @Input() cut!: ImageCut;
   @Input() imageRef!: HTMLImageElement;
+
+  private stage?: Stage;
+  private layer?: Layer;
+
+  private id: string = '-69';
 
   constructor(private store: AppRepository) {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     console.log('ngOnChanges', changes)
-    if (this.canvasRef) {
-      this.drawCut()
+
+    if (this.konvaRef && !this.stage) {
+      this.initStage()
+    }
+    if (this.stage) {
+      this.drawBG()
     }
   }
 
   ngAfterViewInit(): void {
     console.log('ngAfterViewInit')
-    if (this.canvasRef) {
-      this.drawCut()
+
+    if (this.konvaRef && !this.stage) {
+      this.initStage()
     }
+    if (this.stage) {
+      this.drawBG()
+    }
+  }
+
+  initStage() {
+    if (!this.konvaRef || this.stage) {
+      return;
+    }
+
+    console.log('initStage', this.konvaRef)
+
+    const div: HTMLDivElement = this.konvaRef.nativeElement
+
+    this.stage = new Konva.Stage({
+      height: 40,
+      width: 40,
+      container: div
+    })
+
+    this.layer = new Konva.Layer({
+      imageSmoothingEnabled: false
+    })
+    this.stage.add(this.layer)
+  }
+
+  drawBG() {
+    const layerBG = this.layer!
+    const bg = layerBG.findOne('#bg')
+
+    if (bg) {
+      layerBG.destroyChildren()
+    }
+
+    const image: ImageFile = this.active.file!;
+    const componentRef = this;
+    const stageRef = this.stage;
+
+    Konva.Image.fromURL(image.dataURL, function (node) {
+      const dx = image.width / 2;
+      const dy = image.height / 2
+      node.setAttrs({
+        x: dx,
+        y: dy,
+        scaleX: 1,
+        scaleY: 1,
+        offsetX: dx,
+        offsetY: dy,
+        id: 'bg'
+      })
+
+      layerBG.add(node)
+    })
+
   }
 
   drawCut() {
