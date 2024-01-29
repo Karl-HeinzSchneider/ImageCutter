@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { createStore, distinctUntilArrayItemChanged, select, setProp, withProps } from '@ngneat/elf';
-import { addEntities, getActiveEntity, getEntity, selectActiveEntity, selectManyByPredicate, setActiveId, updateEntities, withActiveId, withEntities } from '@ngneat/elf-entities';
+import { createStore, distinctUntilArrayItemChanged, filterNil, select, setProp, withProps } from '@ngneat/elf';
+import { addEntities, getActiveEntity, getEntity, selectActiveEntity, selectEntity, selectManyByPredicate, setActiveId, updateEntities, withActiveId, withEntities } from '@ngneat/elf-entities';
 import { localStorageStrategy, persistState } from '@ngneat/elf-persist-state';
 import { Vector2d } from 'konva/lib/types';
-import { debounceTime, distinctUntilChanged, map } from 'rxjs';
+import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 import { readFileList } from './cutter.store.helper';
 
@@ -138,6 +138,17 @@ export class AppRepository {
     showDropzone$ = this.store.pipe(select((state) => state.showDropzone))
 
     active$ = this.store.pipe(selectActiveEntity())
+
+    activeCanvas$ = this.active$.pipe(
+        filterNil(),
+        map(active => active.id),
+        distinctUntilChanged(),
+        switchMap(id => {
+            const canvas$ = this.canvasStore.pipe(selectEntity(id))
+            return canvas$
+        }),
+        filterNil()
+    )
 
     activeFile$ = this.active$.pipe(
         map(active => {
