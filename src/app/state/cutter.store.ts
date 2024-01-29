@@ -123,7 +123,10 @@ export class AppRepository {
             this.restoredImageProps.push(img)
         })
 
-        return value
+        const newState = { ...value }
+        newState.showDropzone = false
+
+        return newState
     }
 
     private persist = persistState(this.store, { key: 'Cutter', storage: localStorageStrategy, source: () => this.store.pipe(debounceTime(200)), preStoreInit: this.preAppStoreInit })
