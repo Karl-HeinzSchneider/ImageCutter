@@ -7,6 +7,8 @@
 
     overflow: hidden;
     text-overflow: ellipsis;
+
+    position: relative;
 }
 
 .tab:hover {
@@ -17,4 +19,32 @@
     color: rgba(255, 255, 255, 0.9);
     cursor: default;
     background-color: var(--background-tools);
+}
+
+.svg-container {
+    height: 32px;
+    width: 32px;
+
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    cursor: pointer;
+}
+
+
+svg {
+    height: 18px;
+    width: 18px;
+
+    margin-left: 7px;
+    margin-top: 7px;
+
+    display: none;
+}
+
+.tab:hover {
+    svg {
+        display: block;
+    }
 }

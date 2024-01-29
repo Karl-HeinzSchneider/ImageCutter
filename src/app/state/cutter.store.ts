@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { createStore, distinctUntilArrayItemChanged, filterNil, select, setProp, withProps } from '@ngneat/elf';
-import { addEntities, getActiveEntity, getEntity, selectActiveEntity, selectEntity, selectManyByPredicate, setActiveId, updateEntities, withActiveId, withEntities } from '@ngneat/elf-entities';
+import { addEntities, getActiveEntity, getAllEntities, getAllEntitiesApply, getEntity, getEntityByPredicate, selectActiveEntity, selectEntity, selectManyByPredicate, setActiveId, updateEntities, withActiveId, withEntities } from '@ngneat/elf-entities';
 import { localStorageStrategy, persistState } from '@ngneat/elf-persist-state';
 import { Vector2d } from 'konva/lib/types';
 import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs';
@@ -518,6 +518,81 @@ export class AppRepository {
         }
 
         this.canvasStore.update(addEntities(updates))
+    }
+
+    // 
+    public closeImage(id: string) {
+        const img = this.store.query(getEntity(id));
+
+        if (!img) {
+            return;
+        }
+
+        const active = this.getActiveEntity()
+
+        const newImg: ImageProps = { ...img }
+        newImg.meta.active = false;
+
+
+
+
+        if (!active) {
+            this.store.update(updateEntities(id, (ent) => ({ ...newImg })))
+        } else if (active.id === img.id) {
+            this.store.update(updateEntities(id, (ent) => ({ ...newImg })))
+            this.setActiveImage('-1')
+        }
+
+        /* console.log(img, newImg, active)
+        if (1 + 1 === 3) {
+            return;
+        }
+
+        if (!active) {
+            console.log('first')
+            this.store.update(updateEntities(id, (ent) => ({ ...newImg })))
+        }
+        else if (active.id === img.id) {
+            console.log('2nd')
+
+            const images = this.store.query(getAllEntitiesApply({ filterEntity: (e) => e.meta.active }))
+            const length = images.length
+            const index = images.findIndex(x => x.id === id)
+
+            console.log(img, images, length, index)
+
+            // only one
+            if (length === 1) {
+                // this.store.update(updateEntities(id,(ent) => ({...ent,...{meta:{active: false}}})))
+                this.store.update(updateEntities(id, (ent) => ({ ...newImg })))
+            }
+            // first
+            else if (length > 1 && index === 0) {
+                const other = images[1]
+
+                const newOther = { ...other }
+                newOther.meta.active = true
+
+                this.store.update(updateEntities(id, (ent) => ({ ...newImg })))
+
+                this.store.update(updateEntities(newOther.id, (ent) => ({ ...newOther })))
+            }
+            else {
+                const other = images[index - 1]
+
+                const newOther = { ...other }
+                newOther.meta.active = true
+
+                this.store.update(updateEntities(id, (ent) => ({ ...newImg })))
+
+                this.store.update(updateEntities(newOther.id, (ent) => ({ ...newOther })))
+            }
+        }
+        else {
+            console.log('3rd')
+
+            this.store.update(updateEntities(id, (ent) => ({ ...newImg })))
+        } */
     }
 
 }

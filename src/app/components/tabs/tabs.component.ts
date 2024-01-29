@@ -25,4 +25,12 @@ export class TabsComponent {
       this.store.setActiveImage(this.image.id)
     }
   }
+
+  onClose(e: Event) {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log('close', this.image.meta.name)
+
+    this.store.closeImage(this.image.id)
+  }
 }
