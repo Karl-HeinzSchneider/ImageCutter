@@ -4,13 +4,15 @@
 
     display: grid;
     grid-template-areas:
-        'title eye'
-        'size eye';
-    grid-template-columns: auto 64px;
+        'canvas title eye'
+        'canvas size eye';
+    grid-template-columns: 48px auto 64px;
 
     cursor: pointer;
 
     border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+
+
 }
 
 .selected {
@@ -18,8 +20,8 @@
 }
 
 .main {
-    padding-left: 16px;
-    padding-right: 16px;
+    padding-left: 8px;
+    padding-right: 8px;
 }
 
 .title {
@@ -63,4 +65,24 @@
     height: 24.36px;
 
     margin: 11.82px 12px 11.82px 12px;
+}
+
+.canvas {
+    grid-area: canvas;
+
+    position: relative;
+}
+
+canvas {
+    display: block;
+    //width: 40px;
+    //height: 40px;
+
+    //margin-right: auto;
+    //margin-left: auto;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }

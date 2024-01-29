@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { LayerBoxComponent } from '../layer-box/layer-box.component';
 import { LayersCutComponent } from '../layers-cut/layers-cut.component';
 import { AppRepository, ImageProps } from '../../state/cutter.store';
-import { Observable } from 'rxjs';
+import { Observable, distinctUntilChanged, from, map, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-layers-cuts',
@@ -16,7 +16,35 @@ export class LayersCutsComponent {
 
   @Input() active!: ImageProps;
 
+  image$: Observable<HTMLImageElement>;
+
   constructor(private store: AppRepository) {
+    const dataURL$ = store.active$.pipe(
+      map(active => {
+        return active?.file?.dataURL || ''
+      }),
+      distinctUntilChanged()
+    )
+
+    const test = from(new Promise(resolve => {
+      resolve('test')
+    }))
+
+    this.image$ = dataURL$.pipe(
+      switchMap(dataURL => {
+        const prom: Promise<HTMLImageElement> = new Promise((resolve, reject) => {
+          const img = new Image()
+
+          img.addEventListener('load', () => {
+            resolve(img)
+          })
+
+          img.src = dataURL
+        })
+
+        return prom
+      })
+    )
   }
 
   adderClicked() {

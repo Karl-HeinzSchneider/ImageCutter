@@ -1,6 +1,6 @@
-import { Component, Input, Pipe, PipeTransform } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnChanges, Pipe, PipeTransform, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AppRepository, ImageCut } from '../../state/cutter.store';
+import { AppRepository, ImageCut, ImageProps } from '../../state/cutter.store';
 
 @Pipe({ name: 'cutSize', standalone: true })
 export class cutSizePipe implements PipeTransform {
@@ -20,12 +20,80 @@ export class cutSizePipe implements PipeTransform {
   templateUrl: './layers-cut.component.html',
   styleUrl: './layers-cut.component.scss'
 })
-export class LayersCutComponent {
+export class LayersCutComponent implements OnChanges, AfterViewInit {
+  @ViewChild('canvas', { static: false }) canvasRef!: ElementRef;
 
-  @Input() id!: string;
+  @Input() active!: ImageProps;
   @Input() cut!: ImageCut;
+  @Input() imageRef!: HTMLImageElement;
 
   constructor(private store: AppRepository) {
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log('ngOnChanges', changes)
+    if (this.canvasRef) {
+      this.drawCut()
+    }
+  }
+
+  ngAfterViewInit(): void {
+    console.log('ngAfterViewInit')
+    if (this.canvasRef) {
+      this.drawCut()
+    }
+  }
+
+  drawCut() {
+    console.log('drawCut')
+
+    const canvas = this.canvasRef.nativeElement as HTMLCanvasElement
+    const ctx = canvas.getContext("2d")
+    if (!ctx) {
+      return;
+    }
+
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.imageSmoothingEnabled = false;
+
+    //ctx.drawImage(this.imageRef, 0, 0, this.active.file?.width!, this.active.file?.height!)
+
+    //ctx.drawImage(this.imageRef, 0, 0, 184, 184, 0, 0, 40, 40);
+
+    if (this.cut.type === 'absolute') {
+      const abs = this.cut.absolute
+      const sx = abs.x;
+      const sy = abs.y;
+      const sWidth = abs.width;
+      const sHeight = abs.height;
+
+      if (sWidth === sHeight) {
+        console.log('sWidth === sHeight')
+        const dx = 0;
+        const dy = 0;
+        const dWidth = 40;
+        const dHeight = 40;
+        ctx.drawImage(this.imageRef, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+      }
+      else if (sWidth > sHeight) {
+        console.log('sWidth > sHeight')
+        const dx = 0;
+        const dWidth = 40;
+
+        const dHeight = (sHeight / sWidth) * 40;
+        const dy = (40 - dHeight) / 2;
+
+        ctx.drawImage(this.imageRef, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+      }
+
+
+    }
+    else if (this.cut.type === 'relative') {
+
+    }
+
+
+    //ctx.fillRect(0, 0, 184, 184)
   }
 
   cutClicked() {
@@ -33,7 +101,7 @@ export class LayersCutComponent {
 
     if (!this.cut.selected) {
       //console.log('Select Cut', this.id, this.cut)
-      this.store.selectCut(this.id, this.cut)
+      this.store.selectCut(this.active.id, this.cut)
     }
     else {
       //console.log('already selected', this.id, this.cut)
@@ -45,6 +113,6 @@ export class LayersCutComponent {
     let newCut: ImageCut = { ...this.cut }
     newCut.visible = !this.cut.visible
 
-    this.store.updateCut(this.id, newCut)
+    this.store.updateCut(this.active.id, newCut)
   }
 }
