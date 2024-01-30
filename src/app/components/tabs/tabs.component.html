@@ -1,5 +1,5 @@
 <div class="tab" [class.selected]="selected" (click)="onClick()">
-    {{image.file?.name}}
+    <p> {{image.file?.name}}</p>
     <ng-container *ngTemplateOutlet="closeTemplate"></ng-container>
 </div>
 

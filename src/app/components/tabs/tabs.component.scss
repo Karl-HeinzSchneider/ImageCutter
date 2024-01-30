@@ -1,18 +1,31 @@
 .tab {
-    line-height: 32px;
     padding: 0 28px 0 10px;
 
     color: rgba(255, 255, 255, 0.5);
     cursor: pointer;
 
     overflow: hidden;
-    text-overflow: ellipsis;
 
     position: relative;
+
+    min-width: 26px;
+    max-width: 250px;
+    //width: 100px;
 }
 
 .tab:hover {
     color: rgba(255, 255, 255, 0.9);
+}
+
+.tab>p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 32px;
+    margin: 0;
+    padding: 0;
+
+    //min-width: 16px;
+    //max-width: 180px;
 }
 
 .selected {
