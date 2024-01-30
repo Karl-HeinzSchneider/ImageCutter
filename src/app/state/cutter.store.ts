@@ -6,6 +6,7 @@ import { Vector2d } from 'konva/lib/types';
 import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 import { readFileList } from './cutter.store.helper';
+import localforage from 'localforage';
 
 // https://www.geodev.me/blog/deeppartial-in-typescript/
 export type DeepPartial<T> = {
@@ -100,6 +101,14 @@ export interface CanvasProps {
     canvas: OffscreenCanvas
 }
 
+// localforage config
+localforage.config({
+    driver: localforage.INDEXEDDB,
+    name: 'ImageCutter',
+    version: 1.0,
+    storeName: 'AppStore'
+})
+
 
 @Injectable({ providedIn: 'root' })
 export class AppRepository {
@@ -129,7 +138,7 @@ export class AppRepository {
         return newState
     }
 
-    private persist = persistState(this.store, { key: 'Cutter', storage: localStorageStrategy, source: () => this.store.pipe(debounceTime(200)), preStoreInit: this.preAppStoreInit })
+    private persist = persistState(this.store, { key: 'AppStore', storage: localforage, source: () => this.store.pipe(debounceTime(200)), preStoreInit: this.preAppStoreInit })
 
     public canvasStore = createStore(
         { name: 'CanvasStore' },
