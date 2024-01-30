@@ -524,75 +524,35 @@ export class AppRepository {
     public closeImage(id: string) {
         const img = this.store.query(getEntity(id));
 
-        if (!img) {
+        if (!img || !img.meta.active) {
+            //console.log('no img or already inactive')
             return;
         }
+
+        const newImg: ImageProps = JSON.parse(JSON.stringify(img))
+        newImg.meta.active = false;
+
+        const images = this.store.query(getAllEntities()).filter(x => x.meta.active)
+        const l = images.length
+        const index = images.findIndex(x => x.id === id)
 
         const active = this.getActiveEntity()
 
-        const newImg: ImageProps = { ...img }
-        newImg.meta.active = false;
+        if (active && active.id === img.id) {
+            // image to close is active 
 
-
-
-
-        if (!active) {
-            this.store.update(updateEntities(id, (ent) => ({ ...newImg })))
-        } else if (active.id === img.id) {
-            this.store.update(updateEntities(id, (ent) => ({ ...newImg })))
-            this.setActiveImage('-1')
-        }
-
-        /* console.log(img, newImg, active)
-        if (1 + 1 === 3) {
-            return;
-        }
-
-        if (!active) {
-            console.log('first')
-            this.store.update(updateEntities(id, (ent) => ({ ...newImg })))
-        }
-        else if (active.id === img.id) {
-            console.log('2nd')
-
-            const images = this.store.query(getAllEntitiesApply({ filterEntity: (e) => e.meta.active }))
-            const length = images.length
-            const index = images.findIndex(x => x.id === id)
-
-            console.log(img, images, length, index)
-
-            // only one
-            if (length === 1) {
-                // this.store.update(updateEntities(id,(ent) => ({...ent,...{meta:{active: false}}})))
-                this.store.update(updateEntities(id, (ent) => ({ ...newImg })))
-            }
-            // first
-            else if (length > 1 && index === 0) {
-                const other = images[1]
-
-                const newOther = { ...other }
-                newOther.meta.active = true
-
-                this.store.update(updateEntities(id, (ent) => ({ ...newImg })))
-
-                this.store.update(updateEntities(newOther.id, (ent) => ({ ...newOther })))
+            if (l > 1) {
+                // other images exist
+                const newActiveIndex = Math.max(0, index - 1)
+                const newActive = images[newActiveIndex]
+                this.setActiveImage(newActive.id)
             }
             else {
-                const other = images[index - 1]
-
-                const newOther = { ...other }
-                newOther.meta.active = true
-
-                this.store.update(updateEntities(id, (ent) => ({ ...newImg })))
-
-                this.store.update(updateEntities(newOther.id, (ent) => ({ ...newOther })))
+                this.setActiveImage('-1')
             }
         }
-        else {
-            console.log('3rd')
 
-            this.store.update(updateEntities(id, (ent) => ({ ...newImg })))
-        } */
+        this.store.update(updateEntities(id, (ent) => ({ ...newImg })))
     }
 
 }

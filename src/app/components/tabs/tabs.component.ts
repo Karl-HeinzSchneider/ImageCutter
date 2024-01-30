@@ -29,7 +29,7 @@ export class TabsComponent {
   onClose(e: Event) {
     e.preventDefault()
     e.stopPropagation()
-    console.log('close', this.image.meta.name)
+    console.log('close', this.image.meta.name, this.image.id)
 
     this.store.closeImage(this.image.id)
   }
