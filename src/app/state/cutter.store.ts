@@ -7,6 +7,7 @@ import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 import { readFileList } from './cutter.store.helper';
 import localforage from 'localforage';
+import { syncState } from 'elf-sync-state';
 
 // https://www.geodev.me/blog/deeppartial-in-typescript/
 export type DeepPartial<T> = {
@@ -227,6 +228,7 @@ export class AppRepository {
 
     constructor() {
         console.log('AppRepo constructor')
+        //syncState(this.store, { channel: 'AppStore' })
 
         this.addCanvasEntities(this.restoredImageProps)
         //this.store.update(addEntities([testImage, testImageTwo]))
