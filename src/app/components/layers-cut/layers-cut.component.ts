@@ -1,9 +1,6 @@
-import { AfterViewInit, Component, ElementRef, Input, OnChanges, Pipe, PipeTransform, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AppRepository, ImageCut, ImageFile, ImageProps } from '../../state/cutter.store';
-import { Stage } from 'konva/lib/Stage';
-import { Layer } from 'konva/lib/Layer';
-import Konva from 'konva';
+import { AfterViewInit, Component, ElementRef, Input, OnChanges, Pipe, PipeTransform, SimpleChanges, ViewChild } from '@angular/core';
+import { AppRepository, CanvasProps, ImageCut } from '../../state/cutter.store';
 
 @Pipe({ name: 'cutSize', standalone: true })
 export class cutSizePipe implements PipeTransform {
@@ -25,97 +22,29 @@ export class cutSizePipe implements PipeTransform {
 })
 export class LayersCutComponent implements OnChanges, AfterViewInit {
   @ViewChild('canvas', { static: false }) canvasRef!: ElementRef;
-  @ViewChild('konva') konvaRef!: ElementRef<HTMLDivElement>;
 
-  @Input() active!: ImageProps;
   @Input() cut!: ImageCut;
-  @Input() imageRef!: HTMLImageElement;
-
-  private stage?: Stage;
-  private layer?: Layer;
-
-  private id: string = '-69';
+  @Input() activeCanvas!: CanvasProps;
 
   constructor(private store: AppRepository) {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('ngOnChanges', this.cut.name, changes)
-    return;
+    //console.log('ngOnChanges', this.cut.name, changes)
 
-    if (this.konvaRef && !this.stage) {
-      this.initStage()
-    }
-    if (this.stage) {
-      this.drawBG()
-    }
+    this.drawCut()
   }
 
   ngAfterViewInit(): void {
-    console.log('ngAfterViewInit', this.cut.name,)
-    return;
-
-    if (this.konvaRef && !this.stage) {
-      this.initStage()
-    }
-    if (this.stage) {
-      this.drawBG()
-    }
-  }
-
-  initStage() {
-    if (!this.konvaRef || this.stage) {
-      return;
-    }
-
-    console.log('initStage', this.konvaRef)
-
-    const div: HTMLDivElement = this.konvaRef.nativeElement
-
-    this.stage = new Konva.Stage({
-      height: 40,
-      width: 40,
-      container: div
-    })
-
-    this.layer = new Konva.Layer({
-      imageSmoothingEnabled: false
-    })
-    this.stage.add(this.layer)
-  }
-
-  drawBG() {
-    const layerBG = this.layer!
-    const bg = layerBG.findOne('#bg')
-
-    if (bg) {
-      layerBG.destroyChildren()
-    }
-
-    const image: ImageFile = this.active.file!;
-    const componentRef = this;
-    const stageRef = this.stage;
-
-    Konva.Image.fromURL(image.dataURL, function (node) {
-      const dx = image.width / 2;
-      const dy = image.height / 2
-      node.setAttrs({
-        x: dx,
-        y: dy,
-        scaleX: 1,
-        scaleY: 1,
-        offsetX: dx,
-        offsetY: dy,
-        id: 'bg'
-      })
-
-      layerBG.add(node)
-    })
-
+    //console.log('ngAfterViewInit', this.cut.name)
+    this.drawCut()
   }
 
   drawCut() {
-    console.log('drawCut')
+    if (!this.canvasRef) {
+      return;
+    }
+    //console.log('drawCut')
 
     const canvas = this.canvasRef.nativeElement as HTMLCanvasElement
     const ctx = canvas.getContext("2d")
@@ -130,6 +59,8 @@ export class LayersCutComponent implements OnChanges, AfterViewInit {
 
     //ctx.drawImage(this.imageRef, 0, 0, 184, 184, 0, 0, 40, 40);
 
+    const activeCanvas = this.activeCanvas.canvas
+
     if (this.cut.type === 'absolute') {
       const abs = this.cut.absolute
       const sx = abs.x;
@@ -138,25 +69,33 @@ export class LayersCutComponent implements OnChanges, AfterViewInit {
       const sHeight = abs.height;
 
       if (sWidth === sHeight) {
-        console.log('sWidth === sHeight')
+        //console.log('sWidth === sHeight')
         const dx = 0;
         const dy = 0;
         const dWidth = 40;
         const dHeight = 40;
-        ctx.drawImage(this.imageRef, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+        ctx.drawImage(activeCanvas, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
       }
       else if (sWidth > sHeight) {
-        console.log('sWidth > sHeight')
+        //console.log('sWidth > sHeight')
         const dx = 0;
         const dWidth = 40;
 
         const dHeight = (sHeight / sWidth) * 40;
         const dy = (40 - dHeight) / 2;
 
-        ctx.drawImage(this.imageRef, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+        ctx.drawImage(activeCanvas, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
       }
+      else {
+        //console.log('sWidth < sHeight')
+        const dWidth = (sWidth / sHeight) * 40;
+        const dx = (40 - dWidth) / 2;
 
+        const dHeight = 40
+        const dy = 0
 
+        ctx.drawImage(activeCanvas, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+      }
     }
     else if (this.cut.type === 'relative') {
 
@@ -171,7 +110,7 @@ export class LayersCutComponent implements OnChanges, AfterViewInit {
 
     if (!this.cut.selected) {
       //console.log('Select Cut', this.id, this.cut)
-      this.store.selectCut(this.active.id, this.cut)
+      this.store.selectCut(this.activeCanvas.id, this.cut)
     }
     else {
       //console.log('already selected', this.id, this.cut)
@@ -183,6 +122,6 @@ export class LayersCutComponent implements OnChanges, AfterViewInit {
     let newCut: ImageCut = { ...this.cut }
     newCut.visible = !this.cut.visible
 
-    this.store.updateCut(this.active.id, newCut)
+    this.store.updateCut(this.activeCanvas.id, newCut)
   }
 }

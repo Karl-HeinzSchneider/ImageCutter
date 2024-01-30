@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { createStore, distinctUntilArrayItemChanged, select, setProp, withProps } from '@ngneat/elf';
-import { addEntities, getActiveEntity, getEntity, selectActiveEntity, selectManyByPredicate, setActiveId, updateEntities, withActiveId, withEntities } from '@ngneat/elf-entities';
+import { createStore, distinctUntilArrayItemChanged, filterNil, select, setProp, withProps } from '@ngneat/elf';
+import { addEntities, getActiveEntity, getAllEntities, getAllEntitiesApply, getEntity, getEntityByPredicate, selectActiveEntity, selectEntity, selectManyByPredicate, setActiveId, updateEntities, withActiveId, withEntities } from '@ngneat/elf-entities';
+import { localStorageStrategy, persistState } from '@ngneat/elf-persist-state';
+import { Vector2d } from 'konva/lib/types';
+import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 import { readFileList } from './cutter.store.helper';
-import { localStorageStrategy, persistState } from '@ngneat/elf-persist-state';
-import { distinctUntilChanged, filter, map } from 'rxjs';
-import { Vector2d } from 'konva/lib/types';
 
 // https://www.geodev.me/blog/deeppartial-in-typescript/
 export type DeepPartial<T> = {
@@ -95,6 +95,11 @@ const testImageTwo: ImageProps = {
     cuts: []
 }
 
+export interface CanvasProps {
+    id: string,
+    canvas: OffscreenCanvas
+}
+
 
 @Injectable({ providedIn: 'root' })
 export class AppRepository {
@@ -105,13 +110,48 @@ export class AppRepository {
         withProps<AppProps>({ bestNumber: 42, showDropzone: false }),
     );
 
-    private persist = persistState(this.store, { key: 'Cutter', storage: localStorageStrategy })
+    private restoredImageProps: ImageProps[] = []
+
+    private preAppStoreInit = (value: AppProps & { activeId: any; } & { entities: Record<string, ImageProps>; ids: string[]; }) => {
+        //console.log('preAppStoreInit', value)
+
+        const ents: ImageProps[] = []
+
+        value.ids.forEach(id => {
+            const img = value.entities[id]
+            //ents.push(img)        
+            this.restoredImageProps.push(img)
+        })
+
+        const newState = { ...value }
+        newState.showDropzone = false
+
+        return newState
+    }
+
+    private persist = persistState(this.store, { key: 'Cutter', storage: localStorageStrategy, source: () => this.store.pipe(debounceTime(200)), preStoreInit: this.preAppStoreInit })
+
+    public canvasStore = createStore(
+        { name: 'CanvasStore' },
+        withEntities<CanvasProps>()
+    )
 
     app$ = this.store.pipe((state) => state)
 
     showDropzone$ = this.store.pipe(select((state) => state.showDropzone))
 
     active$ = this.store.pipe(selectActiveEntity())
+
+    activeCanvas$ = this.active$.pipe(
+        filterNil(),
+        map(active => active.id),
+        distinctUntilChanged(),
+        switchMap(id => {
+            const canvas$ = this.canvasStore.pipe(selectEntity(id))
+            return canvas$
+        }),
+        filterNil()
+    )
 
     activeFile$ = this.active$.pipe(
         map(active => {
@@ -179,6 +219,7 @@ export class AppRepository {
     constructor() {
         console.log('AppRepo constructor')
 
+        this.addCanvasEntities(this.restoredImageProps)
         //this.store.update(addEntities([testImage, testImageTwo]))
     }
 
@@ -442,9 +483,76 @@ export class AppRepository {
 
         this.store.update(addEntities(updates))
 
+        // TODO: somehow entity add event
+        await this.addCanvasEntities(updates)
+
         //const active = this.store.query(getActiveEntity());
 
         this.store.update(setActiveId(updates[0].id))
+    }
+
+    // Canvas Store
+    private async addCanvasEntities(imgData: ImageProps[]) {
+        const updates: CanvasProps[] = []
+
+        for (let i = 0; i < imgData.length; i++) {
+            const img = imgData[i]
+
+            if (img.file) {
+                const canv = new OffscreenCanvas(img.file.width, img.file.height)
+                const prop: CanvasProps = {
+                    id: img.id,
+                    canvas: canv
+                }
+
+
+                const blob = await fetch(img.file.dataURL).then((response) => response.blob())
+                const imageBitmap = await createImageBitmap(blob)
+
+                const ctx = canv.getContext('2d')
+                //ctx?.transferFromImageBitmap(imageBitmap)
+                ctx?.drawImage(imageBitmap, 0, 0)
+
+                updates.push(prop)
+            }
+        }
+
+        this.canvasStore.update(addEntities(updates))
+    }
+
+    // 
+    public closeImage(id: string) {
+        const img = this.store.query(getEntity(id));
+
+        if (!img || !img.meta.active) {
+            //console.log('no img or already inactive')
+            return;
+        }
+
+        const newImg: ImageProps = JSON.parse(JSON.stringify(img))
+        newImg.meta.active = false;
+
+        const images = this.store.query(getAllEntities()).filter(x => x.meta.active)
+        const l = images.length
+        const index = images.findIndex(x => x.id === id)
+
+        const active = this.getActiveEntity()
+
+        if (active && active.id === img.id) {
+            // image to close is active 
+
+            if (l > 1) {
+                // other images exist
+                const newActiveIndex = Math.max(0, index - 1)
+                const newActive = images[newActiveIndex]
+                this.setActiveImage(newActive.id)
+            }
+            else {
+                this.setActiveImage('-1')
+            }
+        }
+
+        this.store.update(updateEntities(id, (ent) => ({ ...newImg })))
     }
 
 }
