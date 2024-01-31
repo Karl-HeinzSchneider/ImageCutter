@@ -1,6 +1,6 @@
 <div class="container">
     <app-layer-box class="cuts" [headerText]="'Cuts'">
-        <ng-container *ngIf="(activeCanvas$ | async) as activeCanvas">
+        <ng-container *ngIf="(activeCanvas$ | async) as activeCanvas;else error">
             <ng-container *ngFor="let cut of active.cuts">
                 <app-layers-cut [cut]="cut" [activeCanvas]="activeCanvas"></app-layers-cut>
             </ng-container>
@@ -11,6 +11,10 @@
         <ng-container *ngTemplateOutlet="remove"></ng-container>
     </div>
 </div>
+
+<ng-template #error>
+    NO CANVAS ENTITY
+</ng-template>
 
 <ng-template #add>
     <div class="adder" (click)="adderClicked()" [tooltip]="'Add Cut'" [position]="'top'">

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, Input, OnChanges, Pipe, PipeTransform, SimpleChanges, ViewChild } from '@angular/core';
 import { AppRepository, CanvasProps, ImageCut } from '../../state/cutter.store';
+import { TooltipModule } from '../../modules/tooltip/tooltip.module';
 
 @Pipe({ name: 'cutSize', standalone: true })
 export class cutSizePipe implements PipeTransform {
@@ -16,7 +17,7 @@ export class cutSizePipe implements PipeTransform {
 @Component({
   selector: 'app-layers-cut',
   standalone: true,
-  imports: [CommonModule, cutSizePipe],
+  imports: [CommonModule, cutSizePipe, TooltipModule],
   templateUrl: './layers-cut.component.html',
   styleUrl: './layers-cut.component.scss'
 })
@@ -106,7 +107,7 @@ export class LayersCutComponent implements OnChanges, AfterViewInit {
   }
 
   cutClicked() {
-    //console.log('cut clicked', this.id, this.cut.name)
+    //console.log('cut clicked', this.activeCanvas.id, this.cut.name)
 
     if (!this.cut.selected) {
       //console.log('Select Cut', this.id, this.cut)
@@ -118,7 +119,7 @@ export class LayersCutComponent implements OnChanges, AfterViewInit {
   }
 
   eyeClicked() {
-    //console.log('toggle eye', this.id, this.cut)
+    //console.log('toggle eye', this.activeCanvas.id, this.cut)
     let newCut: ImageCut = { ...this.cut }
     newCut.visible = !this.cut.visible
 

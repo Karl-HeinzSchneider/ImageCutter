@@ -7,7 +7,7 @@
         <div class="title">{{cut.name}}</div>
         <div class="size">{{cut | cutSize}}</div>
     </div>
-    <div class="eye" (click)="eyeClicked()">
+    <div class="eye" (click)="eyeClicked()" [tooltip]="'Toggle Visibility'" [position]="'left'">
         <ng-container *ngIf="cut.visible; else eyeclosed">
             <ng-container *ngTemplateOutlet="eye"></ng-container>
         </ng-container>
