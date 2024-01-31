@@ -123,15 +123,17 @@ export class AppRepository {
     private restoredImageProps: ImageProps[] = []
 
     private preAppStoreInit = (value: AppProps & { activeId: any; } & { entities: Record<string, ImageProps>; ids: string[]; }) => {
-        //console.log('preAppStoreInit', value)
+        console.log('preAppStoreInit', value)
 
         const ents: ImageProps[] = []
 
         value.ids.forEach(id => {
             const img = value.entities[id]
-            //ents.push(img)        
-            this.restoredImageProps.push(img)
+            ents.push(img)
+            //this.restoredImageProps.push(img)
         })
+
+        this.addCanvasEntities(ents)
 
         const newState = { ...value }
         newState.showDropzone = false
@@ -230,7 +232,7 @@ export class AppRepository {
         console.log('AppRepo constructor')
         //syncState(this.store, { channel: 'AppStore' })
 
-        this.addCanvasEntities(this.restoredImageProps)
+        //this.addCanvasEntities(this.restoredImageProps)
         //this.store.update(addEntities([testImage, testImageTwo]))
     }
 
@@ -504,6 +506,7 @@ export class AppRepository {
 
     // Canvas Store
     private async addCanvasEntities(imgData: ImageProps[]) {
+        //console.log('addCanvasEntites', imgData)
         const updates: CanvasProps[] = []
 
         for (let i = 0; i < imgData.length; i++) {
