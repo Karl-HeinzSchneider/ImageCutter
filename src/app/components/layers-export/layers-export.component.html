@@ -1,17 +1,14 @@
 <div class="container">
-    <ng-container *ngIf="(active$ | async) as active">
-        <app-layer-box class="exports" [headerText]="'Export'">
-            <div class="sub-container" (click)="onClickSelected(active)">
+    <ng-container *ngIf="(activeCanvas$ | async) as activeCanvas">
+        <ng-container *ngIf="(active$ | async) as active">
+            <app-layer-box class="exports" [headerText]="'Export'">
                 <ng-container *ngTemplateOutlet="exportActive"></ng-container>
-            </div>
-            <div class="sub-container" (click)="onClickAll(active)">
                 <ng-container *ngTemplateOutlet="exportAll"></ng-container>
+                <app-exporter #exporter [active]="active" [activeCanvas]="activeCanvas"></app-exporter>
+            </app-layer-box>
+            <div class="buttons">
             </div>
-
-        </app-layer-box>
-        <div class="buttons">
-            {{active.id}}
-        </div>
+        </ng-container>
     </ng-container>
 </div>
 
@@ -36,22 +33,26 @@
 
 <ng-template #exportActive>
     <!--  <div class="sub-container selected" [tooltip]="'download as .png'" [position]="'top'"> -->
-    <div class="main">
-        <div class="title">Download Selected</div>
-        <div class="size">size: 548kb</div>
-    </div>
-    <div class="icon">
-        <ng-container *ngTemplateOutlet="iconDownload"></ng-container>
+    <div class="sub-container prevent-select" (click)="onClickSelected()">
+        <div class="main">
+            <div class="title">Download Selected</div>
+            <div class="size">size: 548kb</div>
+        </div>
+        <div class="icon">
+            <ng-container *ngTemplateOutlet="iconDownload"></ng-container>
+        </div>
     </div>
 </ng-template>
 
 <ng-template #exportAll>
     <!--  <div class="sub-container selected" [tooltip]="'download as .png'" [position]="'top'"> -->
-    <div class="main">
-        <div class="title">Download All</div>
-        <div class="size">size: 2.48mb</div>
-    </div>
-    <div class="icon">
-        <ng-container *ngTemplateOutlet="iconDownload"></ng-container>
+    <div class="sub-container prevent-select" (click)="onClickAll()">
+        <div class="main">
+            <div class="title">Download All</div>
+            <div class="size">size: 2.48mb</div>
+        </div>
+        <div class="icon">
+            <ng-container *ngTemplateOutlet="iconDownload"></ng-container>
+        </div>
     </div>
 </ng-template>
