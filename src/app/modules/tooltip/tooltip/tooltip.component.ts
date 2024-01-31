@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { TooltipPosition } from './tooltip.directive';
 
 @Component({
   selector: 'app-tooltip',
-  standalone: true,
-  imports: [CommonModule],
+  standalone: false,
   templateUrl: './tooltip.component.html',
   styleUrl: './tooltip.component.scss'
 })
@@ -13,6 +12,7 @@ export class TooltipComponent implements OnInit {
   tooltip: string = '';
   left: number = 0;
   top: number = 0;
+  position: string = TooltipPosition.DEFAULT;
 
   constructor() { }
 

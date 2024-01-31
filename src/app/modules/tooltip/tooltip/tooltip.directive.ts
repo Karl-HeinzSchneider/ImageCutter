@@ -1,13 +1,22 @@
 import { ApplicationRef, ComponentFactoryResolver, ComponentRef, Directive, ElementRef, EmbeddedViewRef, HostListener, Injector, Input, OnDestroy, ViewContainerRef } from '@angular/core';
 import { TooltipComponent } from './tooltip.component';
 
+export enum TooltipPosition {
+  TOP = 'top',
+  BOTTOM = 'bottom',
+  LEFT = 'left',
+  RIGHT = 'right',
+  DEFAULT = 'bottom'
+}
+
 @Directive({
   selector: '[tooltip]',
-  standalone: true
+  standalone: false
 })
 export class TooltipDirective implements OnDestroy {
 
   @Input() tooltip: string = '';
+  @Input() position: string = 'bottom';
 
   private componentRef: (ComponentRef<any> | null) = null;
 
@@ -33,10 +42,38 @@ export class TooltipDirective implements OnDestroy {
   private setTooltipComponentProperties() {
     if (this.componentRef !== null) {
       this.componentRef.instance.tooltip = this.tooltip;
-      const { left, right, bottom } =
-        this.elementRef.nativeElement.getBoundingClientRect();
-      this.componentRef.instance.left = (right - left) / 2 + left;
-      this.componentRef.instance.top = bottom;
+      this.componentRef.instance.position = this.position;
+
+      const { left, right, top, bottom } = this.elementRef.nativeElement.getBoundingClientRect();
+
+      switch (this.position) {
+        case TooltipPosition.BOTTOM: {
+          this.componentRef.instance.left = Math.round((right - left) / 2 + left);
+          this.componentRef.instance.top = Math.round(bottom);
+          break;
+        }
+        case TooltipPosition.TOP: {
+          this.componentRef.instance.left = Math.round((right - left) / 2 + left);
+          this.componentRef.instance.top = Math.round(top);
+          break;
+        }
+        case TooltipPosition.RIGHT: {
+          this.componentRef.instance.left = Math.round(right);
+          this.componentRef.instance.top = Math.round(top + (bottom - top) / 2);
+          break;
+        }
+        case TooltipPosition.LEFT: {
+          this.componentRef.instance.left = Math.round(left);
+          this.componentRef.instance.top = Math.round(top + (bottom - top) / 2);
+          break;
+        }
+        default: {
+          // default= bottom
+          this.componentRef.instance.left = Math.round((right - left) / 2 + left);
+          this.componentRef.instance.top = Math.round(bottom);
+          break;
+        }
+      }
     }
   }
 
