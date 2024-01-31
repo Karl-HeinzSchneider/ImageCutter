@@ -1,0 +1,31 @@
+.container {
+    display: grid;
+    height: 100%;
+
+    grid-template-areas:
+        'cuts'
+        'buttons';
+    grid-template-rows: auto 33px;
+}
+
+.exports {
+    grid-area: cuts;
+}
+
+.buttons {
+    grid-area: buttons;
+
+    height: 32px;
+    background-color: var(--background-subheader);
+
+    display: grid;
+    grid-template-columns: 32px 32px;
+    justify-content: end;
+    gap: 4px;
+
+    padding-right: 16px;
+
+    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+
+
+}
