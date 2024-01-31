@@ -1,0 +1,23 @@
+.tooltip {
+    position: fixed;
+    background-color: white;
+    border-radius: 5px;
+    color: var(--background-header);
+    //font-family: Arial;
+    padding: 3px 6px;
+    font-size: 13px;
+    margin-top: 5px;
+    transform: translateX(-50%);
+
+    &::before {
+        content: '';
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-bottom: 5px solid white;
+        position: absolute;
+        left: calc(50% - 5px);
+        top: -5px;
+    }
+}
