@@ -2,6 +2,17 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CanvasProps, ImageCut, ImageProps } from '../../state/cutter.store';
 
+export interface ImageCutterResult {
+  img: ImageProps,
+  result: ImageCutResult[]
+}
+
+export interface ImageCutResult {
+  dataURL: string,
+  cut: ImageCut,
+  fileType: string
+}
+
 @Component({
   selector: 'app-exporter',
   standalone: true,
@@ -14,74 +25,39 @@ export class ExporterComponent {
   @Input() active!: ImageProps;
   @Input() activeCanvas!: CanvasProps;
 
+  private worker: Worker;
+
   constructor() {
+    this.worker = new Worker(new URL('../../worker/image-cutter.worker', import.meta.url))
 
+    this.handleWorker()
   }
 
-  public printStuff(stuff: any) {
-    console.log('PRINT STUFF', stuff)
+  private handleWorker() {
+    this.worker.addEventListener('message', ({ data }) => {
+      console.log('Worker finished', data)
+
+      const cutterResult: ImageCutterResult = data
+      this.downloadResult(cutterResult);
+    })
   }
 
-  private async exportSingleCut(active: ImageProps, offCanvas: OffscreenCanvas, cut: ImageCut, options: { [key: string]: string } = {}) {
-    const newCanv = document.createElement('canvas')
+  private downloadResult(cutterResult: ImageCutterResult) {
+    const img = cutterResult.img;
+    const result = cutterResult.result
 
-    //newCanv.setAttribute('download', 'CanvasAsImage.png');
+    for (let i = 0; i < result.length; i++) {
+      const res = result[i]
 
-    const fileType = options['fileType'] || 'png'
-
-    const ctx = newCanv.getContext('2d')
-    if (!ctx) {
-      console.log('ERROR: No Context')
-      return;
-    }
-
-    if (cut.type === 'absolute') {
-      const abs = cut.absolute;
-
-      const w = abs.width;
-      const h = abs.height;
-      const dx = abs.x;
-      const dy = abs.y;
-
-      // const newOff = new OffscreenCanvas(w, h)
-      // const offCtx = newOff.getContext('2d')
-      // offCtx?.drawImage(offCanvas, dx, dy, w, h, 0, 0, w, h)
-      // const blob = await newOff.convertToBlob({ type: 'image/' + fileType })
-      // const reader = new FileReader()
-      // reader.addEventListener('loadend', (event) => {
-      //   const url = event.target?.result;
-      //   console.log('readerEnd', url)
-
-      //   const tempLink = document.createElement('a')
-      //   let fileName = `${active.meta.name}-Cut.${fileType}`
-
-      //   tempLink.download = fileName
-      //   tempLink.href = dataURL
-
-      //   tempLink.click()
-      // })
-      // reader.readAsDataURL(blob)
-
-      newCanv.width = w;
-      newCanv.height = h;
-
-      ctx.clearRect(0, 0, w, h)
-      ctx.drawImage(offCanvas, dx, dy, w, h, 0, 0, w, h)
-      const dataURL = newCanv.toDataURL('image/' + fileType)
-
-      //const size_in_bytes = this.getFileSize(dataURL)
-
-      //console.log(dataURL, size_in_bytes)
+      const fix = res.fileType.split('/').slice(-1)[0]
 
       const tempLink = document.createElement('a')
-      let fileName = `${active.meta.name}-Cut.${fileType}`
+      let fileName = `${img.meta.name}-${res.cut.name}.${fix}`
 
       tempLink.download = fileName
-      tempLink.href = dataURL
+      tempLink.href = res.dataURL
 
       tempLink.click()
-    }
-    else if (cut.type === 'relative') {
     }
   }
 
@@ -99,8 +75,6 @@ export class ExporterComponent {
       return;
     }
 
-    const offCanvas: OffscreenCanvas = this.activeCanvas.canvas;
-
     const index = this.active.cuts.findIndex(x => x.selected)
     if (index < 0) {
       console.log('ERROR: No Cut selected')
@@ -109,19 +83,28 @@ export class ExporterComponent {
 
     const cut = this.active.cuts[index]
 
+    // TODO: options
     const options = {}
 
-    for (let i = 0; i < 50; i++) {
-      this.exportSingleCut(this.active, offCanvas, cut)
-    }
-
-    //this.exportSingleCut(this.active, offCanvas, cut)
+    this.worker.postMessage({
+      active: this.active,
+      cuts: [cut],
+      options: {}
+    })
   }
 
   public downloadAllCuts() {
     console.log('downloadAllCuts')
     if (!this.active || !this.activeCanvas) {
       return;
+    }
+
+    if (this.active.cuts.length > 0) {
+      this.worker.postMessage({
+        active: this.active,
+        cuts: this.active.cuts,
+        options: {}
+      })
     }
   }
 }
