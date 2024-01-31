@@ -4,11 +4,12 @@ import { LayerBoxComponent } from '../layer-box/layer-box.component';
 import { LayersCutComponent } from '../layers-cut/layers-cut.component';
 import { AppRepository, CanvasProps, ImageProps } from '../../state/cutter.store';
 import { Observable, distinctUntilChanged, from, map, switchMap } from 'rxjs';
+import { TooltipModule } from '../../modules/tooltip/tooltip.module';
 
 @Component({
   selector: 'app-layers-cuts',
   standalone: true,
-  imports: [CommonModule, LayerBoxComponent, LayersCutComponent],
+  imports: [CommonModule, LayerBoxComponent, LayersCutComponent, TooltipModule],
   templateUrl: './layers-cuts.component.html',
   styleUrl: './layers-cuts.component.scss'
 })

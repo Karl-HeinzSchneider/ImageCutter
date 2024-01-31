@@ -13,7 +13,7 @@
 </div>
 
 <ng-template #add>
-    <div class="adder" (click)="adderClicked()">
+    <div class="adder" (click)="adderClicked()" [tooltip]="'Add Cut'" [position]="'top'">
         <svg width="138" height="164" viewBox="0 0 138 164" fill="none" xmlns="http://www.w3.org/2000/svg">
             <g clip-path="url(#clip0_1_589)">
                 <path
@@ -34,7 +34,7 @@
 </ng-template>
 
 <ng-template #remove>
-    <div class="remover" (click)="removerClicked()">
+    <div class="remover" (click)="removerClicked()" [tooltip]="'Remove Cut'" [position]="'top'">
         <svg width="120" height="141" viewBox="0 0 120 141" fill="none" xmlns="http://www.w3.org/2000/svg">
             <g clip-path="url(#clip0_1_576)">
                 <path
