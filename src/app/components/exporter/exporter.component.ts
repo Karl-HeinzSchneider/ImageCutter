@@ -43,24 +43,24 @@ export class ExporterComponent {
       const dx = abs.x;
       const dy = abs.y;
 
-      const newOff = new OffscreenCanvas(w, h)
-      const offCtx = newOff.getContext('2d')
-      offCtx?.drawImage(offCanvas, dx, dy, w, h, 0, 0, w, h)
-      const blob = await newOff.convertToBlob({ type: 'image/' + fileType })
-      const reader = new FileReader()
-      reader.addEventListener('loadend', (event) => {
-        const url = event.target?.result;
-        console.log('readerEnd', url)
+      // const newOff = new OffscreenCanvas(w, h)
+      // const offCtx = newOff.getContext('2d')
+      // offCtx?.drawImage(offCanvas, dx, dy, w, h, 0, 0, w, h)
+      // const blob = await newOff.convertToBlob({ type: 'image/' + fileType })
+      // const reader = new FileReader()
+      // reader.addEventListener('loadend', (event) => {
+      //   const url = event.target?.result;
+      //   console.log('readerEnd', url)
 
-        const tempLink = document.createElement('a')
-        let fileName = `${active.meta.name}-Cut.${fileType}`
+      //   const tempLink = document.createElement('a')
+      //   let fileName = `${active.meta.name}-Cut.${fileType}`
 
-        tempLink.download = fileName
-        tempLink.href = dataURL
+      //   tempLink.download = fileName
+      //   tempLink.href = dataURL
 
-        tempLink.click()
-      })
-      reader.readAsDataURL(blob)
+      //   tempLink.click()
+      // })
+      // reader.readAsDataURL(blob)
 
       newCanv.width = w;
       newCanv.height = h;
@@ -69,7 +69,7 @@ export class ExporterComponent {
       ctx.drawImage(offCanvas, dx, dy, w, h, 0, 0, w, h)
       const dataURL = newCanv.toDataURL('image/' + fileType)
 
-      const size_in_bytes = this.getFileSize(dataURL)
+      //const size_in_bytes = this.getFileSize(dataURL)
 
       //console.log(dataURL, size_in_bytes)
 
@@ -79,7 +79,7 @@ export class ExporterComponent {
       tempLink.download = fileName
       tempLink.href = dataURL
 
-      //tempLink.click()
+      tempLink.click()
     }
     else if (cut.type === 'relative') {
     }
@@ -111,7 +111,7 @@ export class ExporterComponent {
 
     const options = {}
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 50; i++) {
       this.exportSingleCut(this.active, offCanvas, cut)
     }
 
