@@ -6,7 +6,7 @@
     //font-family: Arial;
     padding: 3px 6px;
     font-size: 13px;
-    margin-top: 5px;
+    margin-top: 7px;
     transform: translateX(-50%);
 
     &::before {
@@ -36,7 +36,7 @@
     }
 
     &-top {
-        transform: translate(-50%, -100%);
+        transform: translate(-50%, calc(-100% - 14px));
         margin-bottom: 7px;
 
         &::before {
