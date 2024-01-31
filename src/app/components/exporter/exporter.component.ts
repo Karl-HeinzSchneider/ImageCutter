@@ -107,4 +107,21 @@ export class ExporterComponent {
       })
     }
   }
+
+  public downloadAllVisibleCuts() {
+    console.log('downloadAllVisibleCuts')
+    if (!this.active || !this.activeCanvas) {
+      return;
+    }
+
+    const cuts = this.active.cuts.filter(x => x.visible)
+
+    if (cuts.length > 0) {
+      this.worker.postMessage({
+        active: this.active,
+        cuts: cuts,
+        options: {}
+      })
+    }
+  }
 }

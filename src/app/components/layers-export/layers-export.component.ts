@@ -33,4 +33,9 @@ export class LayersExportComponent {
     //console.log('onClickAll')
     this.exporterRef.downloadAllCuts()
   }
+
+  onClickAllVisible() {
+    //console.log('onClickAllVisible')
+    this.exporterRef.downloadAllVisibleCuts()
+  }
 }

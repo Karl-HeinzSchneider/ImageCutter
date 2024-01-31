@@ -4,6 +4,8 @@
             <app-layer-box class="exports" [headerText]="'Export'">
                 <ng-container *ngTemplateOutlet="exportActive"></ng-container>
                 <ng-container *ngTemplateOutlet="exportAll"></ng-container>
+                <ng-container *ngTemplateOutlet="exportAllVisible"></ng-container>
+
                 <app-exporter #exporter [active]="active" [activeCanvas]="activeCanvas"></app-exporter>
             </app-layer-box>
             <div class="buttons">
@@ -50,6 +52,20 @@
         <div class="main">
             <div class="title">Download All</div>
             <div class="size">size: 2.48mb</div>
+        </div>
+        <div class="icon">
+            <ng-container *ngTemplateOutlet="iconDownload"></ng-container>
+        </div>
+    </div>
+</ng-template>
+
+
+<ng-template #exportAllVisible>
+    <!--  <div class="sub-container selected" [tooltip]="'download as .png'" [position]="'top'"> -->
+    <div class="sub-container prevent-select" (click)="onClickAllVisible()">
+        <div class="main">
+            <div class="title">Download All Visible</div>
+            <div class="size">size: 1.69</div>
         </div>
         <div class="icon">
             <ng-container *ngTemplateOutlet="iconDownload"></ng-container>
