@@ -1,4 +1,4 @@
-<div class="tab" [class.selected]="selected" (click)="onClick()">
+<div class="tab" [class.selected]="selected" (click)="onClick()" [tooltip]="image.file?.name!" [position]="'bottom'">
     <p> {{image.file?.name}}</p>
     <ng-container *ngTemplateOutlet="closeTemplate"></ng-container>
 </div>
