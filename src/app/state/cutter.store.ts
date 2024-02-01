@@ -141,7 +141,8 @@ export class AppRepository {
         return newState
     }
 
-    private persist = persistState(this.store, { key: 'AppStore', storage: localforage, source: () => this.store.pipe(debounceTime(200)), preStoreInit: this.preAppStoreInit })
+    //private persist = persistState(this.store, { key: 'AppStore', storage: localforage, source: () => this.store.pipe(debounceTime(1000)), preStoreInit: this.preAppStoreInit })
+    private persist = persistState(this.store, { key: 'AppStore', storage: localStorageStrategy, source: () => this.store.pipe(debounceTime(200)), preStoreInit: this.preAppStoreInit })
 
     public canvasStore = createStore(
         { name: 'CanvasStore' },
