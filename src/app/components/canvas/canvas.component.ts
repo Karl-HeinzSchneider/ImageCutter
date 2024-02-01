@@ -10,6 +10,7 @@ import { NodeConfig } from 'konva/lib/Node';
 import { Subject, debounceTime, takeUntil } from 'rxjs';
 import { Rect } from 'konva/lib/shapes/Rect';
 import { getActiveEntity } from '@ngneat/elf-entities';
+import { KeypressService } from '../../state/keypress.service';
 
 
 @Component({
@@ -57,7 +58,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     this.updateBGPosition()
   }
 
-  constructor(private store: AppRepository) {
+  constructor(private store: AppRepository, private keypressService: KeypressService) {
     console.log('constructor')
     //this.initSubs()
 
@@ -722,8 +723,15 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
     const wheelX = e.deltaX;
     const wheelY = e.deltaY;
+    //console.log('shift?', this.keypressService.isKeyPressed('Shift'))
 
-    this.handleWheel(wheelX, wheelY)
+    if (this.keypressService.isKeyPressed('Shift')) {
+      this.handleWheel(wheelY, 0)
+    }
+    else {
+      // default
+      this.handleWheel(0, wheelY)
+    }
   }
 
   private handleWheel(dx: number, dy: number) {
