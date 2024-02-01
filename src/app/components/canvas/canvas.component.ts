@@ -90,7 +90,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
     // Scroll
     this.store.scroll$.pipe(takeUntil(this.destroy$)).subscribe(scroll => {
-      //console.log('scroll changed', scroll)
+      console.log('scroll changed', scroll)
 
       this.scroll = scroll
 
@@ -158,6 +158,13 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
     this.layerSelected = new Konva.Layer()
     this.stage.add(this.layerSelected)
+
+    const componentRef = this;
+
+    this.stage.on('wheel', function (e) {
+      const event = e.evt;
+      // componentRef.onMouseWheel(event);
+    })
   }
 
   private resizeStage() {
@@ -270,7 +277,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       const scrollTop = (scroll.scrollHeight - scroll.clientHeight) * this.scroll.y
       scroll.scrollTop = Math.floor(scrollTop)
 
-      //console.log('shouldScroll', scrollLeft, scrollTop)
+      console.log('shouldScroll', scrollLeft, scrollTop)
     }
   }
 
@@ -279,7 +286,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
     const scroll: HTMLDivElement = this.scrollRef.nativeElement
 
-    //console.log('onScroll', scroll.scrollLeft, scroll.scrollTop)
+    console.log('onScroll', scroll.scrollLeft, scroll.scrollTop)
 
     let scrollX = 0
     if (scroll.scrollWidth === scroll.clientWidth) {
@@ -669,5 +676,59 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       console.log('transformend', rect.attrs)
       updateText()
     })
+  }
+
+  onMouseWheel(e: WheelEvent) {
+    console.log('onMouseWheel', e)
+
+    const wheelX = e.deltaX;
+    const wheelY = e.deltaY;
+
+    this.handleWheel(wheelX, wheelY)
+  }
+
+  private handleWheel(dx: number, dy: number) {
+    console.log('handleWheel', dx, dy)
+    if (!this.scrollRef) {
+      return;
+    }
+
+    const scroll: HTMLDivElement = this.scrollRef.nativeElement
+
+    const scrollLeft = (scroll.scrollWidth - scroll.clientWidth)
+    const scrollTop = (scroll.scrollHeight - scroll.clientHeight)
+    console.log(scrollLeft, scrollTop)
+
+    const scrollX = this.image.meta.scrollX
+    const scrollY = this.image.meta.scrollY
+
+    let newScrollX = this.image.meta.scrollX;
+    let newScrollY = this.image.meta.scrollY;
+
+
+    if (scrollLeft > 0 && Math.abs(dx) > 0) {
+      // console.log('scrollLeft and dx')
+
+      const delta = 0.05 * Math.sign(dx);
+      newScrollX = Math.min(Math.max(scrollX + delta, 0), 1)
+
+      console.log('scrollX', scrollX, newScrollX)
+    }
+
+    if (scrollTop > 0 && Math.abs(dy) > 0) {
+      //console.log('scrollTop and dy')
+
+      const delta = 0.042 * Math.sign(dy);
+      newScrollY = Math.min(Math.max(scrollY + delta, 0), 1)
+
+      console.log('scrollY', scrollY, newScrollY)
+    }
+
+    if (this.image.meta.scrollX != newScrollX || this.image.meta.scrollY != newScrollY) {
+      this.scroll = { x: newScrollX, y: newScrollY }
+      this.updateScroll()
+
+      this.store.updateScroll(this.image.id, newScrollX, newScrollY)
+    }
   }
 }
