@@ -7,7 +7,7 @@ import { Layer } from 'konva/lib/Layer';
 import { Vector2d } from 'konva/lib/types';
 import { Box } from 'konva/lib/shapes/Transformer';
 import { NodeConfig } from 'konva/lib/Node';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, debounceTime, takeUntil } from 'rxjs';
 import { Rect } from 'konva/lib/shapes/Rect';
 import { getActiveEntity } from '@ngneat/elf-entities';
 
@@ -45,6 +45,9 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
   private selectedCut: ImageCut | undefined;
   private nonSelectedCuts: ImageCut[] | undefined;
 
+  private scrollUpdater = new Subject<Vector2d>;
+  private scrollHandler: (e: Event) => void;
+
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
     //console.log('OnResize')
@@ -57,6 +60,12 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
   constructor(private store: AppRepository) {
     console.log('constructor')
     //this.initSubs()
+
+    const ref = this;
+    this.scrollHandler = function (e: Event) {
+      //console.log('scroll', e)
+      ref.onScroll(e);
+    }
   }
 
   private initSubs() {
@@ -90,13 +99,30 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
     // Scroll
     this.store.scroll$.pipe(takeUntil(this.destroy$)).subscribe(scroll => {
-      console.log('scroll changed', scroll)
+      //console.log('scroll changed', scroll)
 
       this.scroll = scroll
 
       this.updateScale()
       this.updateScroll()
       this.updateBGPosition()
+    })
+
+    // Scroll Listener
+    const scroll: HTMLDivElement = this.scrollRef.nativeElement
+    scroll.addEventListener('scroll', this.scrollHandler)
+
+    // Scroll Updater
+    const scrollDebounce = 0;
+    this.scrollUpdater.pipe(
+      debounceTime(scrollDebounce),
+      takeUntil(this.destroy$)
+    ).subscribe(scroll => {
+      //console.log('scrollUpdater', scroll)
+      const scrollX = scroll.x;
+      const scrollY = scroll.y;
+
+      this.store.updateScroll(this.image.id, scrollX, scrollY)
     })
 
     // Cut selected
@@ -163,7 +189,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
     this.stage.on('wheel', function (e) {
       const event = e.evt;
-      // componentRef.onMouseWheel(event);
+      componentRef.onMouseWheel(event);
     })
   }
 
@@ -270,14 +296,19 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     if (this.scrollRef) {
       const scroll: HTMLDivElement = this.scrollRef.nativeElement
       //scrollElement.scrollLeft =  (scrollElement.scrollWidth - scrollElement.clientWidth ) / 2;   
+      //console.log('updateScroll - before', scroll.scrollLeft, scroll.scrollTop)
+
+      scroll.removeEventListener('scroll', this.scrollHandler)
 
       const scrollLeft = (scroll.scrollWidth - scroll.clientWidth) * this.scroll.x
-      scroll.scrollLeft = Math.floor(scrollLeft)
+      scroll.scrollLeft = scrollLeft
 
       const scrollTop = (scroll.scrollHeight - scroll.clientHeight) * this.scroll.y
-      scroll.scrollTop = Math.floor(scrollTop)
+      scroll.scrollTop = scrollTop
 
-      console.log('shouldScroll', scrollLeft, scrollTop)
+      scroll.addEventListener('scroll', this.scrollHandler)
+
+      //console.log('updateScroll - after', scrollLeft, scrollTop)
     }
   }
 
@@ -286,7 +317,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
     const scroll: HTMLDivElement = this.scrollRef.nativeElement
 
-    console.log('onScroll', scroll.scrollLeft, scroll.scrollTop)
+    //console.log('onScroll', scroll.scrollLeft, scroll.scrollTop, `t=${event.timeStamp}`)
 
     let scrollX = 0
     if (scroll.scrollWidth === scroll.clientWidth) {
@@ -309,7 +340,15 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     //console.log('newScroll', scrollX, scrollY)
 
     if (this.image.meta.scrollX != scrollX || this.image.meta.scrollY != scrollY) {
-      this.store.updateScroll(this.image.id, scrollX, scrollY)
+
+      this.scroll = { x: scrollX, y: scrollY };
+
+      //this.store.updateScroll(this.image.id, scrollX, scrollY);
+      this.scrollUpdater.next(this.scroll)
+
+      this.updateScale()
+      this.updateScroll()
+      this.updateBGPosition()
     }
     else {
       ///console.log('same')
@@ -679,7 +718,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
   }
 
   onMouseWheel(e: WheelEvent) {
-    console.log('onMouseWheel', e)
+    //console.log('onMouseWheel', e)
 
     const wheelX = e.deltaX;
     const wheelY = e.deltaY;
@@ -688,7 +727,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
   }
 
   private handleWheel(dx: number, dy: number) {
-    console.log('handleWheel', dx, dy)
+    //console.log('handleWheel', dx, dy)
     if (!this.scrollRef) {
       return;
     }
@@ -697,7 +736,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
     const scrollLeft = (scroll.scrollWidth - scroll.clientWidth)
     const scrollTop = (scroll.scrollHeight - scroll.clientHeight)
-    console.log(scrollLeft, scrollTop)
+    //console.log(scrollLeft, scrollTop)
 
     const scrollX = this.image.meta.scrollX
     const scrollY = this.image.meta.scrollY
@@ -709,26 +748,30 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     if (scrollLeft > 0 && Math.abs(dx) > 0) {
       // console.log('scrollLeft and dx')
 
-      const delta = 0.05 * Math.sign(dx);
+      const delta = 0.069 * Math.sign(dx);
       newScrollX = Math.min(Math.max(scrollX + delta, 0), 1)
 
-      console.log('scrollX', scrollX, newScrollX)
+      //console.log('scrollX', scrollX, newScrollX)
     }
 
     if (scrollTop > 0 && Math.abs(dy) > 0) {
       //console.log('scrollTop and dy')
 
-      const delta = 0.042 * Math.sign(dy);
+      const delta = 0.069 * Math.sign(dy);
       newScrollY = Math.min(Math.max(scrollY + delta, 0), 1)
 
-      console.log('scrollY', scrollY, newScrollY)
+      //console.log('scrollY', scrollY, newScrollY)
     }
 
     if (this.image.meta.scrollX != newScrollX || this.image.meta.scrollY != newScrollY) {
       this.scroll = { x: newScrollX, y: newScrollY }
-      this.updateScroll()
+      this.scrollUpdater.next(this.scroll)
 
-      this.store.updateScroll(this.image.id, newScrollX, newScrollY)
+      this.updateScale()
+      this.updateScroll()
+      this.updateBGPosition()
+
+      //this.store.updateScroll(this.image.id, newScrollX, newScrollY)
     }
   }
 }
