@@ -154,6 +154,12 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
       this.updateNonSelectedCuts()
     })
+
+    // key down repeat
+    this.keypressService.keyDownRepeat$.pipe(takeUntil(this.destroy$)).subscribe(key => {
+      //console.log('key', key)
+      this.handleKeypress(key)
+    })
   }
 
   async ngAfterViewInit(): Promise<void> {
@@ -177,6 +183,36 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next(1)
     this.destroy$.complete()
+  }
+
+  private handleKeypress(key: string) {
+    //console.log('handleKeypress', key)   
+    switch (key) {
+      case 'ArrowUp':
+        {
+          this.moveSelectedCut(0, -1);
+          break;
+        }
+      case 'ArrowDown':
+        {
+          this.moveSelectedCut(0, 1);
+          break;
+        }
+      case 'ArrowLeft':
+        {
+          this.moveSelectedCut(-1, 0);
+          break;
+        }
+
+      case 'ArrowRight':
+        {
+          this.moveSelectedCut(1, 0);
+          break;
+        }
+
+      default:
+        break;
+    }
   }
 
   private initStage() {
@@ -629,7 +665,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
   }
 
   private updateTransformerText() {
-    console.log('updateTransformerText')
+    //console.log('updateTransformerText')
     const rect = this.rect;
 
     const zoom = this.zoom;
@@ -754,6 +790,23 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       newCut.absolute!.width = rect.width()
 
       //console.log('newCut', newCut)
+      this.store.updateCut(this.id, newCut)
+    }
+  }
+
+  private moveSelectedCut(dx: number, dy: number) {
+    const cut = this.selectedCut
+
+    if (!cut) {
+      return;
+    }
+
+    let newCut: ImageCut = { ...cut }
+
+    if (cut.type === 'absolute') {
+      newCut.absolute.x = newCut.absolute.x + dx
+      newCut.absolute.y = newCut.absolute.y + dy
+
       this.store.updateCut(this.id, newCut)
     }
   }
