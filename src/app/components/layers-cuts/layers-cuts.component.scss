@@ -12,6 +12,12 @@
     grid-area: cuts;
 }
 
+.spacer {
+    width: 240px;
+    height: 100%;
+    min-height: 32px;
+}
+
 .buttons {
     grid-area: buttons;
 
