@@ -302,7 +302,7 @@ export class AppRepository {
                     top: 0,
                     bottom: 1,
                     left: 0,
-                    right: 0
+                    right: 1
                 }
             }
             newImg.cuts?.push(newCut)
@@ -325,7 +325,7 @@ export class AppRepository {
                     top: 0,
                     bottom: 1,
                     left: 0,
-                    right: 0
+                    right: 1
                 }
             }
             newImg.cuts?.push(newCut)
