@@ -865,11 +865,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
   private updateNonSelectedCuts() {
     const layer = this.layerCuts;
 
-    layer.getChildren().forEach(child => {
-      if (child.getClassName() === 'Rect') {
-        child.destroy()
-      }
-    })
+    layer.removeChildren()
 
     const nodes = layer.find('')
 
@@ -902,17 +898,22 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
           height: abs.height,
           id: cut.id
         })
+        rect.dash([8, 1])
 
         rect.setAttr('cut', cut)
 
         rect.on('mouseenter', function () {
           componentRef.updateCursor('pointer');
           componentRef.updateHoverLabel(rect);
+
+          rect.stroke('#00A5A5')
         })
 
         rect.on('mouseleave', function () {
           componentRef.updateCursor('default');
           componentRef.updateHoverLabel(undefined);
+
+          rect.stroke('#171719')
         })
 
         rect.on('pointerclick', function (e) {
