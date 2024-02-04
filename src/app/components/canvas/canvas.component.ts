@@ -7,7 +7,7 @@ import { Layer } from 'konva/lib/Layer';
 import { Vector2d } from 'konva/lib/types';
 import { Box } from 'konva/lib/shapes/Transformer';
 import { NodeConfig } from 'konva/lib/Node';
-import { Subject, debounceTime, takeUntil } from 'rxjs';
+import { Subject, debounceTime, takeUntil, throttleTime } from 'rxjs';
 import { Rect } from 'konva/lib/shapes/Rect';
 import { getActiveEntity } from '@ngneat/elf-entities';
 import { KeypressService } from '../../state/keypress.service';
@@ -46,6 +46,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
   private transformerLabelX!: Konva.Label;
   private transformerLabelY!: Konva.Label;
 
+  private moveUpdater = new Subject<ImageCut>;
 
   private rect!: Rect;
 
@@ -158,7 +159,17 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     // key down repeat
     this.keypressService.keyDownRepeat$.pipe(takeUntil(this.destroy$)).subscribe(key => {
       //console.log('key', key)
-      this.handleKeypress(key)
+
+      // TODO: implement focus
+      //this.handleKeypress(key)
+    })
+
+    const moveThrottle = 150;
+    this.moveUpdater.pipe(
+      throttleTime(moveThrottle),
+      takeUntil(this.destroy$)
+    ).subscribe(cut => {
+      this.store.updateCut(this.id, cut)
     })
   }
 
@@ -807,7 +818,11 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       newCut.absolute.x = newCut.absolute.x + dx
       newCut.absolute.y = newCut.absolute.y + dy
 
-      this.store.updateCut(this.id, newCut)
+      //this.store.updateCut(this.id, newCut)
+      this.moveUpdater.next(newCut)
+
+      this.selectedCut = newCut
+      this.updateSelectedCut()
     }
   }
 
