@@ -931,9 +931,8 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
   private onRectPointerClick(cut: ImageCut) {
     //console.log('onRectPointerClick', cut);
-
-    this.store.selectCut(this.id, cut)
     this.updateHoverLabel(undefined)
+    this.store.selectCut(this.id, cut)
   }
 
   private initHoverText() {
