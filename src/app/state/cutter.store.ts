@@ -302,7 +302,7 @@ export class AppRepository {
                     top: 0,
                     bottom: 1,
                     left: 0,
-                    right: 0
+                    right: 1
                 }
             }
             newImg.cuts?.push(newCut)
@@ -325,7 +325,7 @@ export class AppRepository {
                     top: 0,
                     bottom: 1,
                     left: 0,
-                    right: 0
+                    right: 1
                 }
             }
             newImg.cuts?.push(newCut)
@@ -437,20 +437,12 @@ export class AppRepository {
     //     this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
     // }
 
-    public selectCut(id: string, cut: ImageCut) {
+    public selectCut(id: string, cut: ImageCut | undefined) {
         const img = this.store.query(getEntity(id));
 
         if (!img || !img.cuts) {
             return;
         }
-
-        const index = img.cuts.findIndex(x => x.id === cut.id)
-
-        if (index < 0) {
-            return;
-        }
-
-        const oldCut = img.cuts[index]
 
         let newImg: ImageProps = { ...img }
         newImg.cuts = img.cuts.map(x => {
@@ -459,7 +451,20 @@ export class AppRepository {
             return newCut
         })
 
-        newImg.cuts[index].selected = true
+        if (cut) {
+            const index = img.cuts.findIndex(x => x.id === cut.id)
+
+            if (index < 0) {
+                return;
+            }
+
+            const oldCut = img.cuts[index]
+
+            newImg.cuts[index].selected = true
+        }
+        else {
+            // -> deselect all
+        }
 
         this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
     }
