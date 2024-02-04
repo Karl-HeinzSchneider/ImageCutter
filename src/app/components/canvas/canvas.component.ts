@@ -107,6 +107,8 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       this.updateScale()
       this.updateScroll()
       this.updateBGPosition()
+
+      this.updateTransformerText()
     })
 
     // Scroll
@@ -426,7 +428,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
     // debug text
     const text = new Konva.Text({ x: 0, y: 0, draggable: false })
-    this.layerSelected.add(text)
+    //this.layerSelected.add(text)
 
     const updateText = function () {
       const lines = [
@@ -554,7 +556,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       y: 0,
       draggable: false,
       fontFamily: 'Inter',
-      fontSize: 12,
+      fontSize: 16,
       fill: 'orange',
       padding: 0
     }
@@ -630,6 +632,11 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     console.log('updateTransformerText')
     const rect = this.rect;
 
+    const zoom = this.zoom;
+    const defaultFontSize = 16;
+
+    const newFontSize = Math.max(defaultFontSize / zoom, 5);
+
     // text origin    
     {
       const textOrigin = this.transformerTextOrigin;
@@ -640,6 +647,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
         'y:' + rect.y()
       ];
       textOrigin.text(lines.join('\n'));
+      textOrigin.fontSize(newFontSize)
 
       labelOrigin.x(rect.x());
       labelOrigin.y(rect.y());
@@ -657,6 +665,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       const width = rect.width()
 
       textX.text(`${width}`)
+      textX.fontSize(newFontSize)
 
       labelX.x(rect.x() + width / 2)
       labelX.y(rect.y())
@@ -675,6 +684,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       const height = rect.height()
 
       textY.text(`${height}`)
+      textY.fontSize(newFontSize)
 
       labelY.x(rect.x())
       labelY.y(rect.y() + height / 2)
