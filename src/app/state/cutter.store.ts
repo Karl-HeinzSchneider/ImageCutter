@@ -334,6 +334,33 @@ export class AppRepository {
         this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
     }
 
+    public duplicateCut(id: string, cutID: string) {
+        const img = this.store.query(getEntity(id));
+
+        if (!img || !img.cuts) {
+            return;
+        }
+
+        const index = img.cuts.findIndex(x => x.id === cutID);
+
+        if (index < 0) {
+            return;
+        }
+        const oldCut = img.cuts[index];
+
+        let newImg: ImageProps = JSON.parse(JSON.stringify(img));
+
+        let newCut: ImageCut = JSON.parse(JSON.stringify(oldCut));
+
+        newCut.id = uuid();
+        newCut.name = newCut.name + '(2)';
+        newCut.selected = false;
+
+        newImg.cuts.push(newCut)
+
+        this.store.update(updateEntities(id, (entity) => ({ ...newImg })));
+    }
+
     public removeCut(id: string, cutID: string) {
         const img = this.store.query(getEntity(id));
 
