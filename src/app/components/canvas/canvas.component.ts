@@ -11,6 +11,8 @@ import { Subject, debounceTime, takeUntil } from 'rxjs';
 import { Rect } from 'konva/lib/shapes/Rect';
 import { getActiveEntity } from '@ngneat/elf-entities';
 import { KeypressService } from '../../state/keypress.service';
+import { TextConfig } from 'konva/lib/shapes/Text';
+import { LabelConfig, TagConfig } from 'konva/lib/shapes/Label';
 
 
 @Component({
@@ -36,6 +38,15 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
   private layerSelected!: Layer;
 
   private transformer!: Konva.Transformer;
+  private transformerTextOrigin!: Konva.Text;
+  private transformerTextX!: Konva.Text;
+  private transformerTextY!: Konva.Text;
+
+  private transformerLabelOrigin!: Konva.Label;
+  private transformerLabelX!: Konva.Label;
+  private transformerLabelY!: Konva.Label;
+
+
   private rect!: Rect;
 
   private bgImageRef!: Konva.Image;
@@ -151,6 +162,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       this.resizeStage()
 
       this.initTransformer()
+      this.initTransformerText()
     }
 
     this.initSubs()
@@ -400,7 +412,6 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
 
   private initTransformer() {
-
     // transformer
     const tr = new Konva.Transformer({
       ignoreStroke: true,
@@ -441,7 +452,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       y: 50,
       width: 10,
       height: 10,
-      stroke: 'blue',
+      stroke: '#00A5A5',
       strokeWidth: 5,
       strokeScaleEnabled: false,
       id: 'cut1',
@@ -449,7 +460,6 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     })
     this.rect = rect
     this.layerSelected.add(rect)
-
 
     // events
     tr.nodes([rect])
@@ -477,6 +487,8 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
       updateText()
       updatePos()
+
+      componentRef.updateTransformerText()
     })
 
     rect.on('dragend', function () {
@@ -504,17 +516,6 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
       rect.x(closestX)
       rect.y(closestY)
-
-      // if (closestX < startX) {
-      //   rect.x(startX)
-      //   rect.width(2)
-      // }
-      // if (closestY < startY) {
-      //   rect.y(startY)
-      //   rect.height(2)
-      // }
-
-      //console.log('roundRectSize', rect.x(), rect.y(), realWidth, realHeight)
     }
 
     rect.on('transformstart', function () {
@@ -535,12 +536,154 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
       updateText()
       updatePos()
+
+      componentRef.updateTransformerText()
     })
 
     rect.on('transformend', function () {
       //console.log('transformend', rect.x(), rect.y(), rect.width(), rect.height())
       updateStore()
     })
+  }
+
+  private initTransformerText() {
+    const rect = this.transformer;
+
+    const textCfg: TextConfig = {
+      x: 0,
+      y: 0,
+      draggable: false,
+      fontFamily: 'Inter',
+      fontSize: 12,
+      fill: 'orange',
+      padding: 0
+    }
+
+    // text origin
+    const textOrigin = new Konva.Text(textCfg)
+    this.transformerTextOrigin = textOrigin;
+    this.layerSelected.add(textOrigin)
+
+    // text Y
+    const textY = new Konva.Text(textCfg)
+    this.transformerTextY = textY;
+    this.layerSelected.add(textY)
+
+
+    const labelCfg: LabelConfig = {
+      x: 0,
+      y: 0,
+    }
+
+    const tagCfg: TagConfig = {
+      fill: '#24262B'
+    }
+
+    // Label Origin
+    {
+      const labelOrigin = new Konva.Label(labelCfg)
+      this.transformerLabelOrigin = labelOrigin;
+      this.layerSelected.add(labelOrigin)
+
+      const tagOrigin = new Konva.Tag(tagCfg)
+      labelOrigin.add(tagOrigin)
+
+      // text Origin
+      const textOrigin = new Konva.Text(textCfg)
+      this.transformerTextOrigin = textOrigin;
+      labelOrigin.add(textOrigin)
+    }
+
+    // Label X
+    {
+      const labelX = new Konva.Label(labelCfg)
+      this.transformerLabelX = labelX;
+      this.layerSelected.add(labelX)
+
+      const tagX = new Konva.Tag(tagCfg)
+      labelX.add(tagX)
+
+      // text X
+      const textX = new Konva.Text(textCfg)
+      this.transformerTextX = textX;
+      labelX.add(textX)
+    }
+
+    // Label Y
+    {
+      const labelY = new Konva.Label(labelCfg)
+      this.transformerLabelY = labelY;
+      this.layerSelected.add(labelY)
+
+      const tagY = new Konva.Tag(tagCfg)
+      labelY.add(tagY)
+
+      // text Y
+      const textY = new Konva.Text(textCfg)
+      this.transformerTextY = textY;
+      labelY.add(textY)
+    }
+
+  }
+
+  private updateTransformerText() {
+    console.log('updateTransformerText')
+    const rect = this.rect;
+
+    // text origin    
+    {
+      const textOrigin = this.transformerTextOrigin;
+      const labelOrigin = this.transformerLabelOrigin;
+
+      const lines = [
+        'x:' + rect.x(),
+        'y:' + rect.y()
+      ];
+      textOrigin.text(lines.join('\n'));
+
+      labelOrigin.x(rect.x());
+      labelOrigin.y(rect.y());
+
+      const margin = 1;
+      labelOrigin.offsetY(labelOrigin.height() + margin)
+      labelOrigin.offsetX(labelOrigin.width() + margin)
+    }
+
+    // text X
+    {
+      const textX = this.transformerTextX;
+      const labelX = this.transformerLabelX;
+
+      const width = rect.width()
+
+      textX.text(`${width}`)
+
+      labelX.x(rect.x() + width / 2)
+      labelX.y(rect.y())
+
+      const margin = 2;
+      labelX.offsetX(labelX.width() / 2)
+      labelX.offsetY(labelX.height() + margin)
+
+    }
+
+    // text Y
+    {
+      const textY = this.transformerTextY
+      const labelY = this.transformerLabelY;
+
+      const height = rect.height()
+
+      textY.text(`${height}`)
+
+      labelY.x(rect.x())
+      labelY.y(rect.y() + height / 2)
+
+      const margin = 2;
+      labelY.offsetX(labelY.width() + margin)
+      //textY.offsetY(textX.height() + margin)
+
+    }
   }
 
   private updateSelectedCut() {
@@ -577,6 +720,8 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
     layer.add(rect)
     layer.add(tr)
+
+    this.updateTransformerText()
   }
 
   private updateSelectedCutStore() {
