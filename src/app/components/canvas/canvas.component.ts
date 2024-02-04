@@ -8,7 +8,7 @@ import { Vector2d } from 'konva/lib/types';
 import { Box } from 'konva/lib/shapes/Transformer';
 import { NodeConfig } from 'konva/lib/Node';
 import { Subject, debounceTime, takeUntil, throttleTime } from 'rxjs';
-import { Rect } from 'konva/lib/shapes/Rect';
+import { Rect, RectConfig } from 'konva/lib/shapes/Rect';
 import { getActiveEntity } from '@ngneat/elf-entities';
 import { KeypressService } from '../../state/keypress.service';
 import { TextConfig } from 'konva/lib/shapes/Text';
@@ -45,6 +45,10 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
   private transformerLabelOrigin!: Konva.Label;
   private transformerLabelX!: Konva.Label;
   private transformerLabelY!: Konva.Label;
+
+  private hoverLabel!: Konva.Label;
+  private hoverTag!: Konva.Tag;
+  private hoverText!: Konva.Text;
 
   private moveUpdater = new Subject<ImageCut>;
 
@@ -145,6 +149,8 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       //console.log('selected cut changed', cut)
       this.selectedCut = cut
 
+      this.showTransformerText(cut ? true : false)
+
       this.updateSelectedCut()
     })
 
@@ -182,6 +188,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
       this.initTransformer()
       this.initTransformerText()
+      this.initHoverText()
     }
 
     this.initSubs()
@@ -307,10 +314,11 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       //node.on('pointerdown', componentRef.pointerFunctionTest)
       //node.on('pointermove', componentRef.pointerFunctionTest)
 
-      node.on('pointerdown', function () {
+      node.on('pointerclick', function () {
         const pointerPos = stageRef.getPointerPosition()
-        console.log('point', pointerPos?.x, pointerPos?.y)
-        console.log('relative', componentRef.getRelativePointerCoords())
+        //console.log('point', pointerPos?.x, pointerPos?.y)
+        //console.log('relative', componentRef.getRelativePointerCoords())
+        componentRef.store.selectCut(componentRef.id, undefined)
       })
 
       layerBG.add(node)
@@ -523,6 +531,15 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       componentRef.updateSelectedCutStore()
     }
 
+    rect.on('mouseenter', function () {
+      componentRef.updateCursor('move')
+    })
+
+    rect.on('mouseleave', function () {
+      componentRef.updateCursor('default')
+    })
+
+
     rect.on('dragmove', function () {
       //console.log('dragmove')
 
@@ -673,6 +690,25 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       labelY.add(textY)
     }
 
+  }
+
+  private showTransformerText(show: boolean) {
+    const layer = this.layerSelected;
+
+    const labelOrigin = this.transformerLabelOrigin;
+    const labelX = this.transformerLabelX;
+    const labelY = this.transformerLabelY;
+
+    if (show) {
+      layer.add(labelOrigin)
+      layer.add(labelX)
+      layer.add(labelY)
+    }
+    else {
+      labelOrigin.remove()
+      labelX.remove()
+      labelY.remove()
+    }
   }
 
   private updateTransformerText() {
@@ -827,118 +863,155 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
   }
 
   private updateNonSelectedCuts() {
+    const layer = this.layerCuts;
 
+    layer.getChildren().forEach(child => {
+      if (child.getClassName() === 'Rect') {
+        child.destroy()
+      }
+    })
+
+    const nodes = layer.find('')
+
+    const cuts = this.nonSelectedCuts;
+
+    if (!cuts || cuts.length < 1) {
+      // no cuts
+      return;
+    }
+
+    const rectCfg: RectConfig = {
+      stroke: '#171719',
+      strokeWidth: 3,
+      strokeScaleEnabled: false,
+      id: '123',
+      draggable: false
+    }
+
+    const componentRef = this;
+
+    cuts.forEach(cut => {
+      if (cut.type === 'absolute' && cut.visible) {
+        const abs = cut.absolute;
+
+        const rect = new Konva.Rect({
+          ...rectCfg,
+          x: abs.x,
+          y: abs.y,
+          width: abs.width,
+          height: abs.height,
+          id: cut.id
+        })
+
+        rect.setAttr('cut', cut)
+
+        rect.on('mouseenter', function () {
+          componentRef.updateCursor('pointer');
+          componentRef.updateHoverLabel(rect);
+        })
+
+        rect.on('mouseleave', function () {
+          componentRef.updateCursor('default');
+          componentRef.updateHoverLabel(undefined);
+        })
+
+        rect.on('pointerclick', function (e) {
+          componentRef.onRectPointerClick(cut)
+        })
+
+        layer.add(rect)
+      }
+    })
   }
 
+  private updateCursor(cursor: 'default' | 'pointer' | 'move' | 'crosshair') {
+    this.stage.container().style.cursor = cursor;
+  }
 
-  private updateCutsLayer() {
+  private onRectPointerClick(cut: ImageCut) {
+    //console.log('onRectPointerClick', cut);
 
-    const layerCuts = this.layerCuts
-    const cut1 = this.layerCuts.findOne('#cut1')
-    if (cut1) {
-      layerCuts.destroyChildren()
-    }
+    this.store.selectCut(this.id, cut)
+    this.updateHoverLabel(undefined)
+  }
 
-    const rect = new Konva.Rect({
+  private initHoverText() {
+    const layer = this.layerCuts;
+
+    const label = new Konva.Label({});
+    this.hoverLabel = label;
+    //layer.add(label)
+
+    const tag = new Konva.Tag({
+      fill: '#24262B',
+      pointerDirection: 'down',
+      pointerWidth: 3,
+      pointerHeight: 3,
+      lineJoin: 'round',
+    });
+    this.hoverTag = tag;
+    label.add(tag);
+
+    const text = new Konva.Text({
       x: 0,
-      y: 50,
-      width: 10,
-      height: 10,
-      stroke: 'blue',
-      strokeWidth: 5,
-      strokeScaleEnabled: false,
-      id: 'cut1',
-      draggable: false
-    })
-    layerCuts.add(rect)
+      y: 0,
+      draggable: false,
+      fontFamily: 'Inter',
+      fontSize: 16,
+      fill: 'orange',
+      padding: 0
+    });
 
+    this.hoverText = text;
+    label.add(text);
+  }
 
-    const updateText = function () {
-      const lines = [
-        'x: ' + rect.x(),
-        'y: ' + rect.y(),
-        'rotation: ' + rect.rotation(),
-        'width: ' + rect.width(),
-        'height: ' + rect.height(),
-        'scaleX: ' + rect.scaleX(),
-        'scaleY: ' + rect.scaleY(),
-      ];
-      text.text(lines.join('\n'));
+  private updateHoverLabel(rect: Rect | undefined) {
+    const layer = this.layerCuts;
+
+    const label = this.hoverLabel;
+    const tag = this.hoverTag;
+    const text = this.hoverText;
+
+    // label.remove()
+    label.remove();
+    tag.remove()
+    text.remove()
+
+    if (!rect) {
+      //console.log('!rect');
+      return;
     }
 
-    const text = new Konva.Text({ x: -70, y: -50, draggable: false })
-    layerCuts.add(text)
-    updateText()
+    //console.log('updateHoverLabel', label, tag, text);
 
-    const imageFile: ImageFile = this.image.file!;
+    const cut = rect.getAttr('cut') as ImageCut;
 
-    console.log('Tester', Math.ceil(-1.5))
+    // text
+    text.text(cut.name)
 
-    const tr = new Konva.Transformer({
-      ignoreStroke: true,
-      rotateEnabled: false,
-      flipEnabled: false,
-      nodes: [rect],
-    })
-    layerCuts.add(tr)
+    const zoom = this.zoom;
+    const defaultFontSize = 16;
 
-    const stageRef = this.stage;
+    const newFontSize = Math.max(defaultFontSize / zoom, 5);
+    text.fontSize(newFontSize)
 
-    tr.on('dragmove', function () {
-      console.log('dragmove')
+    // position
+    const margin = 2;
 
-      const closestX = Math.ceil(this.x())
-      const closestY = Math.ceil(this.y())
+    label.x(rect.x() + rect.width() / 2);
+    label.y(rect.y());
 
-      const newBoundBox: Box = {
-        x: 0,
-        y: 0,
-        width: this.width(),
-        height: this.width(),
-        rotation: 0
-      }
+    //label.offsetX(label.width() / 2)
+    //label.offsetY(label.height() + margin)
 
-      this.position(newBoundBox)
+    //layer.add(label)
 
-      stageRef.draw()
+    label.add(tag)
+    label.add(text)
 
-      //this.x(closestX)
-      //this.y(closestY)
+    layer.add(label);
 
-
-      updateText()
-    })
-
-    rect.on('transform', function () {
-      console.log('transform', tr.getActiveAnchor())
-
-      return;
-
-      const closestX = Math.ceil(this.x())
-      const closestY = Math.ceil(this.y())
-
-      this.x(closestX)
-      this.y(closestY)
-
-      this.width(Math.max(2, Math.ceil(this.width() * this.scaleX())))
-      this.height(Math.max(2, Math.ceil(this.height() * this.scaleY())))
-
-      this.scaleX(1)
-      this.scaleY(1)
-
-
-      updateText()
-    })
-
-    rect.on('transformstart', function () {
-      console.log('transformstart', rect.attrs)
-      updateText()
-    })
-
-    rect.on('transformend', function () {
-      console.log('transformend', rect.attrs)
-      updateText()
-    })
   }
 
   onMouseWheel(e: WheelEvent) {
