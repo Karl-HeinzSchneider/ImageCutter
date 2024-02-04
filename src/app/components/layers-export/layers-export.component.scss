@@ -1,0 +1,95 @@
+.container {
+    display: grid;
+    height: 100%;
+
+    grid-template-areas:
+        'cuts'
+        'buttons';
+    grid-template-rows: auto 33px;
+}
+
+.exports {
+    grid-area: cuts;
+}
+
+.buttons {
+    grid-area: buttons;
+
+    height: 32px;
+    background-color: var(--background-subheader);
+
+    display: grid;
+    grid-template-columns: 32px 32px;
+    justify-content: end;
+    gap: 4px;
+
+    padding-right: 16px;
+
+    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+// small export
+
+.sub-container {
+    width: 240px;
+    height: 48px;
+
+    display: grid;
+    grid-template-areas:
+        'title icon'
+        'size icon';
+    grid-template-columns: auto 64px;
+
+    cursor: pointer;
+
+    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.sub-container:hover {
+    background-color: var(--accent);
+}
+
+.selected {
+    background-color: var(--accent);
+}
+
+.main {
+    padding-left: 16px;
+    padding-right: 8px;
+}
+
+.title {
+    grid-area: title;
+
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 17px;
+    padding-top: 5.5px;
+    padding-bottom: 5px;
+}
+
+.size {
+    grid-area: size;
+
+    font-size: 12px;
+    line-height: 15px;
+    font-style: italic;
+
+    padding-bottom: 5.5px;
+
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.icon {
+    grid-area: icon;
+    height: 48px;
+    margin-right: 16px;
+
+    &-download {
+        line-height: 48px;
+        width: 24px;
+        height: 22.32px;
+
+        margin: 12.84px 12px 12.84px 12px;
+    }
+}

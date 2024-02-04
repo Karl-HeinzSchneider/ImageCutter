@@ -1,0 +1,75 @@
+.container {
+    width: 240px;
+    height: 48px;
+
+    display: grid;
+    grid-template-areas:
+        'canvas title eye'
+        'canvas size eye';
+    grid-template-columns: 48px auto 64px;
+
+    cursor: pointer;
+
+    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+
+
+}
+
+.selected {
+    background-color: var(--accent);
+}
+
+.main {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.title {
+    grid-area: title;
+
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 17px;
+    padding-top: 5.5px;
+    padding-bottom: 5px;
+}
+
+.size {
+    grid-area: size;
+
+    font-size: 12px;
+    line-height: 15px;
+    font-style: italic;
+
+    padding-bottom: 5.5px;
+
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.eye {
+    grid-area: eye;
+    height: 48px;
+    margin-right: 16px;
+}
+
+.eye-normal {
+    line-height: 48px;
+    width: 24px;
+    height: 14px;
+
+    margin: 17px 12px 17px 12px;
+}
+
+.eye-closed {
+    line-height: 48px;
+    width: 24px;
+    height: 24.36px;
+
+    margin: 11.82px 12px 11.82px 12px;
+}
+
+.canvas {
+    grid-area: canvas;
+
+    padding: 4px;
+}

@@ -1,13 +1,13 @@
 .container {
     display: grid;
-    gap: 10px;
+    //gap: 10px;
 
     grid-template-areas:
         'navigation'
         'cuts'
         'export'
         'footer';
-    grid-template-rows: 160px auto 240px 32px;
+    grid-template-rows: 232px auto 261px 32px;
 
     justify-content: stretch;
 
@@ -31,4 +31,5 @@
 
 .footer {
     grid-area: footer;
+    background-color: var(--background-header);
 }

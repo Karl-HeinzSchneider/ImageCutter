@@ -1,15 +1,15 @@
 .container {
     width: 100%;
-    display: flex;
-    flex-wrap: nowrap;
+
     border: 1px solid rgba(0, 0, 0, .5);
 }
 
 .tabs {
     width: 100%;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
+    display: grid;
+    grid-auto-flow: column;
+    //grid-template-columns: repeat(6, minmax(100px, 250px)) 64px;
+    grid-auto-columns: minmax(64px, 250px);
 }
 
 .tabs-drop {
@@ -19,10 +19,7 @@
 }
 
 app-tabs {
-    min-width: 64px;
-    max-width: 250px;
-
-    flex: 1;
+    //flex-shrink: 1;
 
     border-right: 1px solid rgba(0, 0, 0, .5);
 }

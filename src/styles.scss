@@ -1,5 +1,12 @@
 /* You can add global styles to this file, and also import other style files */
 
+@font-face {
+    font-family: 'Inter';
+    src: url('assets/fonts/Inter/Inter-VariableFont_slnt\,wght.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 :root {
     --bg: #171719;
     --bg2: #292c31;
@@ -16,6 +23,10 @@
     --background-tools: #292C31;
     --background-subheader: #24262B;
     --accent: #00A5A5;
+}
+
+html {
+    font-family: 'Inter';
 }
 
 // html,
@@ -46,4 +57,13 @@ body {
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
+}
+
+.prevent-select {
+    -webkit-user-select: none;
+    /* Safari */
+    -ms-user-select: none;
+    /* IE 10 and IE 11 */
+    user-select: none;
+    /* Standard syntax */
 }
