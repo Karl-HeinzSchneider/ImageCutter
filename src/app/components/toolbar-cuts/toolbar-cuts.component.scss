@@ -16,6 +16,11 @@
     width: 48px;
 }
 
+.border {
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
 // name
 
 .name {
@@ -33,33 +38,19 @@
     text-align: right;
     vertical-align: middle;
 
-    border-radius: 5px;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-
     margin-left: 4px;
 }
 
 .name-box>input {
-    padding: 0;
-    margin: 0;
-
     width: 96px;
 
     padding: 1px 6px 1px 6px;
-
-    color: rgba(255, 255, 255, 0.5);
+    margin: 0;
 
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.name-box>input:hover {
-    color: rgba(255, 255, 255, 0.9)
-}
-
-.name-box>input:focus {
-    color: rgba(255, 255, 255, 0.9)
-}
 
 .pencil {
     height: 16px;
@@ -89,7 +80,7 @@
     box-sizing: border-box;
 
     width: 64px;
-    height: 32px;
+    height: 26px;
     background-color: var(--background-header);
     color: rgba(255, 255, 255, 0.5);
     border: 0;
@@ -118,41 +109,51 @@
 
 .flex>span {
     line-height: 18px;
+
+    margin-left: 4px;
+    margin-right: 4px;
 }
 
 .input-box {
+    box-sizing: border-box;
+    height: 26px;
+
     background-color: var(--background-header);
-
-    border-radius: 5px;
-
-    //padding: 2px 0.5px 2px 4px;
-    // span + span + input  = same line
-    padding: 2.5px 0.5px 1.5px 6px;
-
     color: rgba(255, 255, 255, 0.5);
 
     margin-left: 4px;
-
-    border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .input-box>span {
     line-height: 18px;
 }
 
+.input-box>input {
+    width: 3.25rem;
+    //height: 20px;
+
+    margin-left: 2px;
+}
+
 
 input {
-    margin-left: 2px;
+    padding: 1px 6px 1px 6px;
+    margin: 0;
 
-    width: 3.25rem;
-    height: 20px;
-
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255, 255, 255, 0.5);
     text-align: right;
 
     background: none;
     border: 0;
     border-radius: 0;
+}
+
+input:hover {
+    color: rgba(255, 255, 255, 0.9)
+}
+
+input:focus {
+    color: rgba(255, 255, 255, 0.9)
 }
 
 input::-webkit-outer-spin-button,

@@ -5,7 +5,7 @@
         <div class="name flex">
             <span>Cut: </span>
             <!-- <div class="name-box"  (change)="onNameChange($event)">{{selected.name}}</div> -->
-            <div class="name-box flex">
+            <div class="name-box flex border">
                 <ng-container *ngTemplateOutlet="pencil"></ng-container>
                 <input type="text" [value]="selected.name" (change)="onNameChange($event, selected)"
                     (mouseenter)="onHover(true)" (mouseleave)="onHover(false)">
@@ -20,12 +20,12 @@
         <ng-container *ngIf="selected.type === 'absolute'">
             <div class="coords flex">
                 <span>Pos: </span>
-                <div class="input-box">
+                <div class="input-box flex border">
                     <span>X</span>
                     <input type="number" id="posX" name="posX" min="0" max="9999" [value]="selected.absolute.x"
                         (change)="inputChange($event, 'posX', selected)" (input)="input($event,'posX', selected)">
                 </div>
-                <div class="input-box">
+                <div class="input-box flex border">
                     <span>Y</span>
                     <input type="number" id="posY" name="posY" min="0" max="9999" [value]="selected.absolute.y"
                         (change)="inputChange($event, 'posY', selected)" (input)="input($event,'posY', selected)">
@@ -33,12 +33,12 @@
             </div>
             <div class="size flex">
                 <span>Size: </span>
-                <div class="input-box">
+                <div class="input-box flex border">
                     <span>W</span>
                     <input type="number" id="sizeX" name="sizeX" min="1" max="9999" [value]="selected.absolute.width"
                         (change)="inputChange($event, 'sizeX', selected)" (input)="input($event,'sizeX', selected)">
                 </div>
-                <div class="input-box">
+                <div class="input-box flex border">
                     <span>H</span>
                     <input type="number" id="sizeY" name="sizeY" min="1" max="9999" [value]="selected.absolute.height"
                         (change)="inputChange($event, 'sizeY', selected)" (input)="input($event,'sizeY', selected)">
