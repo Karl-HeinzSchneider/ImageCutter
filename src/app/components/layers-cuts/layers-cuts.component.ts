@@ -89,4 +89,14 @@ export class LayersCutsComponent {
       this.store.removeCut(this.active.id, selected.id)
     }
   }
+
+  duplicateClicked() {
+    console.log('Duplicate')
+
+    const selected = this.active.cuts?.find(x => x.selected)
+
+    if (this.active.cuts && selected) {
+      this.store.duplicateCut(this.active.id, selected.id)
+    }
+  }
 }
