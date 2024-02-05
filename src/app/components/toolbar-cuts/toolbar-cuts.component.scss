@@ -2,7 +2,7 @@
     height: 48px;
     display: grid;
 
-    grid-template-columns: repeat(5, max-content);
+    grid-template-columns: repeat(6, max-content);
     gap: 8px;
 }
 
@@ -13,6 +13,66 @@
 
 .spacer {
     width: calc(48px + 32px);
+    width: 48px;
+}
+
+// name
+
+.name {
+    height: 48px;
+}
+
+.name-box {
+    box-sizing: border-box;
+    height: 26px;
+    width: 128px;
+
+    background-color: var(--background-header);
+    color: rgba(255, 255, 255, 0.5);
+
+    text-align: right;
+    vertical-align: middle;
+
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+
+    margin-left: 4px;
+}
+
+.name-box>input {
+    padding: 0;
+    margin: 0;
+
+    width: 96px;
+
+    padding: 1px 6px 1px 6px;
+
+    color: rgba(255, 255, 255, 0.5);
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.name-box>input:hover {
+    color: rgba(255, 255, 255, 0.9)
+}
+
+.name-box>input:focus {
+    color: rgba(255, 255, 255, 0.9)
+}
+
+.pencil {
+    height: 16px;
+    width: 16px;
+
+    margin-left: 4px;
+    // margin-right: 4px;
+
+    // opacity: 0;
+}
+
+.hide {
+    opacity: 0;
 }
 
 // type buttons
@@ -26,6 +86,9 @@
 }
 
 .type>button {
+    box-sizing: border-box;
+
+    width: 64px;
     height: 32px;
     background-color: var(--background-header);
     color: rgba(255, 255, 255, 0.5);

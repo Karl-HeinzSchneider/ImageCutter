@@ -14,6 +14,8 @@ export class ToolbarCutsComponent {
 
   @Input() active!: ImageProps;
 
+  nameInputHover: boolean = false;
+
   selectedCut$: Observable<ImageCut | undefined>
 
   constructor(private store: AppRepository) {
@@ -42,6 +44,27 @@ export class ToolbarCutsComponent {
 
     this.changeStoreValues(tarID, cut, value)
     tar.value = String(value)
+  }
+
+  onNameChange(e: Event, cut: ImageCut) {
+    //console.log('onNameChange', e)
+
+    const tar = e.target as HTMLInputElement;
+    const newName = tar.value;
+
+    if (newName === '') {
+      tar.value = cut.name;
+    }
+    else {
+      let newCut: ImageCut = JSON.parse(JSON.stringify(cut))
+      newCut.name = newName;
+
+      this.store.updateCut(this.active.id, newCut)
+    }
+  }
+
+  onHover(e: boolean) {
+    this.nameInputHover = e;
   }
 
   private changeStoreValues(tarID: string, cut: ImageCut, value: number) {
