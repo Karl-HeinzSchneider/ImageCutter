@@ -24,13 +24,17 @@ export class inverseExpPipe implements PipeTransform {
 export class CanvasNavigationComponent implements OnDestroy, OnInit {
   @ViewChild('zoomSlider', { static: false }) zoomSliderRef!: ElementRef;
 
-  active$: Observable<ImageProps | undefined>;
+  active: ImageProps | undefined;
 
   private readonly destroy$ = new Subject<number>()
   private updateSubject = new Subject<[string, number]>;
 
   constructor(private store: AppRepository) {
-    this.active$ = this.store.active$
+    this.store.active$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(active => {
+      this.active = active;
+    })
   }
 
   ngOnInit(): void {

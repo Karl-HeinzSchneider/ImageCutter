@@ -19,6 +19,26 @@
     height: 135px;
 }
 
+.canvas-fake {
+    margin: 0;
+    padding: 9px 16px 9px 16px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    height: 117px;
+    width: 208px;
+}
+
+.canvas-fake>div {
+    height: 117px;
+    width: 117px;
+
+    outline: 1px solid orange;
+    outline-offset: -1px;
+}
+
 
 // Slider
 
