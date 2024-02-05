@@ -1,8 +1,8 @@
-<div class="container" *ngIf="(active$ |async) as active">
+<div class="container">
     <app-layer-box class="navigation" [headerText]="'Navigation'">
         <app-canvas-navigation></app-canvas-navigation>
     </app-layer-box>
-    <app-layers-cuts class="cuts" [active]="active"></app-layers-cuts>
+    <app-layers-cuts class="cuts"></app-layers-cuts>
 
     <!-- <app-layer-box class="export" [headerText]="'Export'"></app-layer-box> -->
     <app-layers-export class="export"></app-layers-export>

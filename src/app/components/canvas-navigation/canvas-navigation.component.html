@@ -1,4 +1,4 @@
-<ng-container *ngIf="(active$ | async) as active">
+<ng-container *ngIf="active; else fake">
     <div class="container">
         <app-canvas-preview class="canvas"></app-canvas-preview>
 
@@ -38,6 +38,48 @@
         </div>
     </div>
 </ng-container>
+
+<ng-template #fake>
+    <div class="container">
+        <div class="canvas canvas-fake">
+            <div></div>
+        </div>
+
+        <div class="slidercontainer">
+            <div class="zoomout">
+                <ng-container *ngTemplateOutlet="zoomOut"></ng-container>
+            </div>
+
+            <input #zoomSlider type="range" min="0.1" max="100" [value]="1  | inverseExp" step="0.1" class="slider">
+
+
+            <div class="zoomin">
+                <ng-container *ngTemplateOutlet="zoomIn"></ng-container>
+            </div>
+        </div>
+        <div class="buttons">
+            <div class="percent prevent-select">{{1 | percent}}</div>
+
+            <div class="spacer"></div>
+
+            <div class="zoomer prevent-select">
+                1x
+            </div>
+
+            <div class="zoomer prevent-select">
+                2x
+            </div>
+
+            <div class="zoomer prevent-select">
+                5x
+            </div>
+
+            <div class="maximize">
+                <ng-container *ngTemplateOutlet="maximize"></ng-container>
+            </div>
+        </div>
+    </div>
+</ng-template>
 
 <ng-template #zoomIn>
     <svg width="159" height="154" viewBox="0 0 159 154" fill="none" xmlns="http://www.w3.org/2000/svg">
