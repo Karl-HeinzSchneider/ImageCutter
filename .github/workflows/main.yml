@@ -26,3 +26,4 @@ jobs:
         with:
           folder: ./dist/browser
           branch: gh-pages
+          token: ${{ secrets.API_TOKEN   }}
