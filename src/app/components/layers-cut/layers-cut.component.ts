@@ -115,6 +115,7 @@ export class LayersCutComponent implements OnChanges, AfterViewInit {
     }
     else {
       //console.log('already selected', this.id, this.cut)
+      this.store.selectCut(this.activeCanvas.id, undefined)
     }
   }
 
