@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LayerBoxComponent } from '../layer-box/layer-box.component';
-import { CanvasNavigationComponent } from '../../canvas/canvas-navigation/canvas-navigation.component';
+import { CanvasNavigationComponent } from '../canvas-navigation/canvas-navigation.component';
 import { LayersCutsComponent } from '../layers-cuts/layers-cuts.component';
 import { AppRepository, ImageProps } from '../../../state/cutter.store';
 import { Observable } from 'rxjs';
