@@ -68,5 +68,11 @@ export class LayersCutsComponent {
       return;
     }
     console.log('zoomClicked')
+
+    const selected = this.active.cuts?.find(x => x.selected)
+
+    if (this.active.cuts && selected) {
+      this.store.zoomCut(this.active.id, selected)
+    }
   }
 }
