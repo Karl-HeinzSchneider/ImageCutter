@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnDestroy, OnInit, Pipe, PipeTransform, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AppRepository, ImageProps } from '../../state/cutter.store';
+import { AppRepository, ImageProps } from '../../../state/cutter.store';
 import { Observable, Subject, debounceTime, takeUntil } from 'rxjs';
 import { CanvasPreviewComponent } from '../canvas-preview/canvas-preview.component';
 

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
 import { AppRepository, ImageProps } from '../../state/cutter.store';
-import { NewImageComponent } from '../new-image/new-image.component';
+import { NewImageComponent } from '../import/new-image/new-image.component';
 import { CanvasComponent } from '../canvas/canvas.component';
 
 @Component({

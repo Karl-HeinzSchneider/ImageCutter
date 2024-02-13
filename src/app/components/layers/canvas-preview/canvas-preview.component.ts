@@ -4,7 +4,7 @@ import { Stage } from 'konva/lib/Stage';
 import { Layer } from 'konva/lib/Layer';
 import Konva from 'konva';
 import { Subject, debounceTime, takeUntil } from 'rxjs';
-import { AppRepository, ImageFile } from '../../state/cutter.store';
+import { AppRepository, ImageFile } from '../../../state/cutter.store';
 import { getActiveEntity } from '@ngneat/elf-entities';
 import { Rect } from 'konva/lib/shapes/Rect';
 import { Vector2d } from 'konva/lib/types';

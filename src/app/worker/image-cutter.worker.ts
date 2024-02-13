@@ -1,5 +1,5 @@
 /// <reference lib="webworker" />
-import { ImageCutResult } from "../components/exporter/exporter.component";
+import { ImageCutResult } from "../components/layers/exporter/exporter.component";
 import { ImageCut, ImageProps } from "../state/cutter.store";
 
 /* 

@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AppRepository, ImageProps } from '../../state/cutter.store';
-import { TooltipModule } from '../../modules/tooltip/tooltip.module';
+import { AppRepository, ImageProps } from '../../../state/cutter.store';
+import { TooltipModule } from '../../../modules/tooltip/tooltip.module';
 
 @Component({
   selector: 'app-tabs',

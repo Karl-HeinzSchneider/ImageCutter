@@ -1,8 +1,8 @@
 import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LayerBoxComponent } from '../layer-box/layer-box.component';
-import { AppRepository, CanvasProps, ImageProps } from '../../state/cutter.store';
-import { TooltipModule } from '../../modules/tooltip/tooltip.module';
+import { AppRepository, CanvasProps, ImageProps } from '../../../state/cutter.store';
+import { TooltipModule } from '../../../modules/tooltip/tooltip.module';
 import { Observable } from 'rxjs';
 import { ExporterComponent } from '../exporter/exporter.component';
 

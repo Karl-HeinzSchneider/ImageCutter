@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, Input, OnChanges, Pipe, PipeTransform, SimpleChanges, ViewChild } from '@angular/core';
-import { AppRepository, CanvasProps, ImageCut } from '../../state/cutter.store';
-import { TooltipModule } from '../../modules/tooltip/tooltip.module';
+import { AppRepository, CanvasProps, ImageCut } from '../../../state/cutter.store';
+import { TooltipModule } from '../../../modules/tooltip/tooltip.module';
 
 @Pipe({ name: 'cutSize', standalone: true })
 export class cutSizePipe implements PipeTransform {

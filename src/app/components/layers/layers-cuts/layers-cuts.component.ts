@@ -2,9 +2,9 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LayerBoxComponent } from '../layer-box/layer-box.component';
 import { LayersCutComponent } from '../layers-cut/layers-cut.component';
-import { AppRepository, CanvasProps, ImageProps } from '../../state/cutter.store';
+import { AppRepository, CanvasProps, ImageProps } from '../../../state/cutter.store';
 import { Observable, distinctUntilChanged, from, map, switchMap, tap } from 'rxjs';
-import { TooltipModule } from '../../modules/tooltip/tooltip.module';
+import { TooltipModule } from '../../../modules/tooltip/tooltip.module';
 
 @Component({
   selector: 'app-layers-cuts',

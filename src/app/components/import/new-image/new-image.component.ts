@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AppRepository, ImageFile } from '../../state/cutter.store';
+import { AppRepository, ImageFile } from '../../../state/cutter.store';
 
 @Component({
   selector: 'app-new-image',

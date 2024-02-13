@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CanvasProps, ImageCut, ImageProps } from '../../state/cutter.store';
+import { CanvasProps, ImageCut, ImageProps } from '../../../state/cutter.store';
 
 export interface ImageCutterResult {
   img: ImageProps,

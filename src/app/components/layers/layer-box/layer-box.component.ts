@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { TooltipModule } from '../../modules/tooltip/tooltip.module';
+import { TooltipModule } from '../../../modules/tooltip/tooltip.module';
 
 @Component({
   selector: 'app-layer-box',

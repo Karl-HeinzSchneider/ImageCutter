@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TabsComponent } from '../tabs/tabs.component';
-import { AppRepository, ImageProps } from '../../state/cutter.store';
+import { AppRepository, ImageProps } from '../../../state/cutter.store';
 import { Observable, map } from 'rxjs';
 
 @Component({

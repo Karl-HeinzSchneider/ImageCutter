@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AppRepository, ImageCut, ImageProps } from '../../state/cutter.store';
+import { AppRepository, ImageCut, ImageProps } from '../../../state/cutter.store';
 
 @Component({
   selector: 'app-toolbar-cuts',
