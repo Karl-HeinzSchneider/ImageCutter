@@ -61,6 +61,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
   private scroll: Vector2d = { x: 0.5, y: 0.5 };
   private selectedCut: ImageCut | undefined;
   private nonSelectedCuts: ImageCut[] | undefined;
+  private mouseoverCutID: string = '';
 
   private scrollUpdater = new Subject<Vector2d>;
   private scrollHandler: (e: Event) => void;
@@ -160,6 +161,14 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       this.nonSelectedCuts = cuts
 
       this.updateNonSelectedCuts()
+    })
+
+    // mouseover Cut
+    this.store.mouseoverCutID$.pipe(takeUntil(this.destroy$)).subscribe(id => {
+      // console.log('MouseoverCutID', id)
+      this.mouseoverCutID = id;
+
+      this.updateMouseoverCut()
     })
 
     // key down repeat
@@ -896,7 +905,8 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
           y: abs.y,
           width: abs.width,
           height: abs.height,
-          id: cut.id
+          id: cut.id,
+          name: 'rect'
         })
         rect.dash([8, 1])
 
@@ -923,6 +933,35 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
         layer.add(rect)
       }
     })
+  }
+
+  private updateMouseoverCut() {
+    const id = this.mouseoverCutID;
+    const layer = this.layerCuts;
+
+    const rects: Rect[] = layer.find('.rect')
+
+    let found = false;
+
+    rects.forEach(rect => {
+      const cut: ImageCut = rect.getAttr('cut')
+
+      if (cut.id === id) {
+        rect.stroke('#00A5A5')
+        this.updateHoverLabel(rect)
+        found = true;
+      }
+      else {
+        rect.stroke('#171719')
+      }
+    })
+
+    if (found) {
+      return;
+    }
+    else {
+      this.updateHoverLabel(undefined)
+    }
   }
 
   private updateCursor(cursor: 'default' | 'pointer' | 'move' | 'crosshair') {

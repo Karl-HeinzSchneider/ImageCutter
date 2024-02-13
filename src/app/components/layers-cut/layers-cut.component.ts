@@ -126,4 +126,10 @@ export class LayersCutComponent implements OnChanges, AfterViewInit {
 
     this.store.updateCut(this.activeCanvas.id, newCut)
   }
+
+  mouseover(over: boolean) {
+    //console.log('mouseover', this.cut.name, over)
+    const id = over ? this.cut.id : ''
+    this.store.updateMouseoverCutID(id)
+  }
 }
