@@ -31,21 +31,23 @@ export class LayersCutsComponent {
   }
 
   adderClicked() {
-    if (this.active) {
-      console.log('Adder', this.active)
-      this.store.addNewCut(this.active.id)
+    if (!this.active) {
+      return;
     }
+    console.log('Adder', this.active)
+    this.store.addNewCut(this.active.id)
   }
 
   removerClicked() {
-    if (this.active) {
-      console.log('Remover', this.active)
+    if (!this.active) {
+      return;
+    }
+    console.log('Remover', this.active)
 
-      const selected = this.active.cuts?.find(x => x.selected)
+    const selected = this.active.cuts?.find(x => x.selected)
 
-      if (this.active.cuts && selected) {
-        this.store.removeCut(this.active.id, selected.id)
-      }
+    if (this.active.cuts && selected) {
+      this.store.removeCut(this.active.id, selected.id)
     }
   }
 
