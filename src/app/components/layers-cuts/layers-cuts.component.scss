@@ -25,7 +25,7 @@
     background-color: var(--background-subheader);
 
     display: grid;
-    grid-template-columns: repeat(3, 32px);
+    grid-template-columns: repeat(5, 32px);
     justify-content: end;
     gap: 4px;
 
@@ -48,6 +48,10 @@
 }
 
 .duplicate {
+    width: 32px;
+}
+
+.zoom {
     width: 32px;
 }
 

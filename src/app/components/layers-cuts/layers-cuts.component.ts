@@ -60,4 +60,11 @@ export class LayersCutsComponent {
       }
     }
   }
+
+  zoomClicked() {
+    if (!this.active) {
+      return;
+    }
+    console.log('zoomClicked')
+  }
 }
