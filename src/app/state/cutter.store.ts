@@ -8,6 +8,7 @@ import { v4 as uuid } from 'uuid';
 import { readFileList } from './cutter.store.helper';
 import localforage from 'localforage';
 import { syncState } from 'elf-sync-state';
+import { convertAbsoluteToRelative, convertRelativeToAbsolute } from './global.helper';
 
 // https://www.geodev.me/blog/deeppartial-in-typescript/
 export type DeepPartial<T> = {
@@ -287,14 +288,16 @@ export class AppRepository {
     public addNewCut(id: string) {
         const img = this.store.query(getEntity(id));
 
-        if (!img) {
+        if (!img || !img.file) {
             return;
         }
 
         let newImg: ImageProps = { ...img }
+        const size: Vector2d = { x: img.file.width, y: img.file.height };
+
         if (!img.cuts || img.cuts.length < 1) {
             newImg.cuts = []
-            const newCut: ImageCut = {
+            let newCut: ImageCut = {
                 id: uuid(),
                 name: 'Cut 1',
                 visible: true,
@@ -314,10 +317,11 @@ export class AppRepository {
                     right: 1
                 }
             }
-            newImg.cuts?.push(newCut)
+            newCut.relative = convertAbsoluteToRelative(newCut.absolute, size)
+            newImg.cuts.push(newCut)
         }
         else {
-            const newCut: ImageCut = {
+            let newCut: ImageCut = {
                 id: uuid(),
                 name: `Cut ${img.cuts.length + 1}`,
                 visible: true,
@@ -337,7 +341,8 @@ export class AppRepository {
                     right: 1
                 }
             }
-            newImg.cuts?.push(newCut)
+            newCut.relative = convertAbsoluteToRelative(newCut.absolute, size)
+            newImg.cuts.push(newCut)
         }
 
         this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
@@ -519,6 +524,20 @@ export class AppRepository {
         }
 
         const realCut = img.cuts[index]
+
+        let abs = realCut.absolute;
+        let rel = realCut.relative;
+
+        for (let i = 0; i < 3; i++) {
+            console.log(i, abs, rel);
+
+            const oldAbs = abs;
+            const oldRel = rel;
+
+            abs = convertRelativeToAbsolute(oldRel, { x: img.file.width, y: img.file.height })
+            rel = convertAbsoluteToRelative(oldAbs, { x: img.file.width, y: img.file.height })
+            //console.log('conv:', abs, rel)
+        }
 
         if (realCut.type === 'absolute') {
             const cutHeight = realCut.absolute.height;
