@@ -212,7 +212,7 @@ export class AppRepository {
         //syncState(this.store, { channel: 'AppStore' })
 
         //this.addCanvasEntities(this.restoredImageProps)
-        //this.store.update(addEntities([testImage, testImageTwo]))
+        //this.store.update(addEntities([testImage, testImageTwo]))       
     }
 
     public updateShowDropzone(val: boolean) {
@@ -228,26 +228,11 @@ export class AppRepository {
     }
 
     public updateZoom(id: string, val: number) {
-        const img = this.store.query(getEntity(id));
-
-        if (img) {
-            let newImg: ImageProps = { ...img }
-            newImg.meta.zoom = val
-
-            this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
-        }
+        this.store.update(updateEntities(id, (entity) => ({ ...entity, meta: { ...entity.meta, zoom: val } })))
     }
 
     public updateScroll(id: string, scrollX: number, scrollY: number) {
-        const img = this.store.query(getEntity(id));
-
-        if (img) {
-            let newImg: ImageProps = { ...img }
-            newImg.meta.scrollX = scrollX
-            newImg.meta.scrollY = scrollY
-
-            this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
-        }
+        this.store.update(updateEntities(id, (entity) => ({ ...entity, meta: { ...entity.meta, scrollX: scrollX, scrollY: scrollY } })))
     }
 
     public setActiveImage(id: string) {
