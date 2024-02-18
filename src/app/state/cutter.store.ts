@@ -228,11 +228,11 @@ export class AppRepository {
     }
 
     public updateZoom(id: string, val: number) {
-        this.store.update(updateEntities(id, (entity) => ({ ...entity, meta: { ...entity.meta, zoom: val } })))
+        this.store.update(updateEntities(id, (entity) => ({ ...entity, meta: { ...entity.meta, zoom: val, date: new Date() } })))
     }
 
     public updateScroll(id: string, scrollX: number, scrollY: number) {
-        this.store.update(updateEntities(id, (entity) => ({ ...entity, meta: { ...entity.meta, scrollX: scrollX, scrollY: scrollY } })))
+        this.store.update(updateEntities(id, (entity) => ({ ...entity, meta: { ...entity.meta, scrollX: scrollX, scrollY: scrollY, date: new Date() } })))
     }
 
     public setActiveImage(id: string) {
@@ -304,7 +304,7 @@ export class AppRepository {
             newImg.cuts.push(newCut)
         }
 
-        this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
+        this.store.update(updateEntities(id, (entity) => ({ ...newImg, meta: { ...newImg.meta, date: new Date() } })))
     }
 
     public duplicateCut(id: string, cutID: string) {
@@ -331,7 +331,7 @@ export class AppRepository {
 
         newImg.cuts.push(newCut)
 
-        this.store.update(updateEntities(id, (entity) => ({ ...newImg })));
+        this.store.update(updateEntities(id, (entity) => ({ ...newImg, meta: { ...newImg.meta, date: new Date() } })))
     }
 
     public removeCut(id: string, cutID: string) {
@@ -360,7 +360,7 @@ export class AppRepository {
             newImg.cuts[nextIndex].selected = true
         }
 
-        this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
+        this.store.update(updateEntities(id, (entity) => ({ ...newImg, meta: { ...newImg.meta, date: new Date() } })))
     }
 
     public updateCut(id: string, cut: ImageCut) {
@@ -399,7 +399,7 @@ export class AppRepository {
             newImg.cuts![nextIndex].selected = true
         }
 
-        this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
+        this.store.update(updateEntities(id, (entity) => ({ ...newImg, meta: { ...newImg.meta, date: new Date() } })))
     }
 
     public updateSelectedCut(id: string, updates: DeepPartial<ImageCut>) {
@@ -466,7 +466,7 @@ export class AppRepository {
             // -> deselect all
         }
 
-        this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
+        this.store.update(updateEntities(id, (entity) => ({ ...newImg, meta: { ...newImg.meta, date: new Date() } })))
     }
 
     public zoomCut(id: string, cut: ImageCut | undefined) {
@@ -561,7 +561,7 @@ export class AppRepository {
             newImg.meta.scrollX = scrollX;
             newImg.meta.scrollY = scrollY;
 
-            this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
+            this.store.update(updateEntities(id, (entity) => ({ ...newImg, meta: { ...newImg.meta, date: new Date() } })))
         }
         else {
             // TODO
@@ -669,7 +669,7 @@ export class AppRepository {
             }
         }
 
-        this.store.update(updateEntities(id, (ent) => ({ ...newImg })))
+        this.store.update(updateEntities(id, (ent) => ({ ...newImg, meta: { ...newImg.meta, date: new Date() } })))
     }
 
 }
