@@ -24,7 +24,7 @@ export interface AppProps {
 export interface ImageProps {
     id: string,
     meta: ImageMeta
-    file?: ImageFile
+    file: ImageFile
     cuts: ImageCut[]
 }
 
@@ -71,32 +71,6 @@ export interface relativeCut {
     bottom: number,
     left: number,
     right: number
-}
-
-const testImage: ImageProps = {
-    id: uuid(),
-    meta: {
-        name: 'testImage',
-        active: true,
-        date: new Date(),
-        zoom: 1,
-        scrollX: 0.5,
-        scrollY: 0.5
-    },
-    cuts: []
-}
-
-const testImageTwo: ImageProps = {
-    id: uuid(),
-    meta: {
-        name: 'testImageTwo',
-        active: false,
-        date: new Date(),
-        zoom: 1,
-        scrollX: 0.5,
-        scrollY: 0.5
-    },
-    cuts: []
 }
 
 export interface CanvasProps {
@@ -288,7 +262,7 @@ export class AppRepository {
     public addNewCut(id: string) {
         const img = this.store.query(getEntity(id));
 
-        if (!img || !img.file) {
+        if (!img) {
             return;
         }
 
@@ -513,7 +487,7 @@ export class AppRepository {
     public zoomCut(id: string, cut: ImageCut | undefined) {
         const img = this.store.query(getEntity(id));
 
-        if (!img || !img.cuts || !cut || !img.file) {
+        if (!img || !img.cuts || !cut) {
             return;
         }
 
@@ -658,23 +632,21 @@ export class AppRepository {
         for (let i = 0; i < imgData.length; i++) {
             const img = imgData[i]
 
-            if (img.file) {
-                const canv = new OffscreenCanvas(img.file.width, img.file.height)
-                const prop: CanvasProps = {
-                    id: img.id,
-                    canvas: canv
-                }
-
-
-                const blob = await fetch(img.file.dataURL).then((response) => response.blob())
-                const imageBitmap = await createImageBitmap(blob)
-
-                const ctx = canv.getContext('2d')
-                //ctx?.transferFromImageBitmap(imageBitmap)
-                ctx?.drawImage(imageBitmap, 0, 0)
-
-                updates.push(prop)
+            const canv = new OffscreenCanvas(img.file.width, img.file.height)
+            const prop: CanvasProps = {
+                id: img.id,
+                canvas: canv
             }
+
+
+            const blob = await fetch(img.file.dataURL).then((response) => response.blob())
+            const imageBitmap = await createImageBitmap(blob)
+
+            const ctx = canv.getContext('2d')
+            //ctx?.transferFromImageBitmap(imageBitmap)
+            ctx?.drawImage(imageBitmap, 0, 0)
+
+            updates.push(prop)
         }
 
         this.canvasStore.update(addEntities(updates))
