@@ -484,88 +484,69 @@ export class AppRepository {
 
         const realCut = img.cuts[index]
 
-        let abs = realCut.absolute;
-        let rel = realCut.relative;
+        const cutHeight = realCut.absolute.height;
+        const cutWidth = realCut.absolute.width;
 
-        for (let i = 0; i < 3; i++) {
-            console.log(i, abs, rel);
+        //console.log('cut:', cutHeight, cutWidth);
 
-            const oldAbs = abs;
-            const oldRel = rel;
+        let newImg: ImageProps = JSON.parse(JSON.stringify(img))
 
-            abs = convertRelativeToAbsolute(oldRel, { x: img.file.width, y: img.file.height })
-            rel = convertAbsoluteToRelative(oldAbs, { x: img.file.width, y: img.file.height })
-            //console.log('conv:', abs, rel)
-        }
+        const imgWidth = img.file.width;
+        const imgHeight = img.file.height;
 
-        if (realCut.type === 'absolute') {
-            const cutHeight = realCut.absolute.height;
-            const cutWidth = realCut.absolute.width;
+        // TODO: global get func
+        const wHeight = window.innerHeight
+        const wWidth = window.innerWidth
 
-            //console.log('cut:', cutHeight, cutWidth);
+        const padding = 24
+        // real canvas size
+        const rHeight = wHeight - 32 - 48 - 32 - 32 - 2 * padding
+        const rWidth = wWidth - 48 - 240 - 2 * padding
 
-            let newImg: ImageProps = JSON.parse(JSON.stringify(img))
-
-            const imgWidth = img.file.width;
-            const imgHeight = img.file.height;
-
-            // TODO: global get func
-            const wHeight = window.innerHeight
-            const wWidth = window.innerWidth
-
-            const padding = 24
-            // real canvas size
-            const rHeight = wHeight - 32 - 48 - 32 - 32 - 2 * padding
-            const rWidth = wWidth - 48 - 240 - 2 * padding
-
-            //console.log('canvas:', rHeight, rWidth);
+        //console.log('canvas:', rHeight, rWidth);
 
 
-            // zoom
-            const zoomPadding = 0.2;
+        // zoom
+        const zoomPadding = 0.2;
 
-            const zoomHeight = (1 - 2 * zoomPadding) * rHeight / cutHeight;
-            const zoomWidth = (1 - 2 * zoomPadding) * rWidth / cutWidth;
+        const zoomHeight = (1 - 2 * zoomPadding) * rHeight / cutHeight;
+        const zoomWidth = (1 - 2 * zoomPadding) * rWidth / cutWidth;
 
-            let zoomMin = Math.min(zoomHeight, zoomWidth)
+        let zoomMin = Math.min(zoomHeight, zoomWidth)
 
-            //console.log('zoomcalc:', zoomHeight, zoomWidth, zoomMin)
-
-
-            // scroll
-            //const scrollDelta = 31 // 2*padding - 17 (scrollWidth)
-            const scrollWheel = 17;
-
-            const scrollWidth = Math.floor(zoomMin * imgWidth + 2 * padding);
-            const clientWidth = rWidth + 2 * padding - scrollWheel;
-
-            const scrollLeft = realCut.absolute.x * zoomMin - (rWidth - zoomMin * (cutWidth)) / 2;
-            let scrollX = scrollLeft / (scrollWidth - clientWidth);
-
-            scrollX = Math.min(Math.max(scrollX, 0), 1)
-
-            //console.log('scrollWidth/clientWidth', scrollWidth, clientWidth);
-
-            const scrollHeight = Math.floor(zoomMin * imgHeight + 2 * padding);
-            const clientHeight = rHeight + 2 * padding - scrollWheel;
-
-            const scrollTop = realCut.absolute.y * zoomMin - (rHeight - zoomMin * (cutHeight)) / 2;
-            let scrollY = scrollTop / (scrollHeight - clientHeight);
-
-            scrollY = Math.min(Math.max(scrollY, 0), 1)
-
-            //console.log('scrollcalc', scrollY, scrollX);
+        //console.log('zoomcalc:', zoomHeight, zoomWidth, zoomMin)
 
 
-            newImg.meta.zoom = zoomMin;
-            newImg.meta.scrollX = scrollX;
-            newImg.meta.scrollY = scrollY;
+        // scroll
+        //const scrollDelta = 31 // 2*padding - 17 (scrollWidth)
+        const scrollWheel = 17;
 
-            this.store.update(updateEntities(id, (entity) => ({ ...newImg, meta: { ...newImg.meta, date: new Date() } })))
-        }
-        else {
-            // TODO
-        }
+        const scrollWidth = Math.floor(zoomMin * imgWidth + 2 * padding);
+        const clientWidth = rWidth + 2 * padding - scrollWheel;
+
+        const scrollLeft = realCut.absolute.x * zoomMin - (rWidth - zoomMin * (cutWidth)) / 2;
+        let scrollX = scrollLeft / (scrollWidth - clientWidth);
+
+        scrollX = Math.min(Math.max(scrollX, 0), 1)
+
+        //console.log('scrollWidth/clientWidth', scrollWidth, clientWidth);
+
+        const scrollHeight = Math.floor(zoomMin * imgHeight + 2 * padding);
+        const clientHeight = rHeight + 2 * padding - scrollWheel;
+
+        const scrollTop = realCut.absolute.y * zoomMin - (rHeight - zoomMin * (cutHeight)) / 2;
+        let scrollY = scrollTop / (scrollHeight - clientHeight);
+
+        scrollY = Math.min(Math.max(scrollY, 0), 1)
+
+        //console.log('scrollcalc', scrollY, scrollX);
+
+
+        newImg.meta.zoom = zoomMin;
+        newImg.meta.scrollX = scrollX;
+        newImg.meta.scrollY = scrollY;
+
+        this.store.update(updateEntities(id, (entity) => ({ ...newImg, meta: { ...newImg.meta, date: new Date() } })))
     }
 
     // -----------------
