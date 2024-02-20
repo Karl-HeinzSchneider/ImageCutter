@@ -839,18 +839,16 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
     let newCut: ImageCut = { ...cut }
 
-    if (cut.type === 'absolute') {
-      newCut.absolute!.x = rect.x()
-      newCut.absolute!.y = rect.y()
+    newCut.absolute!.x = rect.x()
+    newCut.absolute!.y = rect.y()
 
-      newCut.absolute!.height = rect.height()
-      newCut.absolute!.width = rect.width()
+    newCut.absolute!.height = rect.height()
+    newCut.absolute!.width = rect.width()
 
-      newCut.relative = convertAbsoluteToRelative(newCut.absolute, { x: this.imageFile!.width, y: this.imageFile!.height })
+    newCut.relative = convertAbsoluteToRelative(newCut.absolute, { x: this.imageFile!.width, y: this.imageFile!.height })
 
-      //console.log('newCut', newCut)
-      this.store.updateCut(this.id, newCut)
-    }
+    //console.log('newCut', newCut)
+    this.store.updateCut(this.id, newCut)
   }
 
   private moveSelectedCut(dx: number, dy: number) {
