@@ -14,8 +14,10 @@
         </div>
         <div class="type flex">
             <div>Type: </div>
-            <button [class.selected]="selected.type === 'absolute'">Absolute</button>
-            <button [class.selected]="selected.type === 'relative'">Relative</button>
+            <button [class.selected]="selected.type === 'absolute'"
+                (click)="setAbsolute(true,selected)">Absolute</button>
+            <button [class.selected]="selected.type === 'relative'"
+                (click)="setAbsolute(false,selected)">Relative</button>
         </div>
         <ng-container *ngIf="selected.type === 'absolute'">
             <div class="coords flex">

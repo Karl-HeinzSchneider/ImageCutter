@@ -62,46 +62,40 @@ export class LayersCutComponent implements OnChanges, AfterViewInit {
 
     const activeCanvas = this.activeCanvas.canvas
 
-    if (this.cut.type === 'absolute') {
-      const abs = this.cut.absolute
-      const sx = abs.x;
-      const sy = abs.y;
-      const sWidth = abs.width;
-      const sHeight = abs.height;
+    const abs = this.cut.absolute
+    const sx = abs.x;
+    const sy = abs.y;
+    const sWidth = abs.width;
+    const sHeight = abs.height;
 
-      if (sWidth === sHeight) {
-        //console.log('sWidth === sHeight')
-        const dx = 0;
-        const dy = 0;
-        const dWidth = 40;
-        const dHeight = 40;
-        ctx.drawImage(activeCanvas, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
-      }
-      else if (sWidth > sHeight) {
-        //console.log('sWidth > sHeight')
-        const dx = 0;
-        const dWidth = 40;
-
-        const dHeight = (sHeight / sWidth) * 40;
-        const dy = (40 - dHeight) / 2;
-
-        ctx.drawImage(activeCanvas, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
-      }
-      else {
-        //console.log('sWidth < sHeight')
-        const dWidth = (sWidth / sHeight) * 40;
-        const dx = (40 - dWidth) / 2;
-
-        const dHeight = 40
-        const dy = 0
-
-        ctx.drawImage(activeCanvas, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
-      }
+    if (sWidth === sHeight) {
+      //console.log('sWidth === sHeight')
+      const dx = 0;
+      const dy = 0;
+      const dWidth = 40;
+      const dHeight = 40;
+      ctx.drawImage(activeCanvas, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
     }
-    else if (this.cut.type === 'relative') {
+    else if (sWidth > sHeight) {
+      //console.log('sWidth > sHeight')
+      const dx = 0;
+      const dWidth = 40;
 
+      const dHeight = (sHeight / sWidth) * 40;
+      const dy = (40 - dHeight) / 2;
+
+      ctx.drawImage(activeCanvas, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
     }
+    else {
+      //console.log('sWidth < sHeight')
+      const dWidth = (sWidth / sHeight) * 40;
+      const dx = (40 - dWidth) / 2;
 
+      const dHeight = 40
+      const dy = 0
+
+      ctx.drawImage(activeCanvas, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+    }
 
     //ctx.fillRect(0, 0, 184, 184)
   }

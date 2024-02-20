@@ -97,4 +97,12 @@ export class ToolbarCutsComponent {
 
     this.store.updateCut(this.active.id, newCut)
   }
+
+  public setAbsolute(abs: boolean, cut: ImageCut) {
+    let newCut = { ...cut }
+
+    newCut.type = abs ? 'absolute' : 'relative';
+
+    this.store.updateCut(this.active.id, newCut)
+  }
 }
