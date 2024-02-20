@@ -13,6 +13,7 @@ import { getActiveEntity } from '@ngneat/elf-entities';
 import { KeypressService } from '../../state/keypress.service';
 import { TextConfig } from 'konva/lib/shapes/Text';
 import { LabelConfig, TagConfig } from 'konva/lib/shapes/Label';
+import { convertAbsoluteToRelative } from '../../state/global.helper';
 
 
 @Component({
@@ -844,6 +845,8 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
       newCut.absolute!.height = rect.height()
       newCut.absolute!.width = rect.width()
+
+      newCut.relative = convertAbsoluteToRelative(newCut.absolute, { x: this.imageFile!.width, y: this.imageFile!.height })
 
       //console.log('newCut', newCut)
       this.store.updateCut(this.id, newCut)
