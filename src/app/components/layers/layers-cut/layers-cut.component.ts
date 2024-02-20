@@ -6,12 +6,7 @@ import { TooltipModule } from '../../../modules/tooltip/tooltip.module';
 @Pipe({ name: 'cutSize', standalone: true })
 export class cutSizePipe implements PipeTransform {
   transform(value: ImageCut, ...args: any[]): string {
-
-    if (value.type === 'absolute' && value.absolute) {
-      return `w: ${value.absolute.width}, h: ${value.absolute.height}`
-    }
-
-    return '';
+    return `w: ${value.absolute.width}, h: ${value.absolute.height}`
   }
 }
 @Component({

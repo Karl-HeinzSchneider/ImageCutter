@@ -20,7 +20,7 @@
                 (click)="setAbsolute(false,selected)">Relative</button>
         </div>
         <ng-container *ngIf="selected.type === 'absolute'">
-            <div class="coords flex">
+            <div class="flex">
                 <span>Pos: </span>
                 <div class="input-box flex border">
                     <span>X</span>
@@ -49,11 +49,28 @@
         </ng-container>
 
         <ng-container *ngIf="selected.type === 'relative'">
-            <div class="coords flex">
-                <div>Posss: </div>
-            </div>
-            <div class="size flex">
-                <div>Sizess: </div>
+            <div class="flex">
+                <span>Coords: </span>
+                <div class="input-box flex border">
+                    <span>Top</span>
+                    <input type="number" id="top" name="top" min="0" max="1" [step]="1/active.file.height"
+                        [value]="selected.relative.top" (input)="input($event,'top', selected)">
+                </div>
+                <div class="input-box flex border">
+                    <span>Bottom</span>
+                    <input type="number" id="bottom" name="bottom" min="0" max="1" [step]="1/active.file.height"
+                        [value]="selected.relative.bottom" (input)="input($event,'bottom', selected)">
+                </div>
+                <div class="input-box flex border">
+                    <span>Left</span>
+                    <input type="number" id="left" name="left" min="0" max="1" [step]="1/active.file.width"
+                        [value]="selected.relative.left" (input)="input($event,'left', selected)">
+                </div>
+                <div class="input-box flex border">
+                    <span>Right</span>
+                    <input type="number" id="right" name="right" min="0" max="1" [step]="1/active.file.width"
+                        [value]="selected.relative.right" (input)="input($event,'right', selected)">
+                </div>
             </div>
         </ng-container>
 

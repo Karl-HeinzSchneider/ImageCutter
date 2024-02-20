@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AppRepository, ImageCut, ImageProps } from '../../../state/cutter.store';
+import { convertAbsoluteToRelative, convertRelativeToAbsolute } from '../../../state/global.helper';
+import { Vector2d } from 'konva/lib/types';
 
 @Component({
   selector: 'app-toolbar-cuts',
@@ -70,24 +72,54 @@ export class ToolbarCutsComponent {
   private changeStoreValues(tarID: string, cut: ImageCut, value: number) {
     let newCut = { ...cut }
 
+    const imgSize: Vector2d = { x: this.active.file.width, y: this.active.file.height };
+
     switch (tarID) {
       case 'posX': {
         // this.store.updateSelectedCut(this.active.id, { absolute: {x: value} })
         newCut.absolute.x = value
+        newCut.relative = convertAbsoluteToRelative(newCut.absolute, imgSize)
         break;
       }
       case 'posY': {
         newCut.absolute.y = value
+        newCut.relative = convertAbsoluteToRelative(newCut.absolute, imgSize)
         break;
       }
 
       case 'sizeX': {
         newCut.absolute.width = value
+        newCut.relative = convertAbsoluteToRelative(newCut.absolute, imgSize)
         break;
       }
 
       case 'sizeY': {
         newCut.absolute.height = value
+        newCut.relative = convertAbsoluteToRelative(newCut.absolute, imgSize)
+        break;
+      }
+
+      case 'top': {
+        newCut.relative.top = value
+        newCut.absolute = convertRelativeToAbsolute(newCut.relative, imgSize)
+        break;
+      }
+
+      case 'bottom': {
+        newCut.relative.bottom = value
+        newCut.absolute = convertRelativeToAbsolute(newCut.relative, imgSize)
+        break;
+      }
+
+      case 'left': {
+        newCut.relative.left = value
+        newCut.absolute = convertRelativeToAbsolute(newCut.relative, imgSize)
+        break;
+      }
+
+      case 'right': {
+        newCut.relative.right = value
+        newCut.absolute = convertRelativeToAbsolute(newCut.relative, imgSize)
         break;
       }
 

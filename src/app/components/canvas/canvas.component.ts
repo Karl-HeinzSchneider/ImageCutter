@@ -887,7 +887,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     const componentRef = this;
 
     cuts.forEach(cut => {
-      if (cut.type === 'absolute' && cut.visible) {
+      if (cut.visible) {
         const abs = cut.absolute;
 
         const rect = new Konva.Rect({
