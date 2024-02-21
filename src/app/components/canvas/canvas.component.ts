@@ -308,10 +308,10 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     const componentRef = this;
     const stageRef = this.stage;
 
-    const squareSize = 5;
+    const squareSize = 1000;
 
-    const amountX = Math.ceil(image.width / squareSize)
-    const amountY = Math.ceil(image.height / squareSize)
+    const amountX = Math.floor(image.width / squareSize);
+    const amountY = Math.floor(image.height / squareSize);
 
     console.log('drawCheckered', amountX, amountY, amountX * amountY);
 
@@ -322,29 +322,29 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       height: image.height,
       draggable: false,
       id: 'bg',
-      fill: 'rgba(0, 0, 0)'
+      fill: 'rgba(0, 0, 0, 0)'
     })
     layer.add(rect)
 
+    const url = '../../../../assets/img/checkered.png'
+    console.log(url);
+
     for (let i = 0; i < amountX; i++) {
       for (let j = 0; j < amountY; j++) {
-        if ((i + j) % 2 === 0) {
-          const r = new Konva.Rect({
+        Konva.Image.fromURL(url, function (node) {
+          node.setAttrs({
             x: i * squareSize,
             y: j * squareSize,
-            width: squareSize,
-            height: squareSize,
-            draggable: false,
-            fill: 'rgba(100, 100, 100, .5)'
+            scaleX: 1,
+            scaleY: 1,
           })
-          layer.add(r)
-        }
-        else {
-
-        }
-
+          layer.add(node)
+          console.log(i, j, node.width())
+        })
       }
     }
+    //layer.cache()
+    //console.log(layer.toDataURL({ x: 0, y: 0, width: 100, height: 100, mimeType: 'png', quality: 1, pixelRatio: 1 }))
   }
 
   private drawStageBG() {
@@ -920,6 +920,11 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       this.updateSelectedCut()
     }
   }
+  // 171719  rgba(0, 0, 0, 0.69)
+  private rectColor = '#171719';
+  //private rectColor = 'orange';
+
+  private rectColorSelected = '#00A5A5'
 
   private updateNonSelectedCuts() {
     const layer = this.layerCuts;
@@ -936,7 +941,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     }
 
     const rectCfg: RectConfig = {
-      stroke: '#171719',
+      stroke: this.rectColor,
       strokeWidth: 3,
       strokeScaleEnabled: false,
       id: '123',
@@ -966,14 +971,15 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
           componentRef.updateCursor('pointer');
           componentRef.updateHoverLabel(rect);
 
-          rect.stroke('#00A5A5')
+          rect.stroke(componentRef.rectColorSelected)
         })
 
         rect.on('mouseleave', function () {
           componentRef.updateCursor('default');
           componentRef.updateHoverLabel(undefined);
 
-          rect.stroke('#171719')
+          //rect.stroke('#171719')
+          rect.stroke(componentRef.rectColor)
         })
 
         rect.on('pointerclick', function (e) {
@@ -997,12 +1003,12 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       const cut: ImageCut = rect.getAttr('cut')
 
       if (cut.id === id) {
-        rect.stroke('#00A5A5')
+        rect.stroke(this.rectColorSelected)
         this.updateHoverLabel(rect)
         found = true;
       }
       else {
-        rect.stroke('#171719')
+        rect.stroke(this.rectColor)
       }
     })
 
