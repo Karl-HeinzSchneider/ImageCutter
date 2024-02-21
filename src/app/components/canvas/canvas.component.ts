@@ -30,6 +30,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
   @ViewChild('scroll', { static: false }) scrollRef!: ElementRef;
   @ViewChild('large', { static: false }) largeRef!: ElementRef;
+  @ViewChild('checkered', { static: false }) checkeredRef!: ElementRef;
 
   private id: string = '-42';
 
@@ -72,6 +73,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     //console.log('OnResize')
     this.resizeStage()
     this.updateScale()
+    this.updateCheckered()
     this.updateScroll()
     this.updateBGPosition()
   }
@@ -101,6 +103,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
       this.drawStageBG()
       this.updateScale()
+      this.updateCheckered()
       this.updateScroll()
       this.updateBGPosition()
     })
@@ -112,6 +115,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       this.zoom = zoom || 1;
 
       this.updateScale()
+      this.updateCheckered()
       this.updateScroll()
       this.updateBGPosition()
 
@@ -125,6 +129,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       this.scroll = scroll
 
       this.updateScale()
+      this.updateCheckered()
       this.updateScroll()
       this.updateBGPosition()
     })
@@ -288,6 +293,24 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     this.stage.width(rWidth)
   }
 
+  private updateCheckered() {
+    if (!this.checkeredRef || !this.imageFile) {
+      return;
+    }
+
+    const scale = this.zoom
+    const image: ImageFile = this.imageFile;
+
+    const width = image.width * scale
+    const height = image.height * scale
+
+    const checkered: HTMLDivElement = this.checkeredRef.nativeElement;
+    checkered.style.width = `${width}px`
+    checkered.style.height = `${height}px`
+
+    checkered.style.setProperty('--squareSize', 5 * scale + 'px')
+  }
+
   private drawStageBG() {
     if (!this.imageFile) {
       return;
@@ -427,6 +450,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       this.scrollUpdater.next(this.scroll)
 
       this.updateScale()
+      this.updateCheckered()
       this.updateScroll()
       this.updateBGPosition()
     }
