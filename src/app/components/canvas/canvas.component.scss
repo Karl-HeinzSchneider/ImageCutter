@@ -21,21 +21,26 @@
 .checkered-box {
     position: absolute;
     top: calc(32px + 48px + 32px + 24px);
-    bottom: calc(32px + 24px);
+    //bottom: calc(32px + 24px);
     left: calc(48px + 24px);
-    right: calc(240px + 24px);
+    //right: calc(240px + 24px);
 
     display: flex;
     align-items: center;
     justify-content: center;
 
     overflow: hidden;
+
+    padding: 0;
+    margin: 0;
 }
 
 .checkered {
     width: 100px;
     height: 100px;
 
+    padding: 0;
+    margin: 0;
 
     // https://gist.github.com/hallojoe/60225de3433f5970b17a12a528b9915f
     --bgColor: rgba(255, 255, 255);

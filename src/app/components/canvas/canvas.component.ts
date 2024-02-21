@@ -31,6 +31,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
   @ViewChild('scroll', { static: false }) scrollRef!: ElementRef;
   @ViewChild('large', { static: false }) largeRef!: ElementRef;
   @ViewChild('checkered', { static: false }) checkeredRef!: ElementRef;
+  @ViewChild('checkeredBox', { static: false }) checkeredBoxRef!: ElementRef;
 
   private id: string = '-42';
 
@@ -297,14 +298,34 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     if (!this.checkeredRef || !this.imageFile) {
       return;
     }
+    const checkered: HTMLDivElement = this.checkeredRef.nativeElement;
+    const checkeredBox: HTMLDivElement = this.checkeredBoxRef.nativeElement;
 
+    //
+    const wHeight = window.innerHeight
+    const wWidth = window.innerWidth
+
+    const padding = 24
+
+    const rHeight = wHeight - 32 - 48 - 32 - 32 - 2 * padding
+    const rWidth = wWidth - 48 - 240 - 2 * padding
+
+    checkeredBox.style.width = `${rWidth}px`
+    checkeredBox.style.height = `${rHeight}px`
+
+
+    //
     const scale = this.zoom
     const image: ImageFile = this.imageFile;
 
-    const width = image.width * scale
-    const height = image.height * scale
+    const sWidth = image.width * scale
+    const sHheight = image.height * scale
 
-    const checkered: HTMLDivElement = this.checkeredRef.nativeElement;
+    //
+
+    const width = Math.min(rWidth, sWidth);
+    const height = Math.min(rHeight, sHheight);
+
     checkered.style.width = `${width}px`
     checkered.style.height = `${height}px`
 
