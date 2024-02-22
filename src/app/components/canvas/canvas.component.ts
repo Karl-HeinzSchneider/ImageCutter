@@ -293,7 +293,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     this.stage.width(rWidth)
   }
 
-  private drawCheckered() {
+  private async drawCheckered() {
     if (!this.imageFile) {
       return;
     }
@@ -310,10 +310,10 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
     const squareSize = 1000;
 
-    const amountX = Math.floor(image.width / squareSize);
-    const amountY = Math.floor(image.height / squareSize);
+    const amountX = Math.ceil(image.width / squareSize);
+    const amountY = Math.ceil(image.height / squareSize);
 
-    console.log('drawCheckered', amountX, amountY, amountX * amountY);
+    //console.log('drawCheckered', amountX, amountY, amountX * amountY);
 
     const rect = new Konva.Rect({
       x: 0,
@@ -327,23 +327,37 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     layer.add(rect)
 
     const url = '../../../../assets/img/checkered.png'
-    console.log(url);
+    //console.log(url);
+
+    const loadImage = (url: string) => {
+      return new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image()
+        img.onload = function () {
+          resolve(img)
+        }
+        img.src = url
+      })
+    }
+
+    const checkered = await loadImage(url);
 
     for (let i = 0; i < amountX; i++) {
       for (let j = 0; j < amountY; j++) {
-        Konva.Image.fromURL(url, function (node) {
-          node.setAttrs({
-            x: i * squareSize,
-            y: j * squareSize,
-            scaleX: 1,
-            scaleY: 1,
-          })
-          layer.add(node)
-          console.log(i, j, node.width())
+        const w = Math.min(squareSize, image.width - i * squareSize);
+        const h = Math.min(squareSize, image.height - j * squareSize);
+
+        const rect = new Konva.Rect({
+          x: i * squareSize,
+          y: j * squareSize,
+          width: w,
+          height: h,
+          fillPatternImage: checkered
         })
+        layer.add(rect);
       }
     }
-    //layer.cache()
+
+    layer.cache()
     //console.log(layer.toDataURL({ x: 0, y: 0, width: 100, height: 100, mimeType: 'png', quality: 1, pixelRatio: 1 }))
   }
 
