@@ -29,7 +29,7 @@ export class ExporterComponent {
 
   constructor() {
     this.worker = new Worker(new URL('../../../worker/image-cutter.worker', import.meta.url))
-    console.log(new URL('../../../worker/image-cutter.worker', import.meta.url));
+    //console.log(new URL('../../../worker/image-cutter.worker', import.meta.url));
 
     this.handleWorker()
   }
