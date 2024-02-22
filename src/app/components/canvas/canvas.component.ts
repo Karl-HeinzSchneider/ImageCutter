@@ -30,11 +30,11 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
   @ViewChild('scroll', { static: false }) scrollRef!: ElementRef;
   @ViewChild('large', { static: false }) largeRef!: ElementRef;
-  @ViewChild('checkered', { static: false }) checkeredRef!: ElementRef;
 
   private id: string = '-42';
 
   private stage!: Stage;
+  private layerCheckered!: Layer;
   private layerBG!: Layer;
   private layerCuts!: Layer;
   private layerSelected!: Layer;
@@ -73,7 +73,6 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     //console.log('OnResize')
     this.resizeStage()
     this.updateScale()
-    this.updateCheckered()
     this.updateScroll()
     this.updateBGPosition()
   }
@@ -101,9 +100,9 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
         this.id = q.id
       }
 
+      this.drawCheckered()
       this.drawStageBG()
       this.updateScale()
-      this.updateCheckered()
       this.updateScroll()
       this.updateBGPosition()
     })
@@ -115,7 +114,6 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       this.zoom = zoom || 1;
 
       this.updateScale()
-      this.updateCheckered()
       this.updateScroll()
       this.updateBGPosition()
 
@@ -129,7 +127,6 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       this.scroll = scroll
 
       this.updateScale()
-      this.updateCheckered()
       this.updateScroll()
       this.updateBGPosition()
     })
@@ -257,6 +254,9 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       container: 'konva'
     })
 
+    this.layerCheckered = new Konva.Layer({ imageSmoothingEnabled: false })
+    this.stage.add(this.layerCheckered);
+
     const layerBG = new Konva.Layer({
       imageSmoothingEnabled: false
     })
@@ -293,22 +293,72 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     this.stage.width(rWidth)
   }
 
-  private updateCheckered() {
-    if (!this.checkeredRef || !this.imageFile) {
+  private async drawCheckered() {
+    if (!this.imageFile) {
       return;
     }
 
-    const scale = this.zoom
+    const layer = this.layerCheckered
+    const bg = layer.findOne('#bg')
+    if (bg) {
+      layer.destroyChildren()
+    }
+
     const image: ImageFile = this.imageFile;
+    const componentRef = this;
+    const stageRef = this.stage;
 
-    const width = image.width * scale
-    const height = image.height * scale
+    const squareSize = 1000;
 
-    const checkered: HTMLDivElement = this.checkeredRef.nativeElement;
-    checkered.style.width = `${width}px`
-    checkered.style.height = `${height}px`
+    const amountX = Math.ceil(image.width / squareSize);
+    const amountY = Math.ceil(image.height / squareSize);
 
-    checkered.style.setProperty('--squareSize', 5 * scale + 'px')
+    //console.log('drawCheckered', amountX, amountY, amountX * amountY);
+
+    const rect = new Konva.Rect({
+      x: 0,
+      y: 0,
+      width: image.width,
+      height: image.height,
+      draggable: false,
+      id: 'bg',
+      fill: 'rgba(0, 0, 0, 0)'
+    })
+    layer.add(rect)
+
+    const url = '../../../../assets/img/checkered.png'
+    //console.log(url);
+
+    const loadImage = (url: string) => {
+      return new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image()
+        img.onload = function () {
+          resolve(img)
+        }
+        img.src = url
+      })
+    }
+
+    const checkered = await loadImage(url);
+
+    for (let i = 0; i < amountX; i++) {
+      for (let j = 0; j < amountY; j++) {
+        const w = Math.min(squareSize, image.width - i * squareSize);
+        const h = Math.min(squareSize, image.height - j * squareSize);
+
+        const rect = new Konva.Rect({
+          x: i * squareSize,
+          y: j * squareSize,
+          width: w,
+          height: h,
+          fillPatternImage: checkered
+        })
+        layer.add(rect);
+      }
+    }
+
+    layer.cache()
+    //console.log(layer.toDataURL({ x: 0, y: 0, width: 100, height: 100, mimeType: 'png', quality: 1, pixelRatio: 1 }))
   }
 
   private drawStageBG() {
@@ -450,7 +500,6 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       this.scrollUpdater.next(this.scroll)
 
       this.updateScale()
-      this.updateCheckered()
       this.updateScroll()
       this.updateBGPosition()
     }
@@ -885,6 +934,11 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       this.updateSelectedCut()
     }
   }
+  // 171719  rgba(0, 0, 0, 0.69)
+  private rectColor = '#171719';
+  //private rectColor = 'orange';
+
+  private rectColorSelected = '#00A5A5'
 
   private updateNonSelectedCuts() {
     const layer = this.layerCuts;
@@ -901,7 +955,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     }
 
     const rectCfg: RectConfig = {
-      stroke: '#171719',
+      stroke: this.rectColor,
       strokeWidth: 3,
       strokeScaleEnabled: false,
       id: '123',
@@ -931,14 +985,15 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
           componentRef.updateCursor('pointer');
           componentRef.updateHoverLabel(rect);
 
-          rect.stroke('#00A5A5')
+          rect.stroke(componentRef.rectColorSelected)
         })
 
         rect.on('mouseleave', function () {
           componentRef.updateCursor('default');
           componentRef.updateHoverLabel(undefined);
 
-          rect.stroke('#171719')
+          //rect.stroke('#171719')
+          rect.stroke(componentRef.rectColor)
         })
 
         rect.on('pointerclick', function (e) {
@@ -962,12 +1017,12 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       const cut: ImageCut = rect.getAttr('cut')
 
       if (cut.id === id) {
-        rect.stroke('#00A5A5')
+        rect.stroke(this.rectColorSelected)
         this.updateHoverLabel(rect)
         found = true;
       }
       else {
-        rect.stroke('#171719')
+        rect.stroke(this.rectColor)
       }
     })
 
