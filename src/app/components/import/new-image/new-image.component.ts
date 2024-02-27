@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AppRepository, ImageFile } from '../../../state/cutter.store';
+import { HistoryIconComponent } from '../history-icon/history-icon.component';
 
 @Component({
   selector: 'app-new-image',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, HistoryIconComponent],
   templateUrl: './new-image.component.html',
   styleUrl: './new-image.component.scss'
 })
