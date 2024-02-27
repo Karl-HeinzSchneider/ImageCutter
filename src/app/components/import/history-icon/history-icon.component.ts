@@ -1,6 +1,7 @@
 import { Component, Input, Pipe, PipeTransform } from '@angular/core';
 import { ImageProps } from '../../../state/cutter.store';
 import { TooltipModule } from '../../../modules/tooltip/tooltip.module';
+import { CommonModule } from '@angular/common';
 
 @Pipe({ name: 'dateDelta', standalone: true })
 export class dataDeltaPipe implements PipeTransform {
@@ -29,7 +30,7 @@ export class dataDeltaPipe implements PipeTransform {
 @Component({
   selector: 'app-history-icon',
   standalone: true,
-  imports: [dataDeltaPipe, TooltipModule],
+  imports: [CommonModule, dataDeltaPipe, TooltipModule],
   templateUrl: './history-icon.component.html',
   styleUrl: './history-icon.component.scss'
 })
@@ -38,5 +39,21 @@ export class HistoryIconComponent {
   @Input() image!: ImageProps;
 
   constructor() {
+  }
+
+  onClick(e: Event) {
+    console.log('click', this.image.meta.name);
+  }
+
+  onClickClose(e: Event) {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log('close', this.image.meta.name);
+  }
+
+  onClickMenu(e: Event) {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log('menu', this.image.meta.name);
   }
 }

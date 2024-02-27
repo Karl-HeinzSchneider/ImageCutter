@@ -10,6 +10,8 @@
     box-sizing: border-box;
 
     cursor: pointer;
+
+    position: relative;
 }
 
 img {
@@ -32,4 +34,53 @@ img {
     font-style: italic;
     text-align: center;
     color: rgba(255, 255, 255, 0.5);
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: black;
+    text-align: center;
+
+    display: none;
+}
+
+.close>svg {
+    display: block;
+    margin: 4px;
+}
+
+.menu {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+
+    width: 60px;
+    height: 24px;
+
+    border-radius: 25px;
+    background-color: black;
+
+    display: none;
+}
+
+.menu>svg {
+    display: block;
+    margin: 8px;
+    margin-left: 10px;
+}
+
+.container:hover {
+    .close {
+        display: block;
+    }
+
+    .menu {
+        display: block;
+    }
 }
