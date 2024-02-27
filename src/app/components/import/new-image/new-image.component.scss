@@ -1,6 +1,15 @@
+.outer {
+    width: 100%;
+    height: 100%;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
 .container {
+    margin: auto;
     max-width: 1000px;
-    max-height: 500px;
+    // max-height: 500px;
+    //margin: 16px;
     border-radius: 25px;
 
     background-color: var(--background-tools);
@@ -18,6 +27,8 @@
         'history history';
     grid-template-rows: 48px auto auto auto;
     grid-template-columns: auto;
+
+    overflow-y: auto;
 }
 
 // Header
@@ -40,6 +51,8 @@
 // Input
 .input {
     grid-area: input;
+
+    max-width: 280px;
     //border: 2px dashed #ccc;
     // border-radius: 25px;
     //width: 100%;
