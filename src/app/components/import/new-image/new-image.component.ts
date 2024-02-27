@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AppRepository, ImageFile } from '../../../state/cutter.store';
+import { AppRepository, ImageFile, ImageProps } from '../../../state/cutter.store';
 import { HistoryIconComponent } from '../history-icon/history-icon.component';
+import { Observable } from 'rxjs';
+import { deleteEntitiesByPredicate } from '@ngneat/elf-entities';
 
 @Component({
   selector: 'app-new-image',
@@ -12,7 +14,14 @@ import { HistoryIconComponent } from '../history-icon/history-icon.component';
 })
 export class NewImageComponent {
 
-  constructor(private store: AppRepository) { }
+  imagesOpen$: Observable<ImageProps[]>;
+  imagesClosed$: Observable<ImageProps[]>;
+
+
+  constructor(private store: AppRepository) {
+    this.imagesOpen$ = store.imagesOpen$;
+    this.imagesClosed$ = store.imagesClosed$;
+  }
 
 
   async onDrop(event: DragEvent) {

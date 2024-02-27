@@ -17,11 +17,16 @@
         <div class="info"></div>
         <div class="active frame">
             <div class="subheader">Active Projects</div>
-            <app-history-icon></app-history-icon>
+            <div class="icongrid" *ngIf="(imagesOpen$ | async) as imagesOpen">
+                <app-history-icon *ngFor="let image of imagesOpen" [image]="image"></app-history-icon>
+            </div>
         </div>
         <div class="history frame">
             <div class="subheader">Inactive Projects</div>
             <div class="subheader-infotext">Might delete later.</div>
+            <div class="icongrid" *ngIf="(imagesClosed$ | async) as imagesClosed">
+                <app-history-icon *ngFor="let image of imagesClosed" [image]="image"></app-history-icon>
+            </div>
         </div>
     </div>
 </div>

@@ -7,7 +7,7 @@
 
 .container {
     margin: auto;
-    max-width: 1000px;
+    max-width: 1108px;
     // max-height: 500px;
     //margin: 16px;
     border-radius: 25px;
@@ -163,8 +163,21 @@ button>label {
     grid-auto-flow: row;
     //gap: 20px;
     padding: 20px;
-    justify-content: center;
-    align-items: center;
+    //justify-content: center;
+    //align-items: center;
+}
+
+.icongrid {
+    display: grid;
+    // width: 100%;
+    //height: 100%;
+    grid-template-columns: repeat(auto-fill, 168px);
+    gap: 12px;
+}
+
+app-history-icon {
+    width: 168px;
+    //height: 200px;
 }
 
 
@@ -173,8 +186,5 @@ button>label {
 
     display: grid;
     grid-auto-flow: row;
-    //gap: 20px;
     padding: 20px;
-    justify-content: center;
-    align-items: center;
 }

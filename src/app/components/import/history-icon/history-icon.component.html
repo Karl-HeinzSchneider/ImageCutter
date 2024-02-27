@@ -1,5 +1,5 @@
 <div class="container">
-    <div class="image">img</div>
-    <div class="name">Zimt.png</div>
-    <div class="subtext">69 days ago</div>
+    <img loading="lazy">
+    <div class="name">{{image.meta.name}}</div>
+    <div class="subtext">{{image.meta.date | dateDelta}}</div>
 </div>
