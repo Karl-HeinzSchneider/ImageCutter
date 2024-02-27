@@ -79,10 +79,10 @@ button {
     border-radius: 25px;
     border: none;
     color: rgba(255, 255, 255, 0.5);
-    cursor: pointer;
+    // cursor: pointer;
     font-family: 'Inter';
     font-size: 14px;
-    //margin-bottom: 12px;
+    //margin-bottom: 12px;  
 }
 
 .btn-primary {
@@ -94,9 +94,15 @@ button:nth-of-type(1) {
     margin-bottom: 12px;
 }
 
-button>label {
+label {
+    cursor: pointer;
+}
+
+button>span {
     position: relative;
 }
+
+
 
 .plus {
     //margin-right: 4px;

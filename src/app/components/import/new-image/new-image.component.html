@@ -5,13 +5,18 @@
         </div>
         <div class="input frame">
             <ng-container *ngTemplateOutlet="picture"></ng-container>
-            <button class="btn-primary">
-                <input type="file" name="file" id="file" class="inputfile" accept=".jpg, .jpeg, .png" multiple
-                    (change)="onChange($event)" />
-                <label for="file">Add Image(s)
-                    <ng-container *ngTemplateOutlet="plus"></ng-container>
-                </label>
-            </button>
+
+            <input type="file" name="file" id="file" class="inputfile" accept=".jpg, .jpeg, .png" multiple
+                (change)="onChange($event)" />
+            <label for="file">
+                <button class="btn-primary">
+                    <span>
+                        <ng-container *ngTemplateOutlet="plus"></ng-container>
+                        Add Image(s)
+                    </span>
+                </button>
+            </label>
+
             <button>Add Examples</button>
         </div>
         <div class="info"></div>
