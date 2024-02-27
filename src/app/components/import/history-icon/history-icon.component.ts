@@ -38,6 +38,8 @@ export class HistoryIconComponent {
 
   @Input() image!: ImageProps;
 
+  showContext: boolean = false;
+
   constructor() {
   }
 
@@ -55,5 +57,30 @@ export class HistoryIconComponent {
     e.preventDefault()
     e.stopPropagation()
     console.log('menu', this.image.meta.name);
+    this.showContext = !this.showContext;
+  }
+
+  onMouseLeave() {
+    this.showContext = false;
+  }
+
+  stopClick(e: Event) {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  onClickDownload(e: Event) {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  onClickDelete(e: Event) {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  onClickDuplicate(e: Event) {
+    e.preventDefault()
+    e.stopPropagation()
   }
 }

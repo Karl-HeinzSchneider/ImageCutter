@@ -1,10 +1,13 @@
-<div class="container" [tooltip]="image.meta.name" [position]="'top'" (click)="onClick($event)">
+<div class="container" [tooltip]="image.meta.name" [position]="'top'" (click)="onClick($event)"
+    (mouseleave)="onMouseLeave()">
     <img class="nondrag" [src]="image.file.dataURL" loading="lazy">
     <div class="name">{{image.meta.name}}</div>
     <div class="subtext">{{image.meta.date | dateDelta}}</div>
 
     <ng-container *ngTemplateOutlet="close"></ng-container>
     <ng-container *ngTemplateOutlet="menu"></ng-container>
+    <ng-container *ngTemplateOutlet="context"></ng-container>
+
 </div>
 
 <ng-template #close>
@@ -31,5 +34,14 @@
                 d="M3.44327 8.4497C3.59426 8.46856 3.74629 8.47801 3.89846 8.47797C4.7807 8.47059 5.63435 8.16511 6.31984 7.61146C6.77042 7.25328 7.1455 6.80973 7.42326 6.30639C7.70107 5.80304 7.87617 5.2498 7.93843 4.67866C8.17227 2.49211 6.70484 0.396602 4.73487 0.101774C4.22188 0.030812 3.69987 0.0645223 3.20038 0.20086C2.70089 0.337198 2.23438 0.573333 1.82923 0.894891C1.33045 1.28339 0.914875 1.76756 0.606889 2.31884C0.298899 2.87008 0.104719 3.47732 0.0359975 4.10459C-0.0343565 4.61408 -0.00134922 5.13246 0.132947 5.62904C0.267244 6.12559 0.500116 6.59025 0.817846 6.99546C1.13558 7.40066 1.53163 7.73811 1.9826 7.98794C2.43357 8.23773 2.9303 8.39473 3.44327 8.4497Z"
                 fill="white" />
         </svg>
+    </div>
+</ng-template>
+
+<ng-template #context>
+    <div class="context" *ngIf="showContext" (click)="stopClick($event)">
+        <div class="entry prevent-select" (click)="onClickDownload($event)">Download Project</div>
+        <div class="spacer"></div>
+        <div class="entry prevent-select" (click)="onClickDuplicate($event)">Duplicate</div>
+        <div class="entry prevent-select" (click)="onClickDelete($event)">Delete</div>
     </div>
 </ng-template>

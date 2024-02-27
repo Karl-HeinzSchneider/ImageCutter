@@ -44,7 +44,7 @@ img {
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background-color: black;
+    background-color: rgba(0, 0, 0, 0.69);
     text-align: center;
 
     display: none;
@@ -53,6 +53,10 @@ img {
 .close>svg {
     display: block;
     margin: 4px;
+}
+
+.close:hover {
+    background-color: black;
 }
 
 .menu {
@@ -64,9 +68,13 @@ img {
     height: 24px;
 
     border-radius: 25px;
-    background-color: black;
+    background-color: rgba(0, 0, 0, 0.69);
 
     display: none;
+}
+
+.menu:hover {
+    background-color: black;
 }
 
 .menu>svg {
@@ -83,4 +91,26 @@ img {
     .menu {
         display: block;
     }
+}
+
+.context {
+    position: absolute;
+    top: 34px;
+    left: 40px;
+
+    background-color: rgba(0, 0, 0, 0.95);
+    width: 160px;
+}
+
+.entry {
+    font-size: 14px;
+    padding: 4px;
+}
+
+.entry:hover {
+    background-color: var(--accent);
+}
+
+.spacer {
+    height: 8px;
 }
