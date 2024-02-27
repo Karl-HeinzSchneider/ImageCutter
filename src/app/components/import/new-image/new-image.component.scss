@@ -145,9 +145,23 @@ button>label {
 // Active
 .active {
     grid-area: active;
+
+    display: grid;
+    grid-auto-flow: row;
+    //gap: 20px;
+    padding: 20px;
+    justify-content: center;
+    align-items: center;
 }
 
 
 .history {
     grid-area: history;
+
+    display: grid;
+    grid-auto-flow: row;
+    //gap: 20px;
+    padding: 20px;
+    justify-content: center;
+    align-items: center;
 }
