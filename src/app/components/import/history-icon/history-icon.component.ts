@@ -1,5 +1,6 @@
 import { Component, Input, Pipe, PipeTransform } from '@angular/core';
 import { ImageProps } from '../../../state/cutter.store';
+import { TooltipModule } from '../../../modules/tooltip/tooltip.module';
 
 @Pipe({ name: 'dateDelta', standalone: true })
 export class dataDeltaPipe implements PipeTransform {
@@ -28,7 +29,7 @@ export class dataDeltaPipe implements PipeTransform {
 @Component({
   selector: 'app-history-icon',
   standalone: true,
-  imports: [dataDeltaPipe],
+  imports: [dataDeltaPipe, TooltipModule],
   templateUrl: './history-icon.component.html',
   styleUrl: './history-icon.component.scss'
 })
