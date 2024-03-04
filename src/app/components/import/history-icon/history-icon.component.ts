@@ -1,5 +1,5 @@
-import { Component, Input, Pipe, PipeTransform } from '@angular/core';
-import { ImageProps } from '../../../state/cutter.store';
+import { Component, Input, OnDestroy, Pipe, PipeTransform } from '@angular/core';
+import { AppRepository, ImageProps } from '../../../state/cutter.store';
 import { TooltipModule } from '../../../modules/tooltip/tooltip.module';
 import { CommonModule } from '@angular/common';
 
@@ -34,28 +34,46 @@ export class dataDeltaPipe implements PipeTransform {
   templateUrl: './history-icon.component.html',
   styleUrl: './history-icon.component.scss'
 })
-export class HistoryIconComponent {
+export class HistoryIconComponent implements OnDestroy {
 
   @Input() image!: ImageProps;
 
   showContext: boolean = false;
+  markedForDeletion: boolean = false;
 
-  constructor() {
+  constructor(private store: AppRepository) {
+  }
+
+  ngOnDestroy(): void {
+    //console.log('ngOnDestroy', this.image.meta.name);
+  }
+
+  markForDeletion(mark: boolean) {
+
   }
 
   onClick(e: Event) {
     console.log('click', this.image.meta.name);
+    this.store.setActiveImage(this.image.id);
   }
 
   onClickClose(e: Event) {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
     console.log('close', this.image.meta.name);
+    if (this.image.meta.active) {
+      // set inactive
+      this.store.closeImage(this.image.id);
+    }
+    else {
+      // mark delete
+      this.markForDeletion(true);
+    }
   }
 
   onClickMenu(e: Event) {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
     console.log('menu', this.image.meta.name);
     this.showContext = !this.showContext;
   }
@@ -65,22 +83,41 @@ export class HistoryIconComponent {
   }
 
   stopClick(e: Event) {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  onClickSelect(e: Event) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.store.setActiveImage(this.image.id);
+  }
+
+  onClickSetActive(e: Event, active: boolean) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (active) {
+      this.store.openImage(this.image.id);
+    }
+    else {
+      this.store.closeImage(this.image.id);
+    }
   }
 
   onClickDownload(e: Event) {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
   }
 
   onClickDelete(e: Event) {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
+    this.markForDeletion(true);
   }
 
   onClickDuplicate(e: Event) {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
   }
 }

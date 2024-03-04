@@ -6,8 +6,9 @@
 
     <ng-container *ngTemplateOutlet="close"></ng-container>
     <ng-container *ngTemplateOutlet="menu"></ng-container>
-    <ng-container *ngTemplateOutlet="context"></ng-container>
-
+    <ng-container *ngIf="image.meta.active; else contextInactive">
+        <ng-container *ngTemplateOutlet="context"></ng-container>
+    </ng-container>
 </div>
 
 <ng-template #close>
@@ -39,8 +40,21 @@
 
 <ng-template #context>
     <div class="context" *ngIf="showContext" (click)="stopClick($event)">
-        <div class="entry prevent-select" (click)="onClickDownload($event)">Download Project</div>
+        <div class="entry prevent-select" (click)="onClickSelect($event)">Select</div>
+        <div class="entry prevent-select" (click)="onClickSetActive($event,false)">Deactivate</div>
         <div class="spacer"></div>
+        <div class="entry prevent-select" (click)="onClickDownload($event)">Download Project</div>
+        <div class="entry prevent-select" (click)="onClickDuplicate($event)">Duplicate</div>
+        <div class="entry prevent-select" (click)="onClickDelete($event)">Delete</div>
+    </div>
+</ng-template>
+
+<ng-template #contextInactive>
+    <div class="context" *ngIf="showContext" (click)="stopClick($event)">
+        <div class="entry prevent-select" (click)="onClickSelect($event)">Select</div>
+        <div class="entry prevent-select" (click)="onClickSetActive($event,true)">Activate</div>
+        <div class="spacer"></div>
+        <div class="entry prevent-select" (click)="onClickDownload($event)">Download Project</div>
         <div class="entry prevent-select" (click)="onClickDuplicate($event)">Duplicate</div>
         <div class="entry prevent-select" (click)="onClickDelete($event)">Delete</div>
     </div>

@@ -237,6 +237,14 @@ export class AppRepository {
 
     public setActiveImage(id: string) {
         this.store.update(setActiveId(id))
+
+        const img = this.store.query(getEntity(id));
+
+        if (!img) {
+            return;
+        }
+
+        this.store.update(updateEntities(id, (entity) => ({ ...entity, meta: { ...entity.meta, active: true, date: new Date() } })))
     }
 
     public getActiveEntity() {
@@ -653,4 +661,17 @@ export class AppRepository {
         this.store.update(updateEntities(id, (ent) => ({ ...newImg, meta: { ...newImg.meta, date: new Date() } })))
     }
 
+    public openImage(id: string) {
+        const img = this.store.query(getEntity(id));
+
+        if (!img || img.meta.active) {
+            //console.log('no img or already inactive')
+            return;
+        }
+
+        const newImg: ImageProps = JSON.parse(JSON.stringify(img))
+        newImg.meta.active = true;
+
+        this.store.update(updateEntities(id, (ent) => ({ ...newImg, meta: { ...newImg.meta, date: new Date() } })))
+    }
 }
