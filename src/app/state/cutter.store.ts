@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { createStore, distinctUntilArrayItemChanged, filterNil, select, setProp, withProps } from '@ngneat/elf';
-import { addEntities, getActiveEntity, getAllEntities, getAllEntitiesApply, getEntity, getEntityByPredicate, selectActiveEntity, selectEntity, selectManyByPredicate, setActiveId, updateEntities, withActiveId, withEntities } from '@ngneat/elf-entities';
+import { addEntities, deleteEntities, getActiveEntity, getAllEntities, getAllEntitiesApply, getEntity, getEntityByPredicate, selectActiveEntity, selectEntity, selectManyByPredicate, setActiveId, updateEntities, withActiveId, withEntities } from '@ngneat/elf-entities';
 import { localStorageStrategy, persistState } from '@ngneat/elf-persist-state';
 import { Vector2d } from 'konva/lib/types';
 import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs';
@@ -673,5 +673,21 @@ export class AppRepository {
         newImg.meta.active = true;
 
         this.store.update(updateEntities(id, (ent) => ({ ...newImg, meta: { ...newImg.meta, date: new Date() } })))
+    }
+
+    public deleteImage(id: string) {
+        const img = this.store.query(getEntity(id));
+
+        if (!img) {
+            return;
+        }
+
+        const active = this.getActiveEntity()
+
+        if (active && active.id === id) {
+            this.closeImage(id);
+        }
+
+        this.store.update(deleteEntities(id));
     }
 }

@@ -2,6 +2,7 @@ import { Component, Input, OnDestroy, Pipe, PipeTransform } from '@angular/core'
 import { AppRepository, ImageProps } from '../../../state/cutter.store';
 import { TooltipModule } from '../../../modules/tooltip/tooltip.module';
 import { CommonModule } from '@angular/common';
+import { Observable, Subject, interval, startWith, take, takeUntil, timer } from 'rxjs';
 
 @Pipe({ name: 'dateDelta', standalone: true })
 export class dataDeltaPipe implements PipeTransform {
@@ -35,21 +36,55 @@ export class dataDeltaPipe implements PipeTransform {
   styleUrl: './history-icon.component.scss'
 })
 export class HistoryIconComponent implements OnDestroy {
+  private readonly destroy$ = new Subject<number>()
 
   @Input() image!: ImageProps;
 
   showContext: boolean = false;
+
   markedForDeletion: boolean = false;
+  deletionSecondsLeft: number = 42;
+  private readonly deletionTimeSeconds: number = 9;
+  deletionTimer: Observable<number> = interval(1000).pipe(take(this.deletionTimeSeconds), startWith(-1), takeUntil(this.destroy$))
 
   constructor(private store: AppRepository) {
   }
 
   ngOnDestroy(): void {
     //console.log('ngOnDestroy', this.image.meta.name);
+    this.destroy$.next(1)
+    this.destroy$.complete()
+
+    if (this.markedForDeletion) {
+      this.deleteImage();
+    }
   }
 
   markForDeletion(mark: boolean) {
+    if (mark) {
+      this.markedForDeletion = true;
+      this.destroy$.next(1);
 
+      this.deletionTimer.subscribe(num => {
+        // deletionTimeSeconds = 10 -> 10,9,8,...,0
+        const timeLeft = this.deletionTimeSeconds - 1 - num
+        //console.log('timer', num, timeLeft);
+        this.deletionSecondsLeft = timeLeft;
+
+        if (timeLeft === 0) {
+          this.deleteImage();
+        }
+      })
+    }
+    else {
+      this.markedForDeletion = false;
+      this.destroy$.next(1);
+    }
+  }
+
+  deleteImage() {
+    console.log('DELETE', this.image.meta.name);
+    this.store.deleteImage(this.image.id)
   }
 
   onClick(e: Event) {
@@ -119,5 +154,17 @@ export class HistoryIconComponent implements OnDestroy {
   onClickDuplicate(e: Event) {
     e.preventDefault();
     e.stopPropagation();
+  }
+
+  onClickUndo(e: Event) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.markForDeletion(false);
+  }
+
+  onClickDeleteAtOnce(e: Event) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.deleteImage();
   }
 }

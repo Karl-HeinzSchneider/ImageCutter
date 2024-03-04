@@ -1,5 +1,5 @@
-<div class="container" [tooltip]="image.meta.name" [position]="'top'" (click)="onClick($event)"
-    (mouseleave)="onMouseLeave()">
+<div class="container pointer" [tooltip]="image.meta.name" [position]="'top'" (click)="onClick($event)"
+    (mouseleave)="onMouseLeave()" *ngIf="!markedForDeletion; else marked">
     <img class="nondrag" [src]="image.file.dataURL" loading="lazy">
     <div class="name">{{image.meta.name}}</div>
     <div class="subtext">{{image.meta.date | dateDelta}}</div>
@@ -10,6 +10,18 @@
         <ng-container *ngTemplateOutlet="context"></ng-container>
     </ng-container>
 </div>
+
+<ng-template #marked>
+    <div class="container" [tooltip]="image.meta.name" [position]="'top'">
+        <div class="deletion">
+            <span>Auto-deletion in {{deletionSecondsLeft}} second(s)...</span>
+            <button (click)="onClickUndo($event)">Undo</button>
+            <button (click)="onClickDeleteAtOnce($event)">Delete</button>
+        </div>
+        <div class="name">{{image.meta.name}}</div>
+        <div class="subtext">{{image.meta.date | dateDelta}}</div>
+    </div>
+</ng-template>
 
 <ng-template #close>
     <div class="close" (click)="onClickClose($event)">

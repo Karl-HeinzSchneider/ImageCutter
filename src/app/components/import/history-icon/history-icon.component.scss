@@ -9,9 +9,13 @@
     //outline: 1px solid red;
     box-sizing: border-box;
 
-    cursor: pointer;
+    //cursor: pointer;
 
     position: relative;
+}
+
+.pointer {
+    cursor: pointer;
 }
 
 img {
@@ -114,4 +118,46 @@ img {
 
 .spacer {
     height: 8px;
+}
+
+.deletion {
+    width: 160px;
+    height: 160px;
+
+    border-radius: 25px;
+    position: relative;
+    box-sizing: border-box;
+
+    display: grid;
+    grid-auto-flow: row;
+    grid-auto-rows: 46px 46px 46px;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
+}
+
+.deletion>span {
+    font-size: 12px;
+    width: 95px;
+    height: 48px;
+    text-align: center;
+}
+
+.deletion>button {
+    width: 100px;
+    height: 40px;
+    background-color: var(--background-tools);
+    border-radius: 25px;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: 'Inter';
+    font-size: 14px;
+
+    margin-bottom: 4px;
+
+    cursor: pointer;
+}
+
+.deletion>button:nth-child(2) {
+    color: rgba(255, 255, 255, 0.9)
 }
