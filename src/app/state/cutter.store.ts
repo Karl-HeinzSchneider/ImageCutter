@@ -690,4 +690,20 @@ export class AppRepository {
 
         this.store.update(deleteEntities(id));
     }
+
+    public duplicateImage(id: string) {
+        const img = this.store.query(getEntity(id));
+
+        if (!img) {
+            return;
+        }
+
+        const newImg: ImageProps = JSON.parse(JSON.stringify(img))
+        newImg.id = uuid();
+        //newImg.meta.active = true;  
+        newImg.meta.date = new Date();
+
+        this.store.update(addEntities([newImg]));
+        this.addCanvasEntities([newImg]);
+    }
 }

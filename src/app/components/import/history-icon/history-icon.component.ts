@@ -154,6 +154,7 @@ export class HistoryIconComponent implements OnDestroy {
   onClickDuplicate(e: Event) {
     e.preventDefault();
     e.stopPropagation();
+    this.store.duplicateImage(this.image.id);
   }
 
   onClickUndo(e: Event) {
