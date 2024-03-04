@@ -1,0 +1,199 @@
+.container {
+    display: grid;
+    height: 100%;
+    width: 100%;
+
+    display: grid;
+    height: 100%;
+
+    grid-template-areas:
+        'canvas'
+        'slider'
+        'buttons';
+    grid-template-rows: auto 32px 33px;
+}
+
+// Canvas
+.canvas {
+    grid-area: canvas;
+    height: 135px;
+}
+
+.canvas-fake {
+    margin: 0;
+    padding: 9px 16px 9px 16px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    height: 117px;
+    width: 208px;
+}
+
+.canvas-fake>div {
+    height: 117px;
+    width: 117px;
+
+    outline: 1px solid orange;
+    outline-offset: -1px;
+}
+
+
+// Slider
+
+.slidercontainer {
+    grid-area: slider;
+
+    display: flex;
+    padding: 6px 16px 6px 16px;
+    //padding: 6px 8px 6px 8px;
+
+    background-color: var(--background-subheader);
+
+    //border: 1px solid grey;
+}
+
+.slidercontainer>div {
+    line-height: 20px;
+    //width: 38px;
+    text-align: center;
+}
+
+.percent {
+    width: 50px;
+
+    line-height: 20px;
+    //text-align: center;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.zoomin {
+    width: 20px;
+}
+
+.zoomin>svg {
+    margin: 0;
+}
+
+.zoomout {
+    width: 20px;
+}
+
+.zoomout>svg {
+    margin: 0;
+}
+
+
+.slider {
+    //margin-left: 16px;
+    //margin-right: 16px;
+    margin-left: 8px;
+    margin-right: 8px;
+    width: 110px;
+    width: 100%;
+    cursor: pointer;
+    margin-top: auto;
+    margin-bottom: auto;
+
+
+    -webkit-appearance: none;
+    appearance: none;
+    height: 5px;
+    background: #3c3e42;
+}
+
+
+// https://www.smashingmagazine.com/2021/12/create-custom-range-input-consistent-browsers/
+
+/* Removes default focus */
+input[type="range"]:focus {
+    outline: none;
+}
+
+/***** Track Styles *****/
+/***** Chrome, Safari, Opera, and Edge Chromium *****/
+input[type="range"]::-webkit-slider-runnable-track {
+    background: #3c3e42;
+    height: 5px;
+}
+
+/******** Firefox ********/
+input[type="range"]::-moz-range-track {
+    background: #3c3e42;
+    height: 5px;
+}
+
+/***** Thumb Styles *****/
+/***** Chrome, Safari, Opera, and Edge Chromium *****/
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    /* Override default look */
+    appearance: none;
+    margin-top: -6px;
+    /* Centers thumb on the track */
+    background-color: var(--accent);
+    height: 16px;
+    width: 16px;
+    border-radius: 50px;
+}
+
+/***** Thumb Styles *****/
+/***** Firefox *****/
+input[type="range"]::-moz-range-thumb {
+    border: none;
+    /*Removes extra border that FF applies*/
+    border-radius: 0;
+    /*Removes default border-radius that FF applies*/
+    background-color: var(--accent);
+    height: 16px;
+    width: 16px;
+    border-radius: 50px;
+}
+
+
+// Buttons
+
+.buttons {
+    grid-area: buttons;
+
+    height: 32px;
+    background-color: var(--background-subheader);
+
+    display: grid;
+    grid-template-columns: 50px auto repeat(4, 32px);
+    //justify-content: end;
+    gap: 4px;
+
+    padding-right: 16px;
+    padding-left: 16px;
+
+    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+
+
+}
+
+.zoomer {
+    text-align: center;
+    margin-top: auto;
+    margin-bottom: auto;
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+.spacer {
+    width: 100%;
+}
+
+svg {
+    margin-top: 6px;
+    margin-left: 6px;
+
+    height: 20px;
+    width: 20px;
+
+    opacity: 0.5;
+
+    cursor: pointer;
+}

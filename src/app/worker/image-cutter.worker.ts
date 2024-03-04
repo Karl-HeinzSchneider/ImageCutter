@@ -1,5 +1,5 @@
 /// <reference lib="webworker" />
-import { ImageCutResult } from "../components/exporter/exporter.component";
+import { ImageCutResult } from "../components/layers/exporter/exporter.component";
 import { ImageCut, ImageProps } from "../state/cutter.store";
 
 /* 
@@ -35,34 +35,28 @@ addEventListener('message', async (event) => {
 
   for (let i = 0; i < cuts.length; i++) {
     const cut = cuts[i]
+    const abs = cut.absolute
 
-    if (cut.type === 'absolute') {
-      const abs = cut.absolute
+    const w = abs.width;
+    const h = abs.height;
+    const dx = abs.x;
+    const dy = abs.y;
 
-      const w = abs.width;
-      const h = abs.height;
-      const dx = abs.x;
-      const dy = abs.y;
+    canvas.width = w;
+    canvas.height = h;
 
-      canvas.width = w;
-      canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx?.clearRect(0, 0, w, h);
+    ctx?.drawImage(offCanvas, dx, dy, w, h, 0, 0, w, h);
 
-      const ctx = canvas.getContext('2d');
-      ctx?.clearRect(0, 0, w, h);
-      ctx?.drawImage(offCanvas, dx, dy, w, h, 0, 0, w, h);
+    const blob = await canvas.convertToBlob({ type: 'image/png' })
+    const dataURL = reader.readAsDataURL(blob);
 
-      const blob = await canvas.convertToBlob({ type: 'image/png' })
-      const dataURL = reader.readAsDataURL(blob);
-
-      results.push({
-        dataURL: dataURL,
-        fileType: 'image/png',
-        cut: cut
-      })
-    }
-    else if (cut.type === 'relative') {
-
-    }
+    results.push({
+      dataURL: dataURL,
+      fileType: 'image/png',
+      cut: cut
+    })
   }
 
   if (results.length > 0) {

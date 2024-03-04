@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { createStore, distinctUntilArrayItemChanged, filterNil, select, setProp, withProps } from '@ngneat/elf';
-import { addEntities, getActiveEntity, getAllEntities, getAllEntitiesApply, getEntity, getEntityByPredicate, selectActiveEntity, selectEntity, selectManyByPredicate, setActiveId, updateEntities, withActiveId, withEntities } from '@ngneat/elf-entities';
+import { addEntities, deleteEntities, getActiveEntity, getAllEntities, getAllEntitiesApply, getEntity, getEntityByPredicate, selectActiveEntity, selectEntity, selectManyByPredicate, setActiveId, updateEntities, withActiveId, withEntities } from '@ngneat/elf-entities';
 import { localStorageStrategy, persistState } from '@ngneat/elf-persist-state';
 import { Vector2d } from 'konva/lib/types';
 import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs';
@@ -8,6 +8,7 @@ import { v4 as uuid } from 'uuid';
 import { readFileList } from './cutter.store.helper';
 import localforage from 'localforage';
 import { syncState } from 'elf-sync-state';
+import { convertAbsoluteToRelative, convertRelativeToAbsolute } from './global.helper';
 
 // https://www.geodev.me/blog/deeppartial-in-typescript/
 export type DeepPartial<T> = {
@@ -16,13 +17,14 @@ export type DeepPartial<T> = {
 
 export interface AppProps {
     bestNumber: number,
-    showDropzone: boolean
+    showDropzone: boolean,
+    mouseoverCutID: string
 }
 
 export interface ImageProps {
     id: string,
     meta: ImageMeta
-    file?: ImageFile
+    file: ImageFile
     cuts: ImageCut[]
 }
 
@@ -71,32 +73,6 @@ export interface relativeCut {
     right: number
 }
 
-const testImage: ImageProps = {
-    id: uuid(),
-    meta: {
-        name: 'testImage',
-        active: true,
-        date: new Date(),
-        zoom: 1,
-        scrollX: 0.5,
-        scrollY: 0.5
-    },
-    cuts: []
-}
-
-const testImageTwo: ImageProps = {
-    id: uuid(),
-    meta: {
-        name: 'testImageTwo',
-        active: false,
-        date: new Date(),
-        zoom: 1,
-        scrollX: 0.5,
-        scrollY: 0.5
-    },
-    cuts: []
-}
-
 export interface CanvasProps {
     id: string,
     canvas: OffscreenCanvas
@@ -117,7 +93,7 @@ export class AppRepository {
         { name: 'AppStore' },
         withEntities<ImageProps>(),
         withActiveId(),
-        withProps<AppProps>({ bestNumber: 42, showDropzone: false }),
+        withProps<AppProps>({ bestNumber: 42, showDropzone: false, mouseoverCutID: '' }),
     );
 
     private restoredImageProps: ImageProps[] = []
@@ -141,8 +117,8 @@ export class AppRepository {
         return newState
     }
 
-    //private persist = persistState(this.store, { key: 'AppStore', storage: localforage, source: () => this.store.pipe(debounceTime(1000)), preStoreInit: this.preAppStoreInit })
-    private persist = persistState(this.store, { key: 'AppStore', storage: localStorageStrategy, source: () => this.store.pipe(debounceTime(200)), preStoreInit: this.preAppStoreInit })
+    private persist = persistState(this.store, { key: 'AppStore', storage: localforage, source: () => this.store.pipe(debounceTime(1000)), preStoreInit: this.preAppStoreInit })
+    //private persist = persistState(this.store, { key: 'AppStore', storage: localStorageStrategy, source: () => this.store.pipe(debounceTime(200)), preStoreInit: this.preAppStoreInit })
 
     public canvasStore = createStore(
         { name: 'CanvasStore' },
@@ -152,6 +128,8 @@ export class AppRepository {
     app$ = this.store.pipe((state) => state)
 
     showDropzone$ = this.store.pipe(select((state) => state.showDropzone))
+
+    mouseoverCutID$ = this.store.pipe(select((state) => state.mouseoverCutID), distinctUntilChanged())
 
     active$ = this.store.pipe(selectActiveEntity())
 
@@ -234,7 +212,7 @@ export class AppRepository {
         //syncState(this.store, { channel: 'AppStore' })
 
         //this.addCanvasEntities(this.restoredImageProps)
-        //this.store.update(addEntities([testImage, testImageTwo]))
+        //this.store.update(addEntities([testImage, testImageTwo]))       
     }
 
     public updateShowDropzone(val: boolean) {
@@ -243,31 +221,30 @@ export class AppRepository {
         )
     }
 
+    public updateMouseoverCutID(id: string) {
+        this.store.update(
+            setProp('mouseoverCutID', id)
+        )
+    }
+
     public updateZoom(id: string, val: number) {
-        const img = this.store.query(getEntity(id));
-
-        if (img) {
-            let newImg: ImageProps = { ...img }
-            newImg.meta.zoom = val
-
-            this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
-        }
+        this.store.update(updateEntities(id, (entity) => ({ ...entity, meta: { ...entity.meta, zoom: val, date: new Date() } })))
     }
 
     public updateScroll(id: string, scrollX: number, scrollY: number) {
-        const img = this.store.query(getEntity(id));
-
-        if (img) {
-            let newImg: ImageProps = { ...img }
-            newImg.meta.scrollX = scrollX
-            newImg.meta.scrollY = scrollY
-
-            this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
-        }
+        this.store.update(updateEntities(id, (entity) => ({ ...entity, meta: { ...entity.meta, scrollX: scrollX, scrollY: scrollY, date: new Date() } })))
     }
 
     public setActiveImage(id: string) {
         this.store.update(setActiveId(id))
+
+        const img = this.store.query(getEntity(id));
+
+        if (!img) {
+            return;
+        }
+
+        this.store.update(updateEntities(id, (entity) => ({ ...entity, meta: { ...entity.meta, active: true, date: new Date() } })))
     }
 
     public getActiveEntity() {
@@ -283,9 +260,11 @@ export class AppRepository {
         }
 
         let newImg: ImageProps = { ...img }
+        const size: Vector2d = { x: img.file.width, y: img.file.height };
+
         if (!img.cuts || img.cuts.length < 1) {
             newImg.cuts = []
-            const newCut: ImageCut = {
+            let newCut: ImageCut = {
                 id: uuid(),
                 name: 'Cut 1',
                 visible: true,
@@ -305,10 +284,11 @@ export class AppRepository {
                     right: 1
                 }
             }
-            newImg.cuts?.push(newCut)
+            newCut.relative = convertAbsoluteToRelative(newCut.absolute, size)
+            newImg.cuts.push(newCut)
         }
         else {
-            const newCut: ImageCut = {
+            let newCut: ImageCut = {
                 id: uuid(),
                 name: `Cut ${img.cuts.length + 1}`,
                 visible: true,
@@ -328,10 +308,11 @@ export class AppRepository {
                     right: 1
                 }
             }
-            newImg.cuts?.push(newCut)
+            newCut.relative = convertAbsoluteToRelative(newCut.absolute, size)
+            newImg.cuts.push(newCut)
         }
 
-        this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
+        this.store.update(updateEntities(id, (entity) => ({ ...newImg, meta: { ...newImg.meta, date: new Date() } })))
     }
 
     public duplicateCut(id: string, cutID: string) {
@@ -358,7 +339,7 @@ export class AppRepository {
 
         newImg.cuts.push(newCut)
 
-        this.store.update(updateEntities(id, (entity) => ({ ...newImg })));
+        this.store.update(updateEntities(id, (entity) => ({ ...newImg, meta: { ...newImg.meta, date: new Date() } })))
     }
 
     public removeCut(id: string, cutID: string) {
@@ -387,7 +368,7 @@ export class AppRepository {
             newImg.cuts[nextIndex].selected = true
         }
 
-        this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
+        this.store.update(updateEntities(id, (entity) => ({ ...newImg, meta: { ...newImg.meta, date: new Date() } })))
     }
 
     public updateCut(id: string, cut: ImageCut) {
@@ -426,7 +407,7 @@ export class AppRepository {
             newImg.cuts![nextIndex].selected = true
         }
 
-        this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
+        this.store.update(updateEntities(id, (entity) => ({ ...newImg, meta: { ...newImg.meta, date: new Date() } })))
     }
 
     public updateSelectedCut(id: string, updates: DeepPartial<ImageCut>) {
@@ -493,7 +474,87 @@ export class AppRepository {
             // -> deselect all
         }
 
-        this.store.update(updateEntities(id, (entity) => ({ ...newImg })))
+        this.store.update(updateEntities(id, (entity) => ({ ...newImg, meta: { ...newImg.meta, date: new Date() } })))
+    }
+
+    public zoomCut(id: string, cut: ImageCut | undefined) {
+        const img = this.store.query(getEntity(id));
+
+        if (!img || !img.cuts || !cut) {
+            return;
+        }
+
+        const index = img.cuts.findIndex(x => x.id === cut.id)
+
+        if (index < 0) {
+            return;
+        }
+
+        const realCut = img.cuts[index]
+
+        const cutHeight = realCut.absolute.height;
+        const cutWidth = realCut.absolute.width;
+
+        //console.log('cut:', cutHeight, cutWidth);
+
+        let newImg: ImageProps = JSON.parse(JSON.stringify(img))
+
+        const imgWidth = img.file.width;
+        const imgHeight = img.file.height;
+
+        // TODO: global get func
+        const wHeight = window.innerHeight
+        const wWidth = window.innerWidth
+
+        const padding = 24
+        // real canvas size
+        const rHeight = wHeight - 32 - 48 - 32 - 32 - 2 * padding
+        const rWidth = wWidth - 48 - 240 - 2 * padding
+
+        //console.log('canvas:', rHeight, rWidth);
+
+
+        // zoom
+        const zoomPadding = 0.2;
+
+        const zoomHeight = (1 - 2 * zoomPadding) * rHeight / cutHeight;
+        const zoomWidth = (1 - 2 * zoomPadding) * rWidth / cutWidth;
+
+        let zoomMin = Math.min(zoomHeight, zoomWidth)
+
+        //console.log('zoomcalc:', zoomHeight, zoomWidth, zoomMin)
+
+
+        // scroll
+        //const scrollDelta = 31 // 2*padding - 17 (scrollWidth)
+        const scrollWheel = 17;
+
+        const scrollWidth = Math.floor(zoomMin * imgWidth + 2 * padding);
+        const clientWidth = rWidth + 2 * padding - scrollWheel;
+
+        const scrollLeft = realCut.absolute.x * zoomMin - (rWidth - zoomMin * (cutWidth)) / 2;
+        let scrollX = scrollLeft / (scrollWidth - clientWidth);
+
+        scrollX = Math.min(Math.max(scrollX, 0), 1)
+
+        //console.log('scrollWidth/clientWidth', scrollWidth, clientWidth);
+
+        const scrollHeight = Math.floor(zoomMin * imgHeight + 2 * padding);
+        const clientHeight = rHeight + 2 * padding - scrollWheel;
+
+        const scrollTop = realCut.absolute.y * zoomMin - (rHeight - zoomMin * (cutHeight)) / 2;
+        let scrollY = scrollTop / (scrollHeight - clientHeight);
+
+        scrollY = Math.min(Math.max(scrollY, 0), 1)
+
+        //console.log('scrollcalc', scrollY, scrollX);
+
+
+        newImg.meta.zoom = zoomMin;
+        newImg.meta.scrollX = scrollX;
+        newImg.meta.scrollY = scrollY;
+
+        this.store.update(updateEntities(id, (entity) => ({ ...newImg, meta: { ...newImg.meta, date: new Date() } })))
     }
 
     // -----------------
@@ -545,23 +606,21 @@ export class AppRepository {
         for (let i = 0; i < imgData.length; i++) {
             const img = imgData[i]
 
-            if (img.file) {
-                const canv = new OffscreenCanvas(img.file.width, img.file.height)
-                const prop: CanvasProps = {
-                    id: img.id,
-                    canvas: canv
-                }
-
-
-                const blob = await fetch(img.file.dataURL).then((response) => response.blob())
-                const imageBitmap = await createImageBitmap(blob)
-
-                const ctx = canv.getContext('2d')
-                //ctx?.transferFromImageBitmap(imageBitmap)
-                ctx?.drawImage(imageBitmap, 0, 0)
-
-                updates.push(prop)
+            const canv = new OffscreenCanvas(img.file.width, img.file.height)
+            const prop: CanvasProps = {
+                id: img.id,
+                canvas: canv
             }
+
+
+            const blob = await fetch(img.file.dataURL).then((response) => response.blob())
+            const imageBitmap = await createImageBitmap(blob)
+
+            const ctx = canv.getContext('2d')
+            //ctx?.transferFromImageBitmap(imageBitmap)
+            ctx?.drawImage(imageBitmap, 0, 0)
+
+            updates.push(prop)
         }
 
         this.canvasStore.update(addEntities(updates))
@@ -599,7 +658,52 @@ export class AppRepository {
             }
         }
 
-        this.store.update(updateEntities(id, (ent) => ({ ...newImg })))
+        this.store.update(updateEntities(id, (ent) => ({ ...newImg, meta: { ...newImg.meta, date: new Date() } })))
     }
 
+    public openImage(id: string) {
+        const img = this.store.query(getEntity(id));
+
+        if (!img || img.meta.active) {
+            //console.log('no img or already inactive')
+            return;
+        }
+
+        const newImg: ImageProps = JSON.parse(JSON.stringify(img))
+        newImg.meta.active = true;
+
+        this.store.update(updateEntities(id, (ent) => ({ ...newImg, meta: { ...newImg.meta, date: new Date() } })))
+    }
+
+    public deleteImage(id: string) {
+        const img = this.store.query(getEntity(id));
+
+        if (!img) {
+            return;
+        }
+
+        const active = this.getActiveEntity()
+
+        if (active && active.id === id) {
+            this.closeImage(id);
+        }
+
+        this.store.update(deleteEntities(id));
+    }
+
+    public duplicateImage(id: string) {
+        const img = this.store.query(getEntity(id));
+
+        if (!img) {
+            return;
+        }
+
+        const newImg: ImageProps = JSON.parse(JSON.stringify(img))
+        newImg.id = uuid();
+        //newImg.meta.active = true;  
+        newImg.meta.date = new Date();
+
+        this.store.update(addEntities([newImg]));
+        this.addCanvasEntities([newImg]);
+    }
 }

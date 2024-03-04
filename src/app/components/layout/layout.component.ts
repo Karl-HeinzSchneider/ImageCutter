@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HeaderComponent } from '../header/header.component';
-import { LayersComponent } from '../layers/layers.component';
+import { HeaderComponent } from '../header/header/header.component';
+import { LayersComponent } from '../layers/layers/layers.component';
 import { AppRepository, ImageProps } from '../../state/cutter.store';
 import { Observable } from 'rxjs';
 import { MainComponent } from '../main/main.component';
-import { DropImageComponent } from '../drop-image/drop-image.component';
-import { TabbarComponent } from '../tabbar/tabbar.component';
-import { ToolbarComponent } from '../toolbar/toolbar.component';
+import { DropImageComponent } from '../import/drop-image/drop-image.component';
+import { TabbarComponent } from '../tabbar/tabbar/tabbar.component';
+import { ToolbarComponent } from '../toolbar/toolbar/toolbar.component';
 
 @Component({
   selector: 'app-layout',

@@ -13,6 +13,7 @@ import { getActiveEntity } from '@ngneat/elf-entities';
 import { KeypressService } from '../../state/keypress.service';
 import { TextConfig } from 'konva/lib/shapes/Text';
 import { LabelConfig, TagConfig } from 'konva/lib/shapes/Label';
+import { convertAbsoluteToRelative } from '../../state/global.helper';
 
 
 @Component({
@@ -33,6 +34,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
   private id: string = '-42';
 
   private stage!: Stage;
+  private layerCheckered!: Layer;
   private layerBG!: Layer;
   private layerCuts!: Layer;
   private layerSelected!: Layer;
@@ -61,6 +63,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
   private scroll: Vector2d = { x: 0.5, y: 0.5 };
   private selectedCut: ImageCut | undefined;
   private nonSelectedCuts: ImageCut[] | undefined;
+  private mouseoverCutID: string = '';
 
   private scrollUpdater = new Subject<Vector2d>;
   private scrollHandler: (e: Event) => void;
@@ -97,6 +100,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
         this.id = q.id
       }
 
+      this.drawCheckered()
       this.drawStageBG()
       this.updateScale()
       this.updateScroll()
@@ -160,6 +164,14 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       this.nonSelectedCuts = cuts
 
       this.updateNonSelectedCuts()
+    })
+
+    // mouseover Cut
+    this.store.mouseoverCutID$.pipe(takeUntil(this.destroy$)).subscribe(id => {
+      // console.log('MouseoverCutID', id)
+      this.mouseoverCutID = id;
+
+      this.updateMouseoverCut()
     })
 
     // key down repeat
@@ -242,6 +254,9 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       container: 'konva'
     })
 
+    this.layerCheckered = new Konva.Layer({ imageSmoothingEnabled: false })
+    this.stage.add(this.layerCheckered);
+
     const layerBG = new Konva.Layer({
       imageSmoothingEnabled: false
     })
@@ -276,6 +291,74 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
     this.stage.height(rHeight)
     this.stage.width(rWidth)
+  }
+
+  private async drawCheckered() {
+    if (!this.imageFile) {
+      return;
+    }
+
+    const layer = this.layerCheckered
+    const bg = layer.findOne('#bg')
+    if (bg) {
+      layer.destroyChildren()
+    }
+
+    const image: ImageFile = this.imageFile;
+    const componentRef = this;
+    const stageRef = this.stage;
+
+    const squareSize = 1000;
+
+    const amountX = Math.ceil(image.width / squareSize);
+    const amountY = Math.ceil(image.height / squareSize);
+
+    //console.log('drawCheckered', amountX, amountY, amountX * amountY);
+
+    const rect = new Konva.Rect({
+      x: 0,
+      y: 0,
+      width: image.width,
+      height: image.height,
+      draggable: false,
+      id: 'bg',
+      fill: 'rgba(0, 0, 0, 0)'
+    })
+    layer.add(rect)
+
+    const url = '../../../../assets/img/checkered.png'
+    //console.log(url);
+
+    const loadImage = (url: string) => {
+      return new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image()
+        img.onload = function () {
+          resolve(img)
+        }
+        img.src = url
+      })
+    }
+
+    const checkered = await loadImage(url);
+
+    for (let i = 0; i < amountX; i++) {
+      for (let j = 0; j < amountY; j++) {
+        const w = Math.min(squareSize, image.width - i * squareSize);
+        const h = Math.min(squareSize, image.height - j * squareSize);
+
+        const rect = new Konva.Rect({
+          x: i * squareSize,
+          y: j * squareSize,
+          width: w,
+          height: h,
+          fillPatternImage: checkered
+        })
+        layer.add(rect);
+      }
+    }
+
+    layer.cache()
+    //console.log(layer.toDataURL({ x: 0, y: 0, width: 100, height: 100, mimeType: 'png', quality: 1, pixelRatio: 1 }))
   }
 
   private drawStageBG() {
@@ -793,23 +876,13 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       return;
     }
 
-    if (cut.type === 'absolute') {
-      const absoluteCut = cut.absolute;
+    const absoluteCut = cut.absolute;
 
-      rect.x(absoluteCut.x)
-      rect.y(absoluteCut.y)
-      rect.width(absoluteCut.width)
-      rect.height(absoluteCut.height)
-    }
-    else {
-      const relativeCut = cut.relative;
-      return;
-      // @ TODO
-      // rect.x(relativeCut.x)
-      // rect.y(relativeCut.y)
-      // rect.width(relativeCut.width)
-      //rect.height(relativeCut.height)
-    }
+    rect.x(absoluteCut.x)
+    rect.y(absoluteCut.y)
+    rect.width(absoluteCut.width)
+    rect.height(absoluteCut.height)
+
 
     layer.add(rect)
     layer.add(tr)
@@ -829,16 +902,16 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
     let newCut: ImageCut = { ...cut }
 
-    if (cut.type === 'absolute') {
-      newCut.absolute!.x = rect.x()
-      newCut.absolute!.y = rect.y()
+    newCut.absolute!.x = rect.x()
+    newCut.absolute!.y = rect.y()
 
-      newCut.absolute!.height = rect.height()
-      newCut.absolute!.width = rect.width()
+    newCut.absolute!.height = rect.height()
+    newCut.absolute!.width = rect.width()
 
-      //console.log('newCut', newCut)
-      this.store.updateCut(this.id, newCut)
-    }
+    newCut.relative = convertAbsoluteToRelative(newCut.absolute, { x: this.imageFile!.width, y: this.imageFile!.height })
+
+    //console.log('newCut', newCut)
+    this.store.updateCut(this.id, newCut)
   }
 
   private moveSelectedCut(dx: number, dy: number) {
@@ -861,6 +934,11 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       this.updateSelectedCut()
     }
   }
+  // 171719  rgba(0, 0, 0, 0.69)
+  private rectColor = '#171719';
+  //private rectColor = 'orange';
+
+  private rectColorSelected = '#00A5A5'
 
   private updateNonSelectedCuts() {
     const layer = this.layerCuts;
@@ -877,7 +955,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     }
 
     const rectCfg: RectConfig = {
-      stroke: '#171719',
+      stroke: this.rectColor,
       strokeWidth: 3,
       strokeScaleEnabled: false,
       id: '123',
@@ -887,7 +965,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     const componentRef = this;
 
     cuts.forEach(cut => {
-      if (cut.type === 'absolute' && cut.visible) {
+      if (cut.visible) {
         const abs = cut.absolute;
 
         const rect = new Konva.Rect({
@@ -896,7 +974,8 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
           y: abs.y,
           width: abs.width,
           height: abs.height,
-          id: cut.id
+          id: cut.id,
+          name: 'rect'
         })
         rect.dash([8, 1])
 
@@ -906,14 +985,15 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
           componentRef.updateCursor('pointer');
           componentRef.updateHoverLabel(rect);
 
-          rect.stroke('#00A5A5')
+          rect.stroke(componentRef.rectColorSelected)
         })
 
         rect.on('mouseleave', function () {
           componentRef.updateCursor('default');
           componentRef.updateHoverLabel(undefined);
 
-          rect.stroke('#171719')
+          //rect.stroke('#171719')
+          rect.stroke(componentRef.rectColor)
         })
 
         rect.on('pointerclick', function (e) {
@@ -923,6 +1003,35 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
         layer.add(rect)
       }
     })
+  }
+
+  private updateMouseoverCut() {
+    const id = this.mouseoverCutID;
+    const layer = this.layerCuts;
+
+    const rects: Rect[] = layer.find('.rect')
+
+    let found = false;
+
+    rects.forEach(rect => {
+      const cut: ImageCut = rect.getAttr('cut')
+
+      if (cut.id === id) {
+        rect.stroke(this.rectColorSelected)
+        this.updateHoverLabel(rect)
+        found = true;
+      }
+      else {
+        rect.stroke(this.rectColor)
+      }
+    })
+
+    if (found) {
+      return;
+    }
+    else {
+      this.updateHoverLabel(undefined)
+    }
   }
 
   private updateCursor(cursor: 'default' | 'pointer' | 'move' | 'crosshair') {
