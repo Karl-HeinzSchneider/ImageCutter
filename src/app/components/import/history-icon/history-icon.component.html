@@ -1,0 +1,73 @@
+<div class="container pointer" [tooltip]="image.meta.name" [position]="'top'" (click)="onClick($event)"
+    (mouseleave)="onMouseLeave()" *ngIf="!markedForDeletion; else marked">
+    <img class="nondrag" [src]="image.file.dataURL" loading="lazy">
+    <div class="name">{{image.meta.name}}</div>
+    <div class="subtext">{{image.meta.date | dateDelta}}</div>
+
+    <ng-container *ngTemplateOutlet="close"></ng-container>
+    <ng-container *ngTemplateOutlet="menu"></ng-container>
+    <ng-container *ngIf="image.meta.active; else contextInactive">
+        <ng-container *ngTemplateOutlet="context"></ng-container>
+    </ng-container>
+</div>
+
+<ng-template #marked>
+    <div class="container" [tooltip]="image.meta.name" [position]="'top'">
+        <div class="deletion">
+            <span>Auto-deletion in {{deletionSecondsLeft}} second(s)...</span>
+            <button (click)="onClickUndo($event)">Undo</button>
+            <button (click)="onClickDeleteAtOnce($event)">Delete</button>
+        </div>
+        <div class="name">{{image.meta.name}}</div>
+        <div class="subtext">{{image.meta.date | dateDelta}}</div>
+    </div>
+</ng-template>
+
+<ng-template #close>
+    <div class="close" (click)="onClickClose($event)">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+                d="M7.7833 9.42434C6.51111 10.5633 5.26703 11.6665 4.03539 12.7834C3.32188 13.4304 2.63391 14.1055 1.92206 14.7543C1.73246 14.9316 1.51459 15.0756 1.27744 15.1806C1.1605 15.2297 0.907965 15.1806 0.850375 15.0906C0.774175 14.9712 0.796704 14.7594 0.838036 14.6035C0.868105 14.4899 0.990534 14.3959 1.08289 14.3047C2.83934 12.5753 4.59659 10.847 6.35461 9.11977C6.55187 8.92605 6.75479 8.73823 6.98143 8.52311C6.21317 7.67166 5.44371 6.85006 4.70913 5.99792C3.53675 4.63729 2.3879 3.25641 1.22933 1.884C1.18721 1.83412 1.15099 1.77953 1.10848 1.72965C0.905737 1.48998 0.762803 1.23166 0.993655 0.940942C1.16652 0.723268 1.57978 0.755779 1.86754 1.0519C2.58419 1.78917 3.2823 2.54429 3.97456 3.30522C5.23861 4.69384 6.49281 6.09148 7.75235 7.48422C7.80627 7.53488 7.8636 7.58176 7.92395 7.62452C8.89789 6.69364 9.86105 5.7658 10.8323 4.84591C11.9586 3.77963 13.0889 2.71755 14.2232 1.65966C14.6486 1.26201 14.9898 1.19034 15.2509 1.42235C15.5215 1.6627 15.4963 2.06426 15.0648 2.49479C13.8981 3.65896 12.7032 4.79486 11.5094 5.93202C10.6 6.7986 9.67613 7.65024 8.70826 8.5554C9.49474 9.36886 10.247 10.1797 11.0356 10.953C11.7931 11.6957 12.5929 12.3954 13.3653 13.1228C13.6673 13.3966 13.95 13.6909 14.2116 14.0036C14.4226 14.2661 14.4537 14.5918 14.1944 14.8507C13.9388 15.1059 13.6429 15.0157 13.3964 14.8225C12.9249 14.4721 12.4729 14.096 12.0424 13.696C10.7248 12.4056 9.43042 11.0915 8.12758 9.78594C8.02454 9.68284 7.9261 9.57466 7.7833 9.42434Z"
+                fill="white" />
+        </svg>
+    </div>
+</ng-template>
+
+
+<ng-template #menu>
+    <div class="menu" (click)="onClickMenu($event)">
+        <svg width="42" height="9" viewBox="0 0 42 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+                d="M20.1158 8.90739C20.7109 8.90646 21.2999 8.78743 21.8483 8.55719C22.3968 8.32695 22.8938 7.99012 23.3104 7.56639C23.7078 7.16722 24.0199 6.69184 24.228 6.16905C24.4361 5.64626 24.5359 5.08688 24.5211 4.52464C24.4553 2.27326 22.3313 0.116673 20.0649 0.000466535C19.607 -0.00710588 19.1522 0.0775734 18.7279 0.249404C18.3035 0.421236 17.9185 0.676739 17.5956 1.00051C17.0892 1.48766 16.6845 2.06975 16.4046 2.71336C16.1248 3.35698 15.9753 4.04946 15.9648 4.75084C15.9481 5.29443 16.0405 5.83588 16.2366 6.34339C16.4326 6.85095 16.7283 7.31433 17.1064 7.70639C17.501 8.09546 17.9695 8.40205 18.4845 8.60829C18.9995 8.8145 19.5505 8.91622 20.1055 8.90739H20.1158Z"
+                fill="white" />
+            <path
+                d="M33.7599 7.25295C34.5247 7.9064 35.504 8.25616 36.5109 8.2354C36.8693 8.23457 37.2263 8.19712 37.5767 8.12371C38.2979 7.99436 38.9793 7.70026 39.5674 7.2645C40.1558 6.82871 40.6345 6.26305 40.9669 5.61191C41.2233 5.07791 41.3319 4.48547 41.2817 3.8956C41.2316 3.30573 41.0244 2.73983 40.6816 2.25641C39.6784 0.677785 37.4452 -0.102174 35.5967 0.480241C33.7374 1.06645 32.4458 3.08334 32.526 5.27543C32.5281 5.33705 32.5468 5.39705 32.5793 5.4495C32.6429 5.55088 32.709 5.68405 32.7837 5.83198C33.0172 6.36233 33.3482 6.84429 33.7599 7.25295Z"
+                fill="white" />
+            <path
+                d="M3.44327 8.4497C3.59426 8.46856 3.74629 8.47801 3.89846 8.47797C4.7807 8.47059 5.63435 8.16511 6.31984 7.61146C6.77042 7.25328 7.1455 6.80973 7.42326 6.30639C7.70107 5.80304 7.87617 5.2498 7.93843 4.67866C8.17227 2.49211 6.70484 0.396602 4.73487 0.101774C4.22188 0.030812 3.69987 0.0645223 3.20038 0.20086C2.70089 0.337198 2.23438 0.573333 1.82923 0.894891C1.33045 1.28339 0.914875 1.76756 0.606889 2.31884C0.298899 2.87008 0.104719 3.47732 0.0359975 4.10459C-0.0343565 4.61408 -0.00134922 5.13246 0.132947 5.62904C0.267244 6.12559 0.500116 6.59025 0.817846 6.99546C1.13558 7.40066 1.53163 7.73811 1.9826 7.98794C2.43357 8.23773 2.9303 8.39473 3.44327 8.4497Z"
+                fill="white" />
+        </svg>
+    </div>
+</ng-template>
+
+<ng-template #context>
+    <div class="context" *ngIf="showContext" (click)="stopClick($event)">
+        <div class="entry prevent-select" (click)="onClickSelect($event)">Select</div>
+        <div class="entry prevent-select" (click)="onClickSetActive($event,false)">Deactivate</div>
+        <div class="spacer"></div>
+        <div class="entry prevent-select" (click)="onClickDownload($event)">Download Project</div>
+        <div class="entry prevent-select" (click)="onClickDuplicate($event)">Duplicate</div>
+        <div class="entry prevent-select" (click)="onClickDelete($event)">Delete</div>
+    </div>
+</ng-template>
+
+<ng-template #contextInactive>
+    <div class="context" *ngIf="showContext" (click)="stopClick($event)">
+        <div class="entry prevent-select" (click)="onClickSelect($event)">Select</div>
+        <div class="entry prevent-select" (click)="onClickSetActive($event,true)">Activate</div>
+        <div class="spacer"></div>
+        <div class="entry prevent-select" (click)="onClickDownload($event)">Download Project</div>
+        <div class="entry prevent-select" (click)="onClickDuplicate($event)">Duplicate</div>
+        <div class="entry prevent-select" (click)="onClickDelete($event)">Delete</div>
+    </div>
+</ng-template>

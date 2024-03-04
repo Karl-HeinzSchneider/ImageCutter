@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { createStore, distinctUntilArrayItemChanged, filterNil, select, setProp, withProps } from '@ngneat/elf';
-import { addEntities, getActiveEntity, getAllEntities, getAllEntitiesApply, getEntity, getEntityByPredicate, selectActiveEntity, selectEntity, selectManyByPredicate, setActiveId, updateEntities, withActiveId, withEntities } from '@ngneat/elf-entities';
+import { addEntities, deleteEntities, getActiveEntity, getAllEntities, getAllEntitiesApply, getEntity, getEntityByPredicate, selectActiveEntity, selectEntity, selectManyByPredicate, setActiveId, updateEntities, withActiveId, withEntities } from '@ngneat/elf-entities';
 import { localStorageStrategy, persistState } from '@ngneat/elf-persist-state';
 import { Vector2d } from 'konva/lib/types';
 import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs';
@@ -237,6 +237,14 @@ export class AppRepository {
 
     public setActiveImage(id: string) {
         this.store.update(setActiveId(id))
+
+        const img = this.store.query(getEntity(id));
+
+        if (!img) {
+            return;
+        }
+
+        this.store.update(updateEntities(id, (entity) => ({ ...entity, meta: { ...entity.meta, active: true, date: new Date() } })))
     }
 
     public getActiveEntity() {
@@ -653,4 +661,49 @@ export class AppRepository {
         this.store.update(updateEntities(id, (ent) => ({ ...newImg, meta: { ...newImg.meta, date: new Date() } })))
     }
 
+    public openImage(id: string) {
+        const img = this.store.query(getEntity(id));
+
+        if (!img || img.meta.active) {
+            //console.log('no img or already inactive')
+            return;
+        }
+
+        const newImg: ImageProps = JSON.parse(JSON.stringify(img))
+        newImg.meta.active = true;
+
+        this.store.update(updateEntities(id, (ent) => ({ ...newImg, meta: { ...newImg.meta, date: new Date() } })))
+    }
+
+    public deleteImage(id: string) {
+        const img = this.store.query(getEntity(id));
+
+        if (!img) {
+            return;
+        }
+
+        const active = this.getActiveEntity()
+
+        if (active && active.id === id) {
+            this.closeImage(id);
+        }
+
+        this.store.update(deleteEntities(id));
+    }
+
+    public duplicateImage(id: string) {
+        const img = this.store.query(getEntity(id));
+
+        if (!img) {
+            return;
+        }
+
+        const newImg: ImageProps = JSON.parse(JSON.stringify(img))
+        newImg.id = uuid();
+        //newImg.meta.active = true;  
+        newImg.meta.date = new Date();
+
+        this.store.update(addEntities([newImg]));
+        this.addCanvasEntities([newImg]);
+    }
 }

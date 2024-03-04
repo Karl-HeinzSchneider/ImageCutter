@@ -1,0 +1,163 @@
+.container {
+    display: grid;
+    grid-auto-flow: row;
+    padding: 4px;
+    width: 168px;
+    max-width: 168px;
+    height: 200px;
+    max-height: 200px;
+    //outline: 1px solid red;
+    box-sizing: border-box;
+
+    //cursor: pointer;
+
+    position: relative;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+img {
+    width: 160px;
+    height: 160px;
+    object-fit: contain;
+
+    border-radius: 25px;
+}
+
+.name {
+    font-size: 14px;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.subtext {
+    font-size: 12px;
+    font-style: italic;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.69);
+    text-align: center;
+
+    display: none;
+}
+
+.close>svg {
+    display: block;
+    margin: 4px;
+}
+
+.close:hover {
+    background-color: black;
+}
+
+.menu {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+
+    width: 60px;
+    height: 24px;
+
+    border-radius: 25px;
+    background-color: rgba(0, 0, 0, 0.69);
+
+    display: none;
+}
+
+.menu:hover {
+    background-color: black;
+}
+
+.menu>svg {
+    display: block;
+    margin: 8px;
+    margin-left: 10px;
+}
+
+.container:hover {
+    .close {
+        display: block;
+    }
+
+    .menu {
+        display: block;
+    }
+}
+
+.context {
+    position: absolute;
+    top: 34px;
+    left: 40px;
+
+    background-color: rgba(0, 0, 0, 0.95);
+    width: 160px;
+    z-index: 69;
+}
+
+.entry {
+    font-size: 14px;
+    padding: 4px;
+}
+
+.entry:hover {
+    background-color: var(--accent);
+}
+
+.spacer {
+    height: 8px;
+}
+
+.deletion {
+    width: 160px;
+    height: 160px;
+
+    border-radius: 25px;
+    position: relative;
+    box-sizing: border-box;
+
+    display: grid;
+    grid-auto-flow: row;
+    grid-auto-rows: 46px 46px 46px;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
+}
+
+.deletion>span {
+    font-size: 12px;
+    width: 95px;
+    height: 48px;
+    text-align: center;
+}
+
+.deletion>button {
+    width: 100px;
+    height: 40px;
+    background-color: var(--background-tools);
+    border-radius: 25px;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: 'Inter';
+    font-size: 14px;
+
+    margin-bottom: 4px;
+
+    cursor: pointer;
+}
+
+.deletion>button:nth-child(2) {
+    color: rgba(255, 255, 255, 0.9)
+}
