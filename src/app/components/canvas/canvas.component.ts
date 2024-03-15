@@ -1,26 +1,25 @@
-import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AppRepository, ImageCut, ImageFile, ImageMeta, ImageProps } from '../../state/cutter.store';
-import Konva from 'konva';
-import { Stage } from 'konva/lib/Stage';
-import { Layer } from 'konva/lib/Layer';
-import { Vector2d } from 'konva/lib/types';
-import { Box } from 'konva/lib/shapes/Transformer';
-import { NodeConfig } from 'konva/lib/Node';
-import { Subject, asyncScheduler, debounceTime, takeUntil, throttleTime } from 'rxjs';
-import { Rect, RectConfig } from 'konva/lib/shapes/Rect';
+import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild } from '@angular/core';
 import { getActiveEntity } from '@ngneat/elf-entities';
-import { KeypressService } from '../../state/keypress.service';
-import { TextConfig } from 'konva/lib/shapes/Text';
+import Konva from 'konva';
+import { Layer } from 'konva/lib/Layer';
+import { Stage } from 'konva/lib/Stage';
 import { LabelConfig, TagConfig } from 'konva/lib/shapes/Label';
+import { Rect, RectConfig } from 'konva/lib/shapes/Rect';
+import { TextConfig } from 'konva/lib/shapes/Text';
+import { Vector2d } from 'konva/lib/types';
+import { Subject, asyncScheduler, debounceTime, takeUntil, throttleTime } from 'rxjs';
+import { AppRepository, ImageCut, ImageFile, ImageProps } from '../../state/cutter.store';
 import { convertAbsoluteToRelative } from '../../state/global.helper';
+import { KeypressService } from '../../state/keypress.service';
+import { CanvasInfoComponent } from './canvas-info/canvas-info.component';
 import { CanvasService } from './canvas.service';
 
 
 @Component({
   selector: 'app-canvas',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CanvasInfoComponent],
   templateUrl: './canvas.component.html',
   styleUrl: './canvas.component.scss'
 })
