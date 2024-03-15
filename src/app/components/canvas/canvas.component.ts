@@ -14,6 +14,7 @@ import { KeypressService } from '../../state/keypress.service';
 import { TextConfig } from 'konva/lib/shapes/Text';
 import { LabelConfig, TagConfig } from 'konva/lib/shapes/Label';
 import { convertAbsoluteToRelative } from '../../state/global.helper';
+import { CanvasService } from './canvas.service';
 
 
 @Component({
@@ -77,7 +78,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     this.updateBGPosition()
   }
 
-  constructor(private store: AppRepository, private keypressService: KeypressService) {
+  constructor(private store: AppRepository, private keypressService: KeypressService, private canvasService: CanvasService) {
     console.log('constructor')
     //this.initSubs()
 
@@ -167,7 +168,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     })
 
     // mouseover Cut
-    this.store.mouseoverCutID$.pipe(takeUntil(this.destroy$)).subscribe(id => {
+    this.canvasService.mouseoverCutID$.pipe(takeUntil(this.destroy$)).subscribe(id => {
       // console.log('MouseoverCutID', id)
       this.mouseoverCutID = id;
 
