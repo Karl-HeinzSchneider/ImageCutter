@@ -3,7 +3,7 @@
 <!-- [ngStyle]="{'zoom': image.meta.zoom}" -->
 <!-- [ngStyle]="{'scale': image.meta.zoom}" -->
 
-<div class="konva" id="konva"></div>
+<div class="konva" id="konva" (mouseleave)="leave()"></div>
 
 <div id="scroll-container" #scroll (wheel)="onMouseWheel($event)">
     <div id="large-container" #large> </div>

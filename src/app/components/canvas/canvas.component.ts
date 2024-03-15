@@ -7,7 +7,7 @@ import { Layer } from 'konva/lib/Layer';
 import { Vector2d } from 'konva/lib/types';
 import { Box } from 'konva/lib/shapes/Transformer';
 import { NodeConfig } from 'konva/lib/Node';
-import { Subject, debounceTime, takeUntil, throttleTime } from 'rxjs';
+import { Subject, asyncScheduler, debounceTime, takeUntil, throttleTime } from 'rxjs';
 import { Rect, RectConfig } from 'konva/lib/shapes/Rect';
 import { getActiveEntity } from '@ngneat/elf-entities';
 import { KeypressService } from '../../state/keypress.service';
@@ -68,6 +68,8 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
 
   private scrollUpdater = new Subject<Vector2d>;
   private scrollHandler: (e: Event) => void;
+
+  private pointerCoordsUpdater = new Subject<Vector2d | null>;
 
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
@@ -175,6 +177,22 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       this.updateMouseoverCut()
     })
 
+    // pointerCoordsUpdater
+    const pointerCoordsThrottle = 25;
+    this.pointerCoordsUpdater.pipe(
+      throttleTime(pointerCoordsThrottle, asyncScheduler, { leading: true, trailing: true }),
+      takeUntil(this.destroy$)
+    ).subscribe(coords => {
+      //console.log('pointerCoordsUpdater', coords);
+      // this.canvasService.updateMouseoverCoords(coords);
+      let relCoords = this.getRelativePointerCoords();
+      if (relCoords) {
+        relCoords.x = Math.round(relCoords.x);
+        relCoords.y = Math.round(relCoords.y);
+      }
+      this.canvasService.updateMouseoverCoords(relCoords);
+    })
+
     // key down repeat
     this.keypressService.keyDownRepeat$.pipe(takeUntil(this.destroy$)).subscribe(key => {
       //console.log('key', key)
@@ -276,6 +294,23 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       const event = e.evt;
       componentRef.onMouseWheel(event);
     })
+
+    this.stage.on('pointermove', function (e: any) {
+      // console.log(e);
+      //componentRef.updatePointerCoords();
+      //console.log('pointermove stage', componentRef.getRelativePointerCoords());
+      componentRef.updatePointerCoords()
+    })
+
+    this.stage.on('pointerleave', function (e: any) {
+      // console.log('pointerleave');
+
+    })
+  }
+
+  public leave() {
+    //console.log('pointerleave');
+    this.updatePointerCoords()
   }
 
   private resizeStage() {
@@ -405,6 +440,17 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
         componentRef.store.selectCut(componentRef.id, undefined)
       })
 
+      /*  node.on('pointermove', function (e: any) {
+         //console.log(e);
+         componentRef.updatePointerCoords();
+       }) */
+
+      /*     node.on('pointerleave', function (e: any) {
+            //console.log(e);
+            componentRef.updatePointerCoords({ x: -1, y: -1 });
+            //console.log('pointerleave');
+          })
+     */
       layerBG.add(node)
     })
 
@@ -422,9 +468,56 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       return null
     }
     else {
-      const relPos = this.bgImageRef.getRelativePointerPosition()
+      let relPos = this.bgImageRef.getRelativePointerPosition()
+      //console.log(relPos);
+      if (!relPos) {
+        return null
+      }
+
+      relPos.x = Math.ceil(relPos.x);
+      relPos.y = Math.ceil(relPos.y);
+
+      if (relPos.x <= 0 || relPos.x > this.image.file.width || relPos.y <= 0 || relPos.y > this.image.file.height) {
+        return null;
+      }
+      //console.log(relPos);
       return relPos;
     }
+  }
+
+  public updatePointerCoords(setCoords?: Vector2d) {
+    this.pointerCoordsUpdater.next(null);
+    return;
+
+    /* let coords: Vector2d = { x: -1, y: -1 };
+    //console.log('setCoords', setCoords);
+    if (1 + 1 === 2) {
+      this.pointerCoordsUpdater.next(null);
+
+      return;
+    }
+
+    if (setCoords) {
+      coords.x = Math.round(setCoords.x);
+      coords.y = Math.round(setCoords.y);
+
+      this.canvasService.updateMouseoverCoords(coords);
+    }
+    else {
+      const relCoords = this.getRelativePointerCoords();
+
+      if (!relCoords) {
+        //this.canvasService.updateMouseoverCoords(null);
+        this.pointerCoordsUpdater.next(null);
+
+        return;
+      }
+
+      coords.x = Math.round(relCoords.x);
+      coords.y = Math.round(relCoords.y);
+
+      this.pointerCoordsUpdater.next(coords);
+    } */
   }
 
   private updateScale() {
@@ -623,6 +716,16 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       componentRef.updateCursor('default')
     })
 
+    /*   rect.on('pointermove', function (e: any) {
+        // console.log(e);
+        componentRef.updatePointerCoords();
+      }) */
+
+    /* rect.on('pointerleave', function (e: any) {
+      //console.log(e);
+      componentRef.updatePointerCoords({ x: -1, y: -1 });
+      //console.log('pointerleave');
+    }) */
 
     rect.on('dragmove', function () {
       //console.log('dragmove')
@@ -1001,6 +1104,17 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
           componentRef.onRectPointerClick(cut)
         })
 
+        /*      rect.on('pointermove', function (e: any) {
+               // console.log(e);
+               componentRef.updatePointerCoords();
+             }) */
+
+        /*    rect.on('pointerleave', function (e: any) {
+             //console.log(e);
+             componentRef.updatePointerCoords({ x: -1, y: -1 });
+             //console.log('pointerleave');
+           })
+    */
         layer.add(rect)
       }
     })
