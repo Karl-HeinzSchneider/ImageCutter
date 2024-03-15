@@ -17,8 +17,7 @@ export type DeepPartial<T> = {
 
 export interface AppProps {
     bestNumber: number,
-    showDropzone: boolean,
-    mouseoverCutID: string
+    showDropzone: boolean
 }
 
 export interface ImageProps {
@@ -93,7 +92,7 @@ export class AppRepository {
         { name: 'AppStore' },
         withEntities<ImageProps>(),
         withActiveId(),
-        withProps<AppProps>({ bestNumber: 42, showDropzone: false, mouseoverCutID: '' }),
+        withProps<AppProps>({ bestNumber: 42, showDropzone: false }),
     );
 
     private restoredImageProps: ImageProps[] = []
@@ -128,8 +127,6 @@ export class AppRepository {
     app$ = this.store.pipe((state) => state)
 
     showDropzone$ = this.store.pipe(select((state) => state.showDropzone))
-
-    mouseoverCutID$ = this.store.pipe(select((state) => state.mouseoverCutID), distinctUntilChanged())
 
     active$ = this.store.pipe(selectActiveEntity())
 
@@ -218,12 +215,6 @@ export class AppRepository {
     public updateShowDropzone(val: boolean) {
         this.store.update(
             setProp('showDropzone', val)
-        )
-    }
-
-    public updateMouseoverCutID(id: string) {
-        this.store.update(
-            setProp('mouseoverCutID', id)
         )
     }
 
