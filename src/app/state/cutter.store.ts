@@ -17,7 +17,8 @@ export type DeepPartial<T> = {
 
 export interface AppProps {
     bestNumber: number,
-    showDropzone: boolean
+    showDropzone: boolean,
+    tool: tool
 }
 
 export interface ImageProps {
@@ -72,6 +73,8 @@ export interface relativeCut {
     right: number
 }
 
+export type tool = 'select' | 'marquee' | 'move' | 'cut';
+
 export interface CanvasProps {
     id: string,
     canvas: OffscreenCanvas
@@ -92,7 +95,7 @@ export class AppRepository {
         { name: 'AppStore' },
         withEntities<ImageProps>(),
         withActiveId(),
-        withProps<AppProps>({ bestNumber: 42, showDropzone: false }),
+        withProps<AppProps>({ bestNumber: 42, showDropzone: false, tool: 'select' }),
     );
 
     private restoredImageProps: ImageProps[] = []
@@ -126,7 +129,9 @@ export class AppRepository {
 
     app$ = this.store.pipe((state) => state)
 
-    showDropzone$ = this.store.pipe(select((state) => state.showDropzone))
+    showDropzone$ = this.store.pipe(select((state) => state.showDropzone));
+
+    tool$ = this.store.pipe(select((state) => state.tool));
 
     active$ = this.store.pipe(selectActiveEntity())
 
@@ -216,6 +221,10 @@ export class AppRepository {
         this.store.update(
             setProp('showDropzone', val)
         )
+    }
+
+    public updateTool(val: tool) {
+        this.store.update(setProp('tool', val));
     }
 
     public updateZoom(id: string, val: number) {
