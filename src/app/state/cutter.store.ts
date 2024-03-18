@@ -231,6 +231,10 @@ export class AppRepository {
         this.store.update(updateEntities(id, (entity) => ({ ...entity, meta: { ...entity.meta, zoom: val, date: new Date() } })))
     }
 
+    public updateName(id: string, val: string) {
+        this.store.update(updateEntities(id, (entity) => ({ ...entity, meta: { ...entity.meta, name: val, date: new Date() } })))
+    }
+
     public updateScroll(id: string, scrollX: number, scrollY: number) {
         this.store.update(updateEntities(id, (entity) => ({ ...entity, meta: { ...entity.meta, scrollX: scrollX, scrollY: scrollY, date: new Date() } })))
     }

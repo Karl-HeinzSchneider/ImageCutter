@@ -1,0 +1,8 @@
+<ng-container *ngIf="active">
+    <div class="container">
+        <div class="spacer"></div>
+        <div class="name flex"></div>
+        <app-toolbar-input-text [name]="'Name:'" [value]="active.meta.name"
+            (valueChange)="onNameChange($event)"></app-toolbar-input-text>
+    </div>
+</ng-container>
