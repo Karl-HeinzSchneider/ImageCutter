@@ -1,3 +1,12 @@
-<ng-container *ngIf="(active$ |async) as active">
-    <app-toolbar-cuts [active]="active"></app-toolbar-cuts>
+<ng-container *ngIf="(tool$ | async) as tool">
+    <ng-container *ngIf="(active$ |async) as active">
+        <ng-container [ngSwitch]="tool">
+            <ng-container *ngSwitchCase="'select'">select</ng-container>
+            <ng-container *ngSwitchCase="'marquee'">marquee</ng-container>
+            <ng-container *ngSwitchCase="'move'">
+                <app-toolbar-cuts [active]="active"></app-toolbar-cuts>
+            </ng-container>
+            <ng-container *ngSwitchCase="'cut'">cut</ng-container>
+        </ng-container>
+    </ng-container>
 </ng-container>
