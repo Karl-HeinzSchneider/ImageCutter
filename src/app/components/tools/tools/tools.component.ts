@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { AppRepository, tool } from '../../../state/cutter.store';
-import { Observable } from 'rxjs';
+import { Observable, combineLatest, map } from 'rxjs';
 import { TooltipModule } from '../../../modules/tooltip/tooltip.module';
 
 @Component({
@@ -14,9 +14,19 @@ import { TooltipModule } from '../../../modules/tooltip/tooltip.module';
 export class ToolsComponent {
 
   tool$: Observable<tool>;
+  moveActive$: Observable<boolean>;
 
   constructor(private store: AppRepository) {
     this.tool$ = store.tool$;
+
+    this.moveActive$ = combineLatest([this.store.active$, this.store.selectedCut$]).pipe(
+      map(([active, selectedCut]) => {
+        if (!active || !selectedCut) {
+          return false;
+        }
+        return true;
+      })
+    )
   }
 
   public toolClicked(tool: tool) {

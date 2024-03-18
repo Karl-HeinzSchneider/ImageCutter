@@ -19,7 +19,7 @@
     cursor: pointer;
 }
 
-.tool:hover {
+.tool:not(.deactivated):hover {
     //margin: 3px;
 
     //border: 1px solid rgba(255, 255, 255, 0.25);
@@ -43,5 +43,11 @@
 
     svg {
         opacity: 0.9;
+    }
+}
+
+.deactivated {
+    svg {
+        opacity: 0.1;
     }
 }

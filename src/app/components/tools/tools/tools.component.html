@@ -4,16 +4,19 @@
         [position]="'right'">
         <ng-container [ngTemplateOutlet]="select"></ng-container>
     </div>
-    <div class="tool" [class.selected]="tool ==='marquee'" (click)="toolClicked('marquee')" [tooltip]="'Marquee(NYI)'"
-        [position]="'right'">
+    <div class="tool deactivated" [class.selected]="tool ==='marquee'" [tooltip]="'Marquee(NYI)'" [position]="'right'">
         <ng-container [ngTemplateOutlet]="marquee"></ng-container>
     </div>
-    <div class="tool" [class.selected]="tool ==='move'" (click)="toolClicked('move')" [tooltip]="'Move'"
-        [position]="'right'">
+
+    <!-- Move -->
+    <div *ngIf="tool ==='move'" class="tool selected" [tooltip]="'Move'" [position]="'right'">
         <ng-container [ngTemplateOutlet]="move"></ng-container>
     </div>
-    <div class="tool" [class.selected]="tool ==='cut'" (click)="toolClicked('cut')" [tooltip]="'Cut'"
-        [position]="'right'">
+    <div *ngIf="tool !='move'" class="tool deactivated" [tooltip]="'Move'" [position]="'right'">
+        <ng-container [ngTemplateOutlet]="move"></ng-container>
+    </div>
+
+    <div class="tool deactivated" [class.selected]="tool ==='cut'" [tooltip]="'Cut'" [position]="'right'">
         <ng-container [ngTemplateOutlet]="cut"></ng-container>
     </div>
 </div>
