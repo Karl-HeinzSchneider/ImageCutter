@@ -3,16 +3,23 @@
     height: 100%;
 
     grid-template-areas:
+        'header'
         'cuts'
         'buttons';
-    grid-template-rows: auto 33px;
+    grid-template-rows: 32px auto 33px;
 }
 
 .cuts {
     grid-area: cuts;
+    overflow-x: hidden;
+    overflow-y: auto;
+    //max-height: 250px;
+    // TODO: better system
+    max-height: calc(100vh - 32px - 48px - 232px - 33px - 261px - 32px - 32px);
 }
 
 .header {
+    grid-area: header;
     background-color: var(--background-subheader);
     height: 32px;
 }
