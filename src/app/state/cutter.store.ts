@@ -289,6 +289,7 @@ export class AppRepository {
             }
             newCut.relative = convertAbsoluteToRelative(newCut.absolute, size)
             newImg.cuts.push(newCut)
+            newImg.meta.tool = 'move';
         }
         else {
             let newCut: ImageCut = {
@@ -364,7 +365,7 @@ export class AppRepository {
         newImg.cuts = img.cuts.filter(x => x.id != cutID)
 
         if (newImg.cuts.length < 1) {
-
+            newImg.meta.tool = 'select';
         }
         else if (oldCut.selected) {
             const nextIndex = Math.max(0, index - 1)
