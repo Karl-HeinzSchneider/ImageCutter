@@ -1,15 +1,14 @@
-import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LayerBoxComponent } from '../layer-box/layer-box.component';
-import { LayersCutComponent } from '../layers-cut/layers-cut.component';
-import { AppRepository, CanvasProps, ImageProps } from '../../../state/cutter.store';
-import { Observable, distinctUntilChanged, from, map, switchMap, tap } from 'rxjs';
+import { Component } from '@angular/core';
+import { Observable, tap } from 'rxjs';
 import { TooltipModule } from '../../../modules/tooltip/tooltip.module';
+import { AppRepository, CanvasProps, ImageProps } from '../../../state/cutter.store';
+import { LayersCutComponent } from '../layers-cut/layers-cut.component';
 
 @Component({
   selector: 'app-layers-cuts',
   standalone: true,
-  imports: [CommonModule, LayerBoxComponent, LayersCutComponent, TooltipModule],
+  imports: [CommonModule, LayersCutComponent, TooltipModule],
   templateUrl: './layers-cuts.component.html',
   styleUrl: './layers-cuts.component.scss'
 })

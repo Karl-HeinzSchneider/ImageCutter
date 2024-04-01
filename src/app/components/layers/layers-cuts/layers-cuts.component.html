@@ -1,15 +1,19 @@
 <div class="container" (click)="bgClicked($event)">
-    <app-layer-box class="cuts" [headerText]="'Cuts'">
-        <ng-container *ngIf="(active$ | async) as active">
-            <ng-container *ngIf="(activeCanvas$ | async) as activeCanvas;else error">
-                <ng-container *ngFor="let cut of active.cuts">
-                    <app-layers-cut [cut]="cut" [activeCanvas]="activeCanvas"></app-layers-cut>
+    <div class="cuts">
+        <div class="header">
+            <div class="header-text prevent-select"> Cuts </div>
+        </div>
+
+        <div class="content">
+            <ng-container *ngIf="(active$ | async) as active">
+                <ng-container *ngIf="(activeCanvas$ | async) as activeCanvas;else error">
+                    <ng-container *ngFor="let cut of active.cuts">
+                        <app-layers-cut [cut]="cut" [activeCanvas]="activeCanvas"></app-layers-cut>
+                    </ng-container>
                 </ng-container>
             </ng-container>
-        </ng-container>
-
-        <!-- <div class="spacer"></div> -->
-    </app-layer-box>
+        </div>
+    </div>
     <div class="buttons">
         <ng-container *ngTemplateOutlet="zoom"></ng-container>
 
