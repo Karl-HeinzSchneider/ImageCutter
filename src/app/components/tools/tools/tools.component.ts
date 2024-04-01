@@ -19,8 +19,9 @@ export class ToolsComponent {
     this.active$ = store.active$;
   }
 
-  public toolClicked(tool: tool) {
+  public toolClicked(id: string, tool: tool) {
     console.log('toolClicked', tool);
     //this.store.updateTool(tool);
+    this.store.selectCut(id, undefined);
   }
 }

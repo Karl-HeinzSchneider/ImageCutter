@@ -1,6 +1,6 @@
 <div class="grid prevent-select" *ngIf="(active$ | async) as active">
     <div class="spacer"></div>
-    <div class="tool" [class.selected]="active.meta.tool ==='select'" (click)="toolClicked('select')"
+    <div class="tool" [class.selected]="active.meta.tool ==='select'" (click)="toolClicked(active.id,'select')"
         [tooltip]="'Select'" [position]="'right'">
         <ng-container [ngTemplateOutlet]="select"></ng-container>
     </div>
