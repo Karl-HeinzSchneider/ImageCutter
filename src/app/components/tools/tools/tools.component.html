@@ -1,24 +1,27 @@
-<div class="grid prevent-select" *ngIf="(tool$ | async) as tool">
+<div class="grid prevent-select" *ngIf="(active$ | async) as active">
     <div class="spacer"></div>
-    <div class="tool" [class.selected]="tool ==='select'" (click)="toolClicked('select')" [tooltip]="'Select'"
-        [position]="'right'">
+    <div class="tool" [class.selected]="active.meta.tool ==='select'" (click)="toolClicked('select')"
+        [tooltip]="'Select'" [position]="'right'">
         <ng-container [ngTemplateOutlet]="select"></ng-container>
     </div>
-    <div class="tool deactivated" [class.selected]="tool ==='marquee'" [tooltip]="'Marquee(NYI)'" [position]="'right'">
+    <div class="tool deactivated" [class.selected]="active.meta.tool ==='marquee'" [tooltip]="'Marquee(NYI)'"
+        [position]="'right'">
         <ng-container [ngTemplateOutlet]="marquee"></ng-container>
     </div>
 
     <!-- Move -->
-    <div *ngIf="tool ==='move'" class="tool selected" [tooltip]="'Move'" [position]="'right'">
+    <div *ngIf="active.meta.tool ==='move'" class="tool selected" [tooltip]="'Move'" [position]="'right'">
         <ng-container [ngTemplateOutlet]="move"></ng-container>
     </div>
-    <div *ngIf="tool !='move'" class="tool deactivated" [tooltip]="'Move'" [position]="'right'">
+    <div *ngIf="active.meta.tool !='move'" class="tool deactivated" [tooltip]="'Move'" [position]="'right'">
         <ng-container [ngTemplateOutlet]="move"></ng-container>
     </div>
 
-    <div class="tool deactivated" [class.selected]="tool ==='cut'" [tooltip]="'Cut'" [position]="'right'">
+    <div class="tool deactivated" [class.selected]="active.meta.tool ==='cut'" [tooltip]="'Cut'" [position]="'right'">
         <ng-container [ngTemplateOutlet]="cut"></ng-container>
     </div>
+
+    {{active.meta.tool}}
 </div>
 
 <ng-template #select>

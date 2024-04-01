@@ -15,10 +15,8 @@ import { ToolbarSelectComponent } from '../toolbar-select/toolbar-select.compone
 export class ToolbarComponent {
 
   active$: Observable<ImageProps | undefined>
-  tool$: Observable<tool>;
 
   constructor(private store: AppRepository) {
     this.active$ = store.active$;
-    this.tool$ = store.tool$;
   }
 }
