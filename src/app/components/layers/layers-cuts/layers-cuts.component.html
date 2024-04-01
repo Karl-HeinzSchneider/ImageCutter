@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container" (click)="bgClicked($event)">
     <app-layer-box class="cuts" [headerText]="'Cuts'">
         <ng-container *ngIf="(active$ | async) as active">
             <ng-container *ngIf="(activeCanvas$ | async) as activeCanvas;else error">

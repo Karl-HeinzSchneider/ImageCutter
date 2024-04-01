@@ -75,4 +75,8 @@ export class LayersCutsComponent {
       this.store.zoomCut(this.active.id, selected)
     }
   }
+
+  bgClicked(e: Event) {
+    console.log('bgClicked', e);
+  }
 }
