@@ -15,6 +15,7 @@
 
 .tabs {
     width: 100%;
+    max-width: calc(100vW - 48px - 64px - 240px);
     display: grid;
     grid-auto-flow: column;
     //grid-template-columns: repeat(6, minmax(100px, 250px)) 64px;
@@ -64,20 +65,6 @@ app-tabs {
     fill: rgba(255, 255, 255, 0.5);
 }
 
-.overflow {
-    width: 64px;
-
-    height: 30px;
-    line-height: 30px;
-
-    -webkit-box-sizing: border-box;
-    /* Safari/Chrome, other WebKit */
-    -moz-box-sizing: border-box;
-    /* Firefox, other Gecko */
-    box-sizing: border-box;
-    /* Opera/IE 8+ */
-}
-
 .adder:hover {
     svg>g>path {
         fill: rgba(255, 255, 255, 0.9);
@@ -92,6 +79,46 @@ app-tabs {
     cursor: default;
     background-color: var(--background-tools);
 }
+
+
+.overflow {
+    width: 64px;
+    border-left: 1px solid rgba(0, 0, 0, .5);
+
+    text-align: center;
+    cursor: pointer;
+
+    height: 30px;
+    line-height: 30px;
+
+    -webkit-box-sizing: border-box;
+    /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;
+    /* Firefox, other Gecko */
+    box-sizing: border-box;
+    /* Opera/IE 8+ */
+    position: absolute;
+
+    right: 0;
+}
+
+.overflow>svg {
+    height: 24px;
+    width: auto;
+    margin-top: 2px;
+}
+
+.overflow>svg>path {
+    fill: rgba(255, 255, 255, 0.5);
+}
+
+.overflow:hover {
+    svg>path {
+        fill: rgba(255, 255, 255, 0.9);
+    }
+}
+
+
 
 
 /* 
