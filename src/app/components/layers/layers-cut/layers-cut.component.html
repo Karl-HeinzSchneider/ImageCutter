@@ -1,14 +1,14 @@
-<div class="container" [class.selected]="cut.selected" (click)="cutClicked()" (mouseenter)="mouseover(true)"
+<div class="container" [class.selected]="cut.selected" (click)="cutClicked($event)" (mouseenter)="mouseover(true)"
     (mouseleave)="mouseover(false)">
     <div class="canvas" #konva>
         <canvas #canvas width="40" height="40"></canvas>
         <!-- <div #konva></div> -->
     </div>
     <div class="main">
-        <div class="title">{{cut.name}}</div>
-        <div class="size">{{cut | cutSize}}</div>
+        <div class="title prevent-select">{{cut.name}}</div>
+        <div class="size prevent-select">{{cut | cutSize}}</div>
     </div>
-    <div class="eye" (click)="eyeClicked()" [tooltip]="'Toggle Visibility'" [position]="'top'">
+    <div class="eye" (click)="eyeClicked($event)" [tooltip]="'Toggle Visibility'" [position]="'top'">
         <ng-container *ngIf="cut.visible; else eyeclosed">
             <ng-container *ngTemplateOutlet="eye"></ng-container>
         </ng-container>

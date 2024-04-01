@@ -76,6 +76,9 @@ export class LayersCutsComponent {
   }
 
   bgClicked(e: Event) {
-    console.log('bgClicked', e);
+    //console.log('bgClicked', e);
+    if (this.active) {
+      this.store.selectCut(this.active.id, undefined)
+    }
   }
 }

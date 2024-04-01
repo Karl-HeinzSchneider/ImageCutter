@@ -96,7 +96,9 @@ export class LayersCutComponent implements OnChanges, AfterViewInit {
     //ctx.fillRect(0, 0, 184, 184)
   }
 
-  cutClicked() {
+  cutClicked(e: Event) {
+    e.preventDefault();
+    e.stopPropagation();
     //console.log('cut clicked', this.activeCanvas.id, this.cut.name)
 
     if (!this.cut.selected) {
@@ -109,7 +111,9 @@ export class LayersCutComponent implements OnChanges, AfterViewInit {
     }
   }
 
-  eyeClicked() {
+  eyeClicked(e: Event) {
+    e.preventDefault();
+    e.stopPropagation();
     //console.log('toggle eye', this.activeCanvas.id, this.cut)
     let newCut: ImageCut = { ...this.cut }
     newCut.visible = !this.cut.visible
