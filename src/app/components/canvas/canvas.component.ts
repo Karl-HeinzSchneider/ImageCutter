@@ -361,9 +361,11 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     })
     layer.add(rect)
 
-    const url = '../../../../assets/img/checkered.png'
+    //const url = '../../../../assets/img/checkered.png'
+    const url = '../assets/img/checkered.png'
+
     const fixedUrl = new URL(url, import.meta.url);
-    console.log(url, fixedUrl.toString());
+    console.log(url, fixedUrl);
 
     const loadImage = (url: string) => {
       return new Promise<HTMLImageElement>((resolve, reject) => {
@@ -375,7 +377,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       })
     }
 
-    const checkered = await loadImage(fixedUrl.toString());
+    const checkered = await loadImage(fixedUrl.href);
 
     for (let i = 0; i < amountX; i++) {
       for (let j = 0; j < amountY; j++) {

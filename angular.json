@@ -27,6 +27,8 @@
             "allowedCommonJsDependencies": ["localforage","konva"],
             "outputPath": "dist/",
             "index": "src/index.html",
+            "baseHref": "/ImageCutter/",
+            "deployUrl": "/ImageCutter",
             "browser": "src/main.ts",
             "polyfills": [
               "zone.js"
