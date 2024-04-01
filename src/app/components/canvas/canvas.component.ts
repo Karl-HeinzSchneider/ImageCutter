@@ -225,7 +225,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    //console.log('ngOnChanges', changes)  
+    //console.log('ngOnChanges', changes)
   }
 
   ngOnDestroy(): void {
@@ -362,7 +362,8 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     layer.add(rect)
 
     const url = '../../../../assets/img/checkered.png'
-    //console.log(url);
+    const fixedUrl = new URL(url, import.meta.url);
+    console.log(url, fixedUrl.toString());
 
     const loadImage = (url: string) => {
       return new Promise<HTMLImageElement>((resolve, reject) => {
@@ -374,7 +375,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       })
     }
 
-    const checkered = await loadImage(url);
+    const checkered = await loadImage(fixedUrl.toString());
 
     for (let i = 0; i < amountX; i++) {
       for (let j = 0; j < amountY; j++) {
@@ -436,7 +437,9 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
         const pointerPos = stageRef.getPointerPosition()
         //console.log('point', pointerPos?.x, pointerPos?.y)
         //console.log('relative', componentRef.getRelativePointerCoords())
-        componentRef.store.selectCut(componentRef.id, undefined)
+        if (componentRef.image.meta.tool != 'select') {
+          componentRef.store.selectCut(componentRef.id, undefined);
+        }
       })
 
       /*  node.on('pointermove', function (e: any) {

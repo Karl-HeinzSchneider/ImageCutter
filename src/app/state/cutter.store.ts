@@ -17,7 +17,7 @@ export type DeepPartial<T> = {
 
 export interface AppProps {
     bestNumber: number,
-    showDropzone: boolean
+    showDropzone: boolean,
 }
 
 export interface ImageProps {
@@ -33,7 +33,8 @@ export interface ImageMeta {
     date: Date,
     zoom: number,
     scrollX: number,
-    scrollY: number
+    scrollY: number,
+    tool: tool
 }
 
 export interface ImageFile {
@@ -72,6 +73,8 @@ export interface relativeCut {
     right: number
 }
 
+export type tool = 'select' | 'marquee' | 'move' | 'cut';
+
 export interface CanvasProps {
     id: string,
     canvas: OffscreenCanvas
@@ -105,6 +108,11 @@ export class AppRepository {
         value.ids.forEach(id => {
             const img = value.entities[id]
             ents.push(img)
+
+            // TODO
+            if (!img.meta.tool) {
+                img.meta.tool = 'select';
+            }
             //this.restoredImageProps.push(img)
         })
 
@@ -126,7 +134,7 @@ export class AppRepository {
 
     app$ = this.store.pipe((state) => state)
 
-    showDropzone$ = this.store.pipe(select((state) => state.showDropzone))
+    showDropzone$ = this.store.pipe(select((state) => state.showDropzone));
 
     active$ = this.store.pipe(selectActiveEntity())
 
@@ -222,6 +230,10 @@ export class AppRepository {
         this.store.update(updateEntities(id, (entity) => ({ ...entity, meta: { ...entity.meta, zoom: val, date: new Date() } })))
     }
 
+    public updateName(id: string, val: string) {
+        this.store.update(updateEntities(id, (entity) => ({ ...entity, meta: { ...entity.meta, name: val, date: new Date() } })))
+    }
+
     public updateScroll(id: string, scrollX: number, scrollY: number) {
         this.store.update(updateEntities(id, (entity) => ({ ...entity, meta: { ...entity.meta, scrollX: scrollX, scrollY: scrollY, date: new Date() } })))
     }
@@ -277,6 +289,7 @@ export class AppRepository {
             }
             newCut.relative = convertAbsoluteToRelative(newCut.absolute, size)
             newImg.cuts.push(newCut)
+            newImg.meta.tool = 'move';
         }
         else {
             let newCut: ImageCut = {
@@ -352,7 +365,7 @@ export class AppRepository {
         newImg.cuts = img.cuts.filter(x => x.id != cutID)
 
         if (newImg.cuts.length < 1) {
-
+            newImg.meta.tool = 'select';
         }
         else if (oldCut.selected) {
             const nextIndex = Math.max(0, index - 1)
@@ -437,6 +450,8 @@ export class AppRepository {
     // }
 
     public selectCut(id: string, cut: ImageCut | undefined) {
+        //console.log('selectCut', id, cut);
+
         const img = this.store.query(getEntity(id));
 
         if (!img || !img.cuts) {
@@ -445,24 +460,26 @@ export class AppRepository {
 
         let newImg: ImageProps = { ...img }
         newImg.cuts = img.cuts.map(x => {
-            let newCut: ImageCut = { ...x }
-            newCut.selected = false
+            let newCut: ImageCut = { ...x };
+            newCut.selected = false;
             return newCut
         })
 
         if (cut) {
-            const index = img.cuts.findIndex(x => x.id === cut.id)
+            const index = img.cuts.findIndex(x => x.id === cut.id);
 
             if (index < 0) {
                 return;
             }
 
-            const oldCut = img.cuts[index]
+            const oldCut = img.cuts[index];
 
-            newImg.cuts[index].selected = true
+            newImg.cuts[index].selected = true;
+            newImg.meta.tool = 'move';
         }
         else {
             // -> deselect all
+            newImg.meta.tool = 'select';
         }
 
         this.store.update(updateEntities(id, (entity) => ({ ...newImg, meta: { ...newImg.meta, date: new Date() } })))
@@ -570,7 +587,8 @@ export class AppRepository {
                     active: true,
                     zoom: 1,
                     scrollX: 0.5,
-                    scrollY: 0.5
+                    scrollY: 0.5,
+                    tool: 'select'
                 },
                 file: f,
                 cuts: []

@@ -1,0 +1,22 @@
+.container {
+    height: 48px;
+    display: grid;
+
+    grid-template-columns: repeat(6, max-content);
+    gap: 4px;
+}
+
+.flex {
+    display: flex;
+    align-items: center;
+}
+
+.spacer {
+    width: calc(48px + 32px);
+    width: 48px;
+}
+
+.border {
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}

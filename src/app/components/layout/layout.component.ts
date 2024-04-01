@@ -8,11 +8,12 @@ import { MainComponent } from '../main/main.component';
 import { DropImageComponent } from '../import/drop-image/drop-image.component';
 import { TabbarComponent } from '../tabbar/tabbar/tabbar.component';
 import { ToolbarComponent } from '../toolbar/toolbar/toolbar.component';
+import { ToolsComponent } from '../tools/tools/tools.component';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, LayersComponent, MainComponent, DropImageComponent, TabbarComponent, ToolbarComponent],
+  imports: [CommonModule, HeaderComponent, LayersComponent, MainComponent, DropImageComponent, TabbarComponent, ToolbarComponent, ToolsComponent],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss'
 })
