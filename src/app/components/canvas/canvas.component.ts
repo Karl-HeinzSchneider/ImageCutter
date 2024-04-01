@@ -1,25 +1,25 @@
-import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AppRepository, ImageCut, ImageFile, ImageMeta, ImageProps } from '../../state/cutter.store';
-import Konva from 'konva';
-import { Stage } from 'konva/lib/Stage';
-import { Layer } from 'konva/lib/Layer';
-import { Vector2d } from 'konva/lib/types';
-import { Box } from 'konva/lib/shapes/Transformer';
-import { NodeConfig } from 'konva/lib/Node';
-import { Subject, debounceTime, takeUntil, throttleTime } from 'rxjs';
-import { Rect, RectConfig } from 'konva/lib/shapes/Rect';
+import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild } from '@angular/core';
 import { getActiveEntity } from '@ngneat/elf-entities';
-import { KeypressService } from '../../state/keypress.service';
-import { TextConfig } from 'konva/lib/shapes/Text';
+import Konva from 'konva';
+import { Layer } from 'konva/lib/Layer';
+import { Stage } from 'konva/lib/Stage';
 import { LabelConfig, TagConfig } from 'konva/lib/shapes/Label';
+import { Rect, RectConfig } from 'konva/lib/shapes/Rect';
+import { TextConfig } from 'konva/lib/shapes/Text';
+import { Vector2d } from 'konva/lib/types';
+import { Subject, asyncScheduler, debounceTime, takeUntil, throttleTime } from 'rxjs';
+import { AppRepository, ImageCut, ImageFile, ImageProps } from '../../state/cutter.store';
 import { convertAbsoluteToRelative } from '../../state/global.helper';
+import { KeypressService } from '../../state/keypress.service';
+import { CanvasInfoComponent } from './canvas-info/canvas-info.component';
+import { CanvasService } from './canvas.service';
 
 
 @Component({
   selector: 'app-canvas',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CanvasInfoComponent],
   templateUrl: './canvas.component.html',
   styleUrl: './canvas.component.scss'
 })
@@ -68,6 +68,8 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
   private scrollUpdater = new Subject<Vector2d>;
   private scrollHandler: (e: Event) => void;
 
+  private pointerCoordsUpdater = new Subject<Vector2d | null>;
+
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
     //console.log('OnResize')
@@ -77,7 +79,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     this.updateBGPosition()
   }
 
-  constructor(private store: AppRepository, private keypressService: KeypressService) {
+  constructor(private store: AppRepository, private keypressService: KeypressService, private canvasService: CanvasService) {
     console.log('constructor')
     //this.initSubs()
 
@@ -167,11 +169,27 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     })
 
     // mouseover Cut
-    this.store.mouseoverCutID$.pipe(takeUntil(this.destroy$)).subscribe(id => {
+    this.canvasService.mouseoverCutID$.pipe(takeUntil(this.destroy$)).subscribe(id => {
       // console.log('MouseoverCutID', id)
       this.mouseoverCutID = id;
 
       this.updateMouseoverCut()
+    })
+
+    // pointerCoordsUpdater
+    const pointerCoordsThrottle = 25;
+    this.pointerCoordsUpdater.pipe(
+      throttleTime(pointerCoordsThrottle, asyncScheduler, { leading: true, trailing: true }),
+      takeUntil(this.destroy$)
+    ).subscribe(coords => {
+      //console.log('pointerCoordsUpdater', coords);
+      // this.canvasService.updateMouseoverCoords(coords);
+      let relCoords = this.getRelativePointerCoords();
+      if (relCoords) {
+        relCoords.x = Math.round(relCoords.x);
+        relCoords.y = Math.round(relCoords.y);
+      }
+      this.canvasService.updateMouseoverCoords(relCoords);
     })
 
     // key down repeat
@@ -207,7 +225,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    //console.log('ngOnChanges', changes)  
+    //console.log('ngOnChanges', changes)
   }
 
   ngOnDestroy(): void {
@@ -275,6 +293,23 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       const event = e.evt;
       componentRef.onMouseWheel(event);
     })
+
+    this.stage.on('pointermove', function (e: any) {
+      // console.log(e);
+      //componentRef.updatePointerCoords();
+      //console.log('pointermove stage', componentRef.getRelativePointerCoords());
+      componentRef.updatePointerCoords()
+    })
+
+    this.stage.on('pointerleave', function (e: any) {
+      // console.log('pointerleave');
+
+    })
+  }
+
+  public leave() {
+    //console.log('pointerleave');
+    this.updatePointerCoords()
   }
 
   private resizeStage() {
@@ -327,7 +362,8 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     layer.add(rect)
 
     const url = '../../../../assets/img/checkered.png'
-    //console.log(url);
+    const fixedUrl = new URL(url, import.meta.url);
+    console.log(url, fixedUrl.toString());
 
     const loadImage = (url: string) => {
       return new Promise<HTMLImageElement>((resolve, reject) => {
@@ -339,7 +375,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       })
     }
 
-    const checkered = await loadImage(url);
+    const checkered = await loadImage(fixedUrl.toString());
 
     for (let i = 0; i < amountX; i++) {
       for (let j = 0; j < amountY; j++) {
@@ -401,9 +437,22 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
         const pointerPos = stageRef.getPointerPosition()
         //console.log('point', pointerPos?.x, pointerPos?.y)
         //console.log('relative', componentRef.getRelativePointerCoords())
-        componentRef.store.selectCut(componentRef.id, undefined)
+        if (componentRef.image.meta.tool != 'select') {
+          componentRef.store.selectCut(componentRef.id, undefined);
+        }
       })
 
+      /*  node.on('pointermove', function (e: any) {
+         //console.log(e);
+         componentRef.updatePointerCoords();
+       }) */
+
+      /*     node.on('pointerleave', function (e: any) {
+            //console.log(e);
+            componentRef.updatePointerCoords({ x: -1, y: -1 });
+            //console.log('pointerleave');
+          })
+     */
       layerBG.add(node)
     })
 
@@ -421,9 +470,56 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       return null
     }
     else {
-      const relPos = this.bgImageRef.getRelativePointerPosition()
+      let relPos = this.bgImageRef.getRelativePointerPosition()
+      //console.log(relPos);
+      if (!relPos) {
+        return null
+      }
+
+      relPos.x = Math.ceil(relPos.x);
+      relPos.y = Math.ceil(relPos.y);
+
+      if (relPos.x <= 0 || relPos.x > this.image.file.width || relPos.y <= 0 || relPos.y > this.image.file.height) {
+        return null;
+      }
+      //console.log(relPos);
       return relPos;
     }
+  }
+
+  public updatePointerCoords(setCoords?: Vector2d) {
+    this.pointerCoordsUpdater.next(null);
+    return;
+
+    /* let coords: Vector2d = { x: -1, y: -1 };
+    //console.log('setCoords', setCoords);
+    if (1 + 1 === 2) {
+      this.pointerCoordsUpdater.next(null);
+
+      return;
+    }
+
+    if (setCoords) {
+      coords.x = Math.round(setCoords.x);
+      coords.y = Math.round(setCoords.y);
+
+      this.canvasService.updateMouseoverCoords(coords);
+    }
+    else {
+      const relCoords = this.getRelativePointerCoords();
+
+      if (!relCoords) {
+        //this.canvasService.updateMouseoverCoords(null);
+        this.pointerCoordsUpdater.next(null);
+
+        return;
+      }
+
+      coords.x = Math.round(relCoords.x);
+      coords.y = Math.round(relCoords.y);
+
+      this.pointerCoordsUpdater.next(coords);
+    } */
   }
 
   private updateScale() {
@@ -622,6 +718,16 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       componentRef.updateCursor('default')
     })
 
+    /*   rect.on('pointermove', function (e: any) {
+        // console.log(e);
+        componentRef.updatePointerCoords();
+      }) */
+
+    /* rect.on('pointerleave', function (e: any) {
+      //console.log(e);
+      componentRef.updatePointerCoords({ x: -1, y: -1 });
+      //console.log('pointerleave');
+    }) */
 
     rect.on('dragmove', function () {
       //console.log('dragmove')
@@ -1000,6 +1106,17 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
           componentRef.onRectPointerClick(cut)
         })
 
+        /*      rect.on('pointermove', function (e: any) {
+               // console.log(e);
+               componentRef.updatePointerCoords();
+             }) */
+
+        /*    rect.on('pointerleave', function (e: any) {
+             //console.log(e);
+             componentRef.updatePointerCoords({ x: -1, y: -1 });
+             //console.log('pointerleave');
+           })
+    */
         layer.add(rect)
       }
     })

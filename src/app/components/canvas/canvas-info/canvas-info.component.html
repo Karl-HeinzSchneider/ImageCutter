@@ -1,0 +1,4 @@
+<div class="container" *ngIf="(active$ | async) as active">
+    <p> w: {{active.file.width}}, h: {{active.file.height}}, z: {{active.meta.zoom | percent}} </p>
+    <p *ngIf="(mouseoverCoords$ | async) as coords"> x: {{coords.x}}, y: {{coords.y}}</p>
+</div>

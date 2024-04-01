@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, Input, OnChanges, Pipe, PipeTransform, SimpleChanges, ViewChild } from '@angular/core';
 import { AppRepository, CanvasProps, ImageCut } from '../../../state/cutter.store';
 import { TooltipModule } from '../../../modules/tooltip/tooltip.module';
+import { CanvasService } from '../../canvas/canvas.service';
 
 @Pipe({ name: 'cutSize', standalone: true })
 export class cutSizePipe implements PipeTransform {
@@ -22,7 +23,7 @@ export class LayersCutComponent implements OnChanges, AfterViewInit {
   @Input() cut!: ImageCut;
   @Input() activeCanvas!: CanvasProps;
 
-  constructor(private store: AppRepository) {
+  constructor(private store: AppRepository, private canvasService: CanvasService) {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -95,7 +96,9 @@ export class LayersCutComponent implements OnChanges, AfterViewInit {
     //ctx.fillRect(0, 0, 184, 184)
   }
 
-  cutClicked() {
+  cutClicked(e: Event) {
+    e.preventDefault();
+    e.stopPropagation();
     //console.log('cut clicked', this.activeCanvas.id, this.cut.name)
 
     if (!this.cut.selected) {
@@ -108,7 +111,9 @@ export class LayersCutComponent implements OnChanges, AfterViewInit {
     }
   }
 
-  eyeClicked() {
+  eyeClicked(e: Event) {
+    e.preventDefault();
+    e.stopPropagation();
     //console.log('toggle eye', this.activeCanvas.id, this.cut)
     let newCut: ImageCut = { ...this.cut }
     newCut.visible = !this.cut.visible
@@ -119,6 +124,6 @@ export class LayersCutComponent implements OnChanges, AfterViewInit {
   mouseover(over: boolean) {
     //console.log('mouseover', this.cut.name, over)
     const id = over ? this.cut.id : ''
-    this.store.updateMouseoverCutID(id)
+    this.canvasService.updateMouseoverCutID(id);
   }
 }

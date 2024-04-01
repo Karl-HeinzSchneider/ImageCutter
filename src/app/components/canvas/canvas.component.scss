@@ -18,6 +18,12 @@
     left: calc(48px + 24px);
 }
 
+.info {
+    position: absolute;
+    left: 48px;
+    bottom: 0px;
+}
+
 .checkered-box {
     position: absolute;
     top: calc(32px + 48px + 32px + 24px);

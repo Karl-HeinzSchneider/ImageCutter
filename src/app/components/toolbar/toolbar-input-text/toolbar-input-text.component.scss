@@ -1,0 +1,84 @@
+.flex {
+    display: flex;
+    align-items: center;
+}
+
+.border {
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+// name
+
+.name {
+    height: 48px;
+}
+
+.name-box {
+    box-sizing: border-box;
+    height: 26px;
+    width: 128px;
+
+    background-color: var(--background-header);
+    color: rgba(255, 255, 255, 0.5);
+
+    text-align: right;
+    vertical-align: middle;
+
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+.name-box>input {
+    width: 96px;
+
+    padding: 1px 6px 1px 6px;
+    margin: 0;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+.pencil {
+    height: 16px;
+    width: 16px;
+
+    margin-left: 4px;
+    // margin-right: 4px;
+
+    // opacity: 0;
+}
+
+.hide {
+    opacity: 0;
+}
+
+input {
+    padding: 1px 6px 1px 6px;
+    margin: 0;
+
+    color: rgba(255, 255, 255, 0.5);
+    text-align: right;
+
+    background: none;
+    border: 0;
+    border-radius: 0;
+}
+
+input:hover {
+    color: rgba(255, 255, 255, 0.9)
+}
+
+input:focus {
+    color: rgba(255, 255, 255, 0.9)
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    margin-left: 4px;
+}
+
+input:focus {
+    outline: none;
+}
