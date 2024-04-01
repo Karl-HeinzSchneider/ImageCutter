@@ -1,9 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TabsComponent } from '../tabs/tabs.component';
 import { AppRepository, ImageProps } from '../../../state/cutter.store';
-import { Observable, map } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, distinctUntilChanged, map, shareReplay } from 'rxjs';
 
+export interface tabArrays {
+  tabs: ImageProps[],
+  overflow: ImageProps[]
+}
 @Component({
   selector: 'app-tabbar',
   standalone: true,
@@ -17,6 +21,17 @@ export class TabbarComponent {
   activeID$: Observable<string>;
   imagesOpen$: Observable<ImageProps[]>;
 
+
+  private maxTabs: BehaviorSubject<number> = new BehaviorSubject(4);
+  public maxTabs$ = this.maxTabs.pipe(distinctUntilChanged(), shareReplay());
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event) {
+    this.updateSize()
+  }
+
+  tabs$: Observable<tabArrays>;
+
   constructor(private store: AppRepository) {
     this.active$ = store.active$;
     this.imagesOpen$ = store.imagesOpen$;
@@ -29,9 +44,65 @@ export class TabbarComponent {
         return '-1'
       }
     }))
+
+    this.updateSize();
+
+    this.tabs$ = combineLatest([this.imagesOpen$, this.maxTabs$, this.activeID$]).pipe(map(([images, maxTabs, activeID]) => {
+
+      let tabs: ImageProps[] = [];
+      let overflow: ImageProps[] = []
+
+      const tabsToShow = maxTabs - 1;
+
+      if (tabsToShow < 1 || activeID === '-1') {
+        overflow = images;
+        //console.log(tabs, overflow);
+        return { tabs: tabs, overflow: overflow }
+      }
+
+      tabs = images.slice(0, tabsToShow);
+      overflow = images.slice(tabsToShow);
+
+      //check if active images is in there
+      const active = tabs.find(x => x.id === activeID);
+
+      if (!active) {
+        const realActive = overflow.find(x => x.id === activeID)!;
+
+        const pop = tabs.pop()!;
+        tabs.push(realActive);
+
+        const overflowWithoutActive = overflow.filter(x => x.id != activeID);
+
+        overflow = [pop, ...overflowWithoutActive];
+      }
+
+      //console.log(images, maxTabs, activeID);
+      //console.log(tabs, overflow);
+
+      return { tabs: tabs, overflow: overflow }
+    }))
   }
 
   onClick() {
     this.store.setActiveImage('-1')
+  }
+
+  updateSize() {
+    const innerW = window.innerWidth
+
+    const space = innerW - 48 - 240;
+
+    //console.log('tabbarSpace:', space);
+
+    // fixed min tabsize = 64px
+    const minSize = 128;
+
+    const tabs = Math.floor(space / minSize);
+
+    //console.log('tabs', tabs);
+
+    this.maxTabs.next(tabs);
+
   }
 }

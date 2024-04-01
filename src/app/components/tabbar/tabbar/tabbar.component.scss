@@ -15,11 +15,11 @@
 
 .tabs {
     width: 100%;
-    max-width: calc(100vW - 48px - 64px - 240px);
+    max-width: calc(100vW - 48px - 240px);
     display: grid;
     grid-auto-flow: column;
     //grid-template-columns: repeat(6, minmax(100px, 250px)) 64px;
-    grid-auto-columns: minmax(64px, 250px);
+    grid-auto-columns: minmax(128px, 250px);
 }
 
 .tabs-drop {

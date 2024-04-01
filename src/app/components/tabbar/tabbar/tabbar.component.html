@@ -1,8 +1,8 @@
 <div class="container">
     <div class="tabs">
         <ng-container *ngIf="(activeID$ |async) as activeID">
-            <ng-container *ngIf="(imagesOpen$ |async) as imagesOpen">
-                <ng-container *ngFor="let im of imagesOpen">
+            <ng-container *ngIf="(tabs$ |async) as tabs">
+                <ng-container *ngFor="let im of tabs.tabs">
                     <app-tabs [image]="im" [selected]="im.id === activeID"></app-tabs>
                 </ng-container>
             </ng-container>
