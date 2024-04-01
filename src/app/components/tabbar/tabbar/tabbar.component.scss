@@ -119,6 +119,33 @@ app-tabs {
 }
 
 
+.context {
+    position: absolute;
+    right: 0;
+    top: 32px;
+    width: 160px;
+
+    background-color: rgba(0, 0, 0, 0.95);
+    z-index: 69;
+}
+
+
+.entry {
+    font-size: 14px;
+    padding: 4px;
+
+    cursor: pointer;
+}
+
+.entry:hover {
+    background-color: var(--accent);
+}
+
+.spacer {
+    height: 8px;
+}
+
+
 
 
 /* 

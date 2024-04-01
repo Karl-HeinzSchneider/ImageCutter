@@ -32,6 +32,9 @@ export class TabbarComponent {
 
   tabs$: Observable<tabArrays>;
 
+  showContext: boolean = false;
+
+
   constructor(private store: AppRepository) {
     this.active$ = store.active$;
     this.imagesOpen$ = store.imagesOpen$;
@@ -104,5 +107,23 @@ export class TabbarComponent {
 
     this.maxTabs.next(tabs);
 
+  }
+
+  onClickContext(e: Event) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.showContext = !this.showContext;
+  }
+
+  onMouseLeave() {
+    this.showContext = false;
+  }
+
+  onSelect(e: Event, img: ImageProps) {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('onSelect', img);
+
+    this.store.setActiveImage(img.id);
   }
 }
