@@ -225,7 +225,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    //console.log('ngOnChanges', changes)  
+    //console.log('ngOnChanges', changes)
   }
 
   ngOnDestroy(): void {
@@ -436,7 +436,9 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
         const pointerPos = stageRef.getPointerPosition()
         //console.log('point', pointerPos?.x, pointerPos?.y)
         //console.log('relative', componentRef.getRelativePointerCoords())
-        componentRef.store.selectCut(componentRef.id, undefined)
+        if (componentRef.image.meta.tool != 'select') {
+          componentRef.store.selectCut(componentRef.id, undefined);
+        }
       })
 
       /*  node.on('pointermove', function (e: any) {

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { AppRepository, tool } from '../../../state/cutter.store';
+import { AppRepository, ImageProps, tool } from '../../../state/cutter.store';
 import { Observable, combineLatest, map } from 'rxjs';
 import { TooltipModule } from '../../../modules/tooltip/tooltip.module';
 
@@ -13,23 +13,14 @@ import { TooltipModule } from '../../../modules/tooltip/tooltip.module';
 })
 export class ToolsComponent {
 
-  tool$: Observable<tool>;
-  moveActive$: Observable<boolean>;
+  active$: Observable<ImageProps | undefined>;
 
   constructor(private store: AppRepository) {
-    this.tool$ = store.tool$;
-
-    this.moveActive$ = combineLatest([this.store.active$, this.store.selectedCut$]).pipe(
-      map(([active, selectedCut]) => {
-        if (!active || !selectedCut) {
-          return false;
-        }
-        return true;
-      })
-    )
+    this.active$ = store.active$;
   }
 
   public toolClicked(tool: tool) {
-    this.store.updateTool(tool);
+    console.log('toolClicked', tool);
+    //this.store.updateTool(tool);
   }
 }
