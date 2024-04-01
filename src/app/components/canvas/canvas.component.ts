@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild, isDevMode } from '@angular/core';
 import { getActiveEntity } from '@ngneat/elf-entities';
 import Konva from 'konva';
 import { Layer } from 'konva/lib/Layer';
@@ -361,11 +361,18 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
     })
     layer.add(rect)
 
+    // WORKAROUND: import.meta.url not using correct url -> "forgets" /ImageCutter/ when creating asset url
     //const url = '../../../../assets/img/checkered.png'
-    const url = '../assets/img/checkered.png'
-
-    const fixedUrl = new URL(url, import.meta.url);
-    console.log(url, fixedUrl);
+    let url: string = '';
+    if (isDevMode()) {
+      console.log('DEVMODE');
+      url = '../assets/img/checkered.png';
+      url = new URL(url, import.meta.url).href;
+    }
+    else {
+      console.log('NO DEVMODE');
+      url = 'https://karl-heinzschneider.github.io/ImageCutter/assets/img/checkered.png'
+    }
 
     const loadImage = (url: string) => {
       return new Promise<HTMLImageElement>((resolve, reject) => {
@@ -377,7 +384,7 @@ export class CanvasComponent implements OnChanges, AfterViewInit, OnDestroy {
       })
     }
 
-    const checkered = await loadImage(fixedUrl.href);
+    const checkered = await loadImage(url);
 
     for (let i = 0; i < amountX; i++) {
       for (let j = 0; j < amountY; j++) {
