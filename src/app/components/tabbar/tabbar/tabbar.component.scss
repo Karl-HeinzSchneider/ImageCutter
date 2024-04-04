@@ -1,15 +1,25 @@
 .container {
     width: 100%;
-
+    height: 32px;
     border: 1px solid rgba(0, 0, 0, .5);
+
+    position: relative;
+
+    -webkit-box-sizing: border-box;
+    /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;
+    /* Firefox, other Gecko */
+    box-sizing: border-box;
+    /* Opera/IE 8+ */
 }
 
 .tabs {
     width: 100%;
+    max-width: calc(100vW - 48px - 128px - 240px);
     display: grid;
     grid-auto-flow: column;
     //grid-template-columns: repeat(6, minmax(100px, 250px)) 64px;
-    grid-auto-columns: minmax(64px, 250px);
+    grid-auto-columns: minmax(128px, 250px);
 }
 
 .tabs-drop {
@@ -22,19 +32,37 @@ app-tabs {
     //flex-shrink: 1;
 
     border-right: 1px solid rgba(0, 0, 0, .5);
+
+    -webkit-box-sizing: border-box;
+    /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;
+    /* Firefox, other Gecko */
+    box-sizing: border-box;
+    /* Opera/IE 8+ */
 }
 
 .adder {
     width: 64px;
-    border-right: 1px solid rgba(0, 0, 0, .5);
+    border-left: 1px solid rgba(0, 0, 0, .5);
     text-align: center;
     cursor: pointer;
+
+    -webkit-box-sizing: border-box;
+    /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;
+    /* Firefox, other Gecko */
+    box-sizing: border-box;
+    /* Opera/IE 8+ */
+
+    position: absolute;
+
+    right: 64px;
 }
 
 .adder>svg {
     height: 24px;
     width: auto;
-    margin-top: 4px;
+    margin-top: 2px;
 }
 
 .adder>svg>g>path {
@@ -55,6 +83,81 @@ app-tabs {
     cursor: default;
     background-color: var(--background-tools);
 }
+
+
+.overflow {
+    width: 64px;
+    border-left: 1px solid rgba(0, 0, 0, .5);
+
+    text-align: center;
+    cursor: pointer;
+
+    height: 30px;
+    line-height: 30px;
+
+    -webkit-box-sizing: border-box;
+    /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;
+    /* Firefox, other Gecko */
+    box-sizing: border-box;
+    /* Opera/IE 8+ */
+    position: absolute;
+
+    right: 0;
+}
+
+.overflow>svg {
+    height: 24px;
+    width: auto;
+    margin-top: 2px;
+}
+
+.overflow>svg>path {
+    fill: rgba(255, 255, 255, 0.5);
+}
+
+.overflow:hover {
+    svg>path {
+        fill: rgba(255, 255, 255, 0.9);
+    }
+}
+
+.overflow.inactive {
+    cursor: default;
+
+    svg {
+        opacity: 0.1;
+    }
+}
+
+
+.context {
+    position: absolute;
+    right: 0;
+    top: 32px;
+    width: 160px;
+
+    background-color: rgba(0, 0, 0, 0.95);
+    z-index: 69;
+}
+
+
+.entry {
+    font-size: 14px;
+    padding: 4px;
+
+    cursor: pointer;
+}
+
+.entry:hover {
+    background-color: var(--accent);
+}
+
+.spacer {
+    height: 8px;
+}
+
+
 
 
 /* 
