@@ -15,7 +15,7 @@
 
 .tabs {
     width: 100%;
-    max-width: calc(100vW - 48px - 240px);
+    max-width: calc(100vW - 48px - 128px - 240px);
     display: grid;
     grid-auto-flow: column;
     //grid-template-columns: repeat(6, minmax(100px, 250px)) 64px;
@@ -43,7 +43,7 @@ app-tabs {
 
 .adder {
     width: 64px;
-    border-right: 1px solid rgba(0, 0, 0, .5);
+    border-left: 1px solid rgba(0, 0, 0, .5);
     text-align: center;
     cursor: pointer;
 
@@ -53,6 +53,10 @@ app-tabs {
     /* Firefox, other Gecko */
     box-sizing: border-box;
     /* Opera/IE 8+ */
+
+    position: absolute;
+
+    right: 64px;
 }
 
 .adder>svg {
@@ -115,6 +119,14 @@ app-tabs {
 .overflow:hover {
     svg>path {
         fill: rgba(255, 255, 255, 0.9);
+    }
+}
+
+.overflow.inactive {
+    cursor: default;
+
+    svg {
+        opacity: 0.1;
     }
 }
 
