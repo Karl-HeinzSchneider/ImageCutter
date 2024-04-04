@@ -40,12 +40,10 @@ export class TabbarComponent {
     this.imagesOpen$ = store.imagesOpen$;
 
     this.activeID$ = store.active$.pipe(map(prop => {
-      if (prop) {
-        return prop.id
-      }
-      else {
+      if (!prop) {
         return '-1'
       }
+      return prop.id
     }))
 
     this.updateSize();
@@ -57,14 +55,16 @@ export class TabbarComponent {
 
       const tabsToShow = maxTabs - 1;
 
-      if (tabsToShow < 1 || activeID === '-1') {
-        overflow = images;
-        //console.log(tabs, overflow);
-        return { tabs: tabs, overflow: overflow }
-      }
-
       tabs = images.slice(0, tabsToShow);
       overflow = images.slice(tabsToShow);
+
+      if (tabsToShow < 1) {
+        //console.log(tabs, overflow);
+        return { tabs: [], overflow: images }
+      }
+      else if (activeID === '-1') {
+        return { tabs: tabs, overflow: overflow }
+      }
 
       //check if active images is in there
       const active = tabs.find(x => x.id === activeID);
