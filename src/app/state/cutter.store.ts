@@ -56,7 +56,7 @@ export interface ImageFile {
     height: number
 } */
 
-const absoluteCutZod = z.object({
+export const absoluteCutZod = z.object({
     x: z.number(),
     y: z.number(),
     width: z.number(),
@@ -71,7 +71,7 @@ export type absoluteCut = z.infer<typeof absoluteCutZod>;
     right: number
 } */
 
-const relativeCutZod = z.object({
+export const relativeCutZod = z.object({
     top: z.number(),
     bottom: z.number(),
     left: z.number(),
@@ -91,7 +91,7 @@ export interface ImageCut {
     relative: relativeCut
 } */
 
-const imageCutZod = z.object({
+export const imageCutZod = z.object({
     id: z.string(),
     name: z.string(),
     visible: z.boolean(),
