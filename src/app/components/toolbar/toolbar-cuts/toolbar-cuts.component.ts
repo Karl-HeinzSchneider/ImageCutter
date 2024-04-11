@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AppRepository, ImageCut, ImageProps } from '../../../state/cutter.store';
+import { AppRepository, ImageCut, ImageProps, imageCutZod } from '../../../state/cutter.store';
 import { convertAbsoluteToRelative, convertRelativeToAbsolute } from '../../../state/global.helper';
 import { Vector2d } from 'konva/lib/types';
 import { TooltipModule } from '../../../modules/tooltip/tooltip.module';
@@ -148,11 +148,20 @@ export class ToolbarCutsComponent {
     //console.log('pasteEvent', e);
 
     window.navigator.clipboard.readText().then(str => {
-      console.log('paste', str);
-    }).catch(error => {
-      console.log('Paste Error', error);
-      console.error(error);
+      //console.log('paste', str);
 
+      const strJson = JSON.parse(str);
+      const parsed = imageCutZod.safeParse(strJson)
+
+      if (parsed.success) {
+        console.log('parse success!');
+      }
+      else {
+        console.error('Paste from Clipboard Error', parsed.error);
+      }
+
+    }).catch(error => {
+      console.error(error);
     });
   }
 
