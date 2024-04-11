@@ -6,6 +6,7 @@ import { convertAbsoluteToRelative, convertRelativeToAbsolute } from '../../../s
 import { Vector2d } from 'konva/lib/types';
 import { TooltipModule } from '../../../modules/tooltip/tooltip.module';
 import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard'
+import { ImageCutResult, ImageCutterResult } from '../../layers/exporter/exporter.component';
 
 @Component({
   selector: 'app-toolbar-cuts',
@@ -22,8 +23,74 @@ export class ToolbarCutsComponent {
 
   selectedCut$: Observable<ImageCut | undefined>
 
+  private worker: Worker;
+
+
   constructor(private store: AppRepository, private clipboard: Clipboard) {
     this.selectedCut$ = store.selectedCut$;
+    this.worker = new Worker(new URL('../../../worker/image-cutter.worker', import.meta.url))
+
+    this.handleWorker()
+  }
+
+  private handleWorker() {
+    this.worker.addEventListener('message', ({ data }) => {
+      console.log('Worker finished', data)
+
+      const cutterResult: ImageCutterResult = data
+      //console.log(data);
+      if (cutterResult.result[0]) {
+        const result: ImageCutResult = cutterResult.result[0];
+        const dataURL = result.dataURL;
+        //window.open(dataURL)
+        //console.log('result url:', dataURL);
+
+        const newTab = window.open();
+        if (newTab) {
+          const cut = result.cut;
+
+          const doc = newTab.document;
+          const head = doc.head;
+          const newBody = doc.body;
+
+          newBody.style.margin = '0';
+
+          doc.title = `ImageCutter: ${cut.name} | w:${cut.absolute.width} h:${cut.absolute.height} | id: ${cut.id}`;
+
+          const newHTML = `
+          <div  style="
+            align-items: center;
+            display: flex;
+            justify-content: center;
+            height: 100%;
+            width: 100%;
+            background-color: #171719;
+          ">
+            <div  style="
+              display: flex;
+              flex-direction: column;
+              gap: 4px;
+            ">
+              <img src="${dataURL}" width="${cut.absolute.width}px" height="${cut.absolute.height}px" style="margin: auto;">
+              <a 
+              style="color: #00A5A5; margin-left: auto"
+              href=${dataURL} download="${cut.name}.png">download</a>
+            </div>
+          </div>
+          `
+
+          newBody.innerHTML = newHTML
+        }
+      }
+    })
+  }
+
+  openCutInNewTab(cut: ImageCut) {
+    this.worker.postMessage({
+      active: this.active,
+      cuts: [cut],
+      options: {}
+    })
   }
 
   inputChange(e: Event, varName: string, cut: ImageCut) {

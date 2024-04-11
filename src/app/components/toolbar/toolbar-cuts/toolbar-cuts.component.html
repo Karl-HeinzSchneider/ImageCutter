@@ -84,7 +84,7 @@
                 <ng-container *ngTemplateOutlet="copyToClipboard"></ng-container>
             </div>
 
-            <div class="btn" [tooltip]="'Open In New Tab'" [position]="'top'">
+            <div class="btn" (click)="openCutInNewTab(selected)" [tooltip]="'Open In New Tab'" [position]="'top'">
                 <ng-container *ngTemplateOutlet="export"></ng-container>
             </div>
 
