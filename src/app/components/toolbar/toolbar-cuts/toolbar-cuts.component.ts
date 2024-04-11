@@ -140,6 +140,31 @@ export class ToolbarCutsComponent {
     this.store.updateCut(this.active.id, newCut)
   }
 
+  removerClicked() {
+    if (!this.active) {
+      return;
+    }
+    console.log('Remover', this.active)
+
+    const selected = this.active.cuts?.find(x => x.selected)
+
+    if (this.active.cuts && selected) {
+      this.store.removeCut(this.active.id, selected.id)
+    }
+  }
+
+  duplicateClicked() {
+    if (this.active) {
+      console.log('Duplicate')
+
+      const selected = this.active.cuts?.find(x => x.selected)
+
+      if (this.active.cuts && selected) {
+        this.store.duplicateCut(this.active.id, selected.id)
+      }
+    }
+  }
+
   public stringifyCut(cut: ImageCut): string {
     return JSON.stringify(cut);
   }

@@ -90,10 +90,10 @@
 
             <div class="buttons-spacer"></div>
 
-            <div class="btn" [tooltip]="'Duplicate Cut'" [position]="'top'">
+            <div class="btn" (click)="duplicateClicked()" [tooltip]="'Duplicate Cut'" [position]="'top'">
                 <ng-container *ngTemplateOutlet="duplicate"></ng-container>
             </div>
-            <div class="btn" [tooltip]="'Remove Cut'" [position]="'top'">
+            <div class="btn" (click)="removerClicked()" [tooltip]="'Remove Cut'" [position]="'top'">
                 <ng-container *ngTemplateOutlet="remove"></ng-container>
             </div>
         </div>
