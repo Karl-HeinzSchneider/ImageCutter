@@ -5,11 +5,12 @@ import { AppRepository, ImageCut, ImageProps } from '../../../state/cutter.store
 import { convertAbsoluteToRelative, convertRelativeToAbsolute } from '../../../state/global.helper';
 import { Vector2d } from 'konva/lib/types';
 import { TooltipModule } from '../../../modules/tooltip/tooltip.module';
+import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard'
 
 @Component({
   selector: 'app-toolbar-cuts',
   standalone: true,
-  imports: [CommonModule, TooltipModule],
+  imports: [CommonModule, TooltipModule, ClipboardModule],
   templateUrl: './toolbar-cuts.component.html',
   styleUrl: './toolbar-cuts.component.scss'
 })
@@ -21,7 +22,7 @@ export class ToolbarCutsComponent {
 
   selectedCut$: Observable<ImageCut | undefined>
 
-  constructor(private store: AppRepository) {
+  constructor(private store: AppRepository, private clipboard: Clipboard) {
     this.selectedCut$ = store.selectedCut$;
   }
 
@@ -137,5 +138,25 @@ export class ToolbarCutsComponent {
     newCut.type = abs ? 'absolute' : 'relative';
 
     this.store.updateCut(this.active.id, newCut)
+  }
+
+  public stringifyCut(cut: ImageCut): string {
+    return JSON.stringify(cut);
+  }
+
+  public async paste(e: Event) {
+    //console.log('pasteEvent', e);
+
+    window.navigator.clipboard.readText().then(str => {
+      console.log('paste', str);
+    }).catch(error => {
+      console.log('Paste Error', error);
+      console.error(error);
+
+    });
+  }
+
+  test(cut: ImageCut) {
+
   }
 }
