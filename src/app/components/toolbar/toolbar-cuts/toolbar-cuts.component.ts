@@ -4,11 +4,12 @@ import { Observable } from 'rxjs';
 import { AppRepository, ImageCut, ImageProps } from '../../../state/cutter.store';
 import { convertAbsoluteToRelative, convertRelativeToAbsolute } from '../../../state/global.helper';
 import { Vector2d } from 'konva/lib/types';
+import { TooltipModule } from '../../../modules/tooltip/tooltip.module';
 
 @Component({
   selector: 'app-toolbar-cuts',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TooltipModule],
   templateUrl: './toolbar-cuts.component.html',
   styleUrl: './toolbar-cuts.component.scss'
 })

@@ -167,3 +167,41 @@ input::-webkit-inner-spin-button {
 input:focus {
     outline: none;
 }
+
+// buttons
+
+.buttons {
+    height: 48px;
+    display: flex;
+    flex-direction: row;
+    //display: grid;
+    // grid-template-columns: repeat(5, 32px);
+
+    //justify-content: end;
+    gap: 4px;
+}
+
+.buttons-spacer {
+    cursor: default;
+    width: 24px;
+}
+
+.btn {
+    width: 32px;
+    height: 48px;
+    align-items: center;
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+.btn:hover {
+    opacity: 1;
+}
+
+.btn>svg {
+    margin-left: 6px;
+    // margin-top: 14px;
+    width: 20px;
+    //height: 20px;
+    max-height: 48px;
+}
