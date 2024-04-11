@@ -9,6 +9,7 @@ import { readFileList } from './cutter.store.helper';
 import localforage from 'localforage';
 import { syncState } from 'elf-sync-state';
 import { convertAbsoluteToRelative, convertRelativeToAbsolute } from './global.helper';
+import { z } from "zod";
 
 // https://www.geodev.me/blog/deeppartial-in-typescript/
 export type DeepPartial<T> = {
@@ -48,6 +49,37 @@ export interface ImageFile {
     dataURL: string
 }
 
+/* export interface absoluteCut {
+    x: number,
+    y: number,
+    width: number,
+    height: number
+} */
+
+const absoluteCutZod = z.object({
+    x: z.number(),
+    y: z.number(),
+    width: z.number(),
+    height: z.number()
+})
+export type absoluteCut = z.infer<typeof absoluteCutZod>;
+
+/* export interface relativeCut {
+    top: number,
+    bottom: number,
+    left: number,
+    right: number
+} */
+
+const relativeCutZod = z.object({
+    top: z.number(),
+    bottom: z.number(),
+    left: z.number(),
+    right: z.number()
+})
+export type relativeCut = z.infer<typeof relativeCutZod>;
+
+/* 
 export interface ImageCut {
     id: string,
     name: string,
@@ -57,21 +89,19 @@ export interface ImageCut {
     type: 'absolute' | 'relative',
     absolute: absoluteCut,
     relative: relativeCut
-}
+} */
 
-export interface absoluteCut {
-    x: number,
-    y: number,
-    width: number,
-    height: number
-}
-
-export interface relativeCut {
-    top: number,
-    bottom: number,
-    left: number,
-    right: number
-}
+const imageCutZod = z.object({
+    id: z.string(),
+    name: z.string(),
+    visible: z.boolean(),
+    locked: z.boolean(),
+    selected: z.boolean(),
+    type: z.union([z.literal('absolute'), z.literal('relative')]),
+    absolute: absoluteCutZod,
+    relative: relativeCutZod
+})
+export type ImageCut = z.infer<typeof imageCutZod>;
 
 export type tool = 'select' | 'marquee' | 'move' | 'cut';
 
